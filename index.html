@@ -3149,14 +3149,14 @@
       function jumpToNavDot(dot) {
         if (state.viewMode !== 'inside') {
           setViewMode('inside');
-          // Keep current horizontal facing direction when dropping in from exterior
-          state.fpYaw = state.yaw + Math.PI;
-          state.fpPitch = -0.04;
+          // Keep exact horizontal and vertical viewing direction when dropping in from exterior
+          state.fpYaw = -state.yaw;
+          state.fpPitch = Math.max(-1.15, Math.min(1.15, -state.pitch));
         }
         animateRoom({
           pos: [dot.x, dot.y + 5.5, dot.z],
           yaw: state.fpYaw,
-          pitch: 0.0,
+          pitch: state.fpPitch,
           fov: state.fpFov || 72
         });
       }
