@@ -592,19 +592,33 @@
         return p;
       }
 
+      const openDoors = new Set();
       let activeRot = null;
+      let doorRot = null;
       function setRotY(px, pz, deg, tx = 0) {
         if (!deg && !tx) { activeRot = null; return; }
         const rad = deg * Math.PI / 180;
         activeRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad), tx };
       }
+      function setDoorRot(px, pz, deg) {
+        if (!deg) { doorRot = null; return; }
+        const rad = deg * Math.PI / 180;
+        doorRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad) };
+      }
       function xformPt(p) {
-        if (!activeRot) return p;
-        const dx = p[0] - activeRot.px;
-        const dz = p[2] - activeRot.pz;
+        let x = p[0], y = p[1], z = p[2];
+        if (doorRot) {
+          const dx = x - doorRot.px;
+          const dz = z - doorRot.pz;
+          x = doorRot.px + dx * doorRot.cos - dz * doorRot.sin;
+          z = doorRot.pz + dx * doorRot.sin + dz * doorRot.cos;
+        }
+        if (!activeRot) return [x, y, z];
+        const dx = x - activeRot.px;
+        const dz = z - activeRot.pz;
         return [
           activeRot.px + dx * activeRot.cos - dz * activeRot.sin + activeRot.tx,
-          p[1],
+          y,
           activeRot.pz + dx * activeRot.sin + dz * activeRot.cos
         ];
       }
@@ -794,6 +808,8 @@
             }
           } else if (h.type === 'door') {
             if (axis === 'Z') {
+              const isOpen = h.code && openDoors.has(h.code);
+              if (isOpen) setDoorRot(h.u1, mid, -85);
               const st = 0.52, botR = 1.15, topR = 0.52;
               addBox(bTrim, h.u0, h.v0, z0 - 0.06, h.u0 + st, h.v1, z1 + 0.06, 4.5, true);
               addBox(bTrim, h.u1 - st, h.v0, z0 - 0.06, h.u1, h.v1, z1 + 0.06, 4.5, true);
@@ -802,23 +818,30 @@
               addQuad(bGlass, [h.u0 + st, h.v0 + botR, mid], [h.u1 - st, h.v0 + botR, mid], [h.u1 - st, h.v1 - topR, mid], [h.u0 + st, h.v1 - topR, mid], 4, false);
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
               addBox(bHandle, h.u0 + 0.22, h.v0 + 2.7, mid - 0.28, h.u0 + 0.36, h.v0 + 3.6, mid + 0.28, 2, false);
+              if (isOpen) setDoorRot(0, 0, 0);
             }
           } else if (h.type === 'french_door') {
             const st = 0.42, botR = 1.15, topR = 0.52;
+            const isOpen = h.code && openDoors.has(h.code);
+            const isSecondLeaf = /-(S|E)$/i.test(h.code || '');
             if (axis === 'Z') {
+              if (isOpen) setDoorRot(isSecondLeaf ? h.u1 : h.u0, mid, isSecondLeaf ? -85 : 85);
               addBox(bTrim, h.u0, h.v0, z0 - 0.04, h.u0 + st, h.v1, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u1 - st, h.v0, z0 - 0.04, h.u1, h.v1, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u0 + st, h.v0, z0 - 0.04, h.u1 - st, h.v0 + botR, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u0 + st, h.v1 - topR, z0 - 0.04, h.u1 - st, h.v1, z1 + 0.04, 4.5, true);
               addQuad(bGlass, [h.u0 + st, h.v0 + botR, mid], [h.u1 - st, h.v0 + botR, mid], [h.u1 - st, h.v1 - topR, mid], [h.u0 + st, h.v1 - topR, mid], 4, false);
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
+              if (isOpen) setDoorRot(0, 0, 0);
             } else {
+              if (isOpen) setDoorRot(mid, isSecondLeaf ? h.u1 : h.u0, isSecondLeaf ? 85 : -85);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0, z1 + 0.04, h.v1, h.u0 + st, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u1 - st, z1 + 0.04, h.v1, h.u1, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0 + st, z1 + 0.04, h.v0 + botR, h.u1 - st, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v1 - topR, h.u0 + st, z1 + 0.04, h.v1, h.u1 - st, 4.5, true);
               addQuad(bGlass, [mid, h.v0 + botR, h.u0 + st], [mid, h.v0 + botR, h.u1 - st], [mid, h.v1 - topR, h.u1 - st], [mid, h.v1 - topR, h.u0 + st], 4, false);
               addQuad(bGlass, [mid, h.v0 + botR, h.u1 - st], [mid, h.v0 + botR, h.u0 + st], [mid, h.v1 - topR, h.u0 + st], [mid, h.v1 - topR, h.u1 - st], 4, false);
+              if (isOpen) setDoorRot(0, 0, 0);
             }
           }
           currentPart = parentPart;
@@ -1731,18 +1754,19 @@
       ]);
       // Sliding Barn Door on the Living Room side of the Den doorway (slid partway open onto the solid South wall)
       setPart('INT-DEN-BARN-DOOR', 'Den — Sliding Wood Barn Door & Steel Track');
+      const barnDz = openDoors.has('INT-DEN-BARN-DOOR') ? 1.05 : 0;
       addBox(bMetal, -36.58, 15.85, -1.60, -36.44, 16.02, 4.50, 2, true); // Overhead dark steel sliding track
       // Barn door wood slab + perimeter frame + diagonal Z-brace (slid partway open at z = 0.45..3.45)
-      addBox(bTrim,  -36.58,  9.05,  0.45, -36.42, 15.70, 3.45, 4.5, true); // Door panel
-      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36, 15.70, 0.72, 4, true); // North stile
-      addBox(bWoodBeam, -36.42,  9.05,  3.18, -36.36, 15.70, 3.45, 4, true); // South stile
-      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36,  9.45, 3.45, 4, true); // Bottom rail
-      addBox(bWoodBeam, -36.42, 12.15,  0.45, -36.36, 12.48, 3.45, 4, true); // Mid rail
-      addBox(bWoodBeam, -36.42, 15.30,  0.45, -36.36, 15.70, 3.45, 4, true); // Top rail
+      addBox(bTrim,  -36.58,  9.05,  0.45 + barnDz, -36.42, 15.70, 3.45 + barnDz, 4.5, true); // Door panel
+      addBox(bWoodBeam, -36.42,  9.05,  0.45 + barnDz, -36.36, 15.70, 0.72 + barnDz, 4, true); // North stile
+      addBox(bWoodBeam, -36.42,  9.05,  3.18 + barnDz, -36.36, 15.70, 3.45 + barnDz, 4, true); // South stile
+      addBox(bWoodBeam, -36.42,  9.05,  0.45 + barnDz, -36.36,  9.45, 3.45 + barnDz, 4, true); // Bottom rail
+      addBox(bWoodBeam, -36.42, 12.15,  0.45 + barnDz, -36.36, 12.48, 3.45 + barnDz, 4, true); // Mid rail
+      addBox(bWoodBeam, -36.42, 15.30,  0.45 + barnDz, -36.36, 15.70, 3.45 + barnDz, 4, true); // Top rail
       // Steel roller hanger straps & vertical pull handle
-      addBox(bMetal, -36.44, 15.10,  0.85, -36.34, 16.12, 1.05, 2, true); // North roller strap
-      addBox(bMetal, -36.44, 15.10,  2.85, -36.34, 16.12, 3.05, 2, true); // South roller strap
-      addBox(bMetal, -36.36, 11.70,  0.76, -36.24, 12.90, 0.88, 2, true); // Barn door pull handle
+      addBox(bMetal, -36.44, 15.10,  0.85 + barnDz, -36.34, 16.12, 1.05 + barnDz, 2, true); // North roller strap
+      addBox(bMetal, -36.44, 15.10,  2.85 + barnDz, -36.34, 16.12, 3.05 + barnDz, 2, true); // South roller strap
+      addBox(bMetal, -36.36, 11.70,  0.76 + barnDz, -36.24, 12.90, 0.88 + barnDz, 2, true); // Barn door pull handle
       // Built-in L-shaped bookshelves in the NW corner of Living-Dining (West wall + continuing onto North wall to LIVING-WIN-N-WEST)
       setPart('INT-LIVING-BOOKSHELVES', 'Living Room — NW Corner L-Shaped Built-In Bookshelves');
       // West wall run (x = -36.62..-35.52, z = -13.95..-8.55)
@@ -2994,7 +3018,11 @@
           if (dur < 320 && move < 12) {
             if (now - lastTap.time < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 48) {
               const hit = pickPartAt(e.clientX, e.clientY);
-              if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY/i.test(hit.part.code) && hit.point) {
+              if (hit && hit.part && /DOOR/i.test(hit.part.code)) {
+                if (openDoors.has(hit.part.code)) openDoors.delete(hit.part.code);
+                else openDoors.add(hit.part.code);
+                buildHouse(currentDesignMode);
+              } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY/i.test(hit.part.code) && hit.point) {
                 jumpToNavDot({ x: hit.point[0], y: hit.point[1], z: hit.point[2], label: hit.part.label });
               } else {
                 const dot = pickNavDotAt(e.clientX, e.clientY);
