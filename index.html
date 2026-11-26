@@ -592,40 +592,102 @@
         return p;
       }
 
-      const openDoors = new Set();
+      const doorAnims = new Map();
+      const doorObjects = [];
+      const doorObjectsByCode = new Map();
+      let activeDoorObj = null;
       let activeRot = null;
-      let doorRot = null;
+
+      function getDoorT(code, now = performance.now()) {
+        const a = doorAnims.get(code);
+        if (!a) return 0;
+        if (a.start > 0) {
+          const raw = Math.min(1, (now - a.start) / a.dur);
+          const ease = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
+          a.val = a.from + (a.to - a.from) * ease;
+          if (raw >= 1) {
+            a.val = a.to;
+            a.start = 0;
+          }
+        }
+        return a.val;
+      }
+
+      function toggleDoor(code) {
+        const now = performance.now();
+        const cur = getDoorT(code, now);
+        const prev = doorAnims.get(code);
+        const to = (prev ? prev.to : 0) > 0.5 ? 0 : 1;
+        const dur = Math.max(150, 3000 * Math.abs(to - cur));
+        doorAnims.set(code, { val: cur, from: cur, to, start: now, dur });
+      }
+
       function setRotY(px, pz, deg, tx = 0) {
         if (!deg && !tx) { activeRot = null; return; }
         const rad = deg * Math.PI / 180;
         activeRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad), tx };
       }
-      function setDoorRot(px, pz, deg) {
-        if (!deg) { doorRot = null; return; }
-        const rad = deg * Math.PI / 180;
-        doorRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad) };
-      }
+
       function xformPt(p) {
-        let x = p[0], y = p[1], z = p[2];
-        if (doorRot) {
-          const dx = x - doorRot.px;
-          const dz = z - doorRot.pz;
-          x = doorRot.px + dx * doorRot.cos - dz * doorRot.sin;
-          z = doorRot.pz + dx * doorRot.sin + dz * doorRot.cos;
-        }
-        if (!activeRot) return [x, y, z];
-        const dx = x - activeRot.px;
-        const dz = z - activeRot.pz;
+        if (!activeRot) return p;
+        const dx = p[0] - activeRot.px;
+        const dz = p[2] - activeRot.pz;
         return [
           activeRot.px + dx * activeRot.cos - dz * activeRot.sin + activeRot.tx,
-          y,
+          p[1],
           activeRot.pz + dx * activeRot.sin + dz * activeRot.cos
         ];
       }
 
+      function beginDoorObject(code, localPx, localPz, maxDeg, slideDz = 0) {
+        if (!code) return;
+        const wp = xformPt([localPx, 0, localPz]);
+        const subMap = new Map();
+        activeDoorObj = {
+          code,
+          pivotX: wp[0],
+          pivotZ: wp[2],
+          maxDeg,
+          slideDz,
+          subBatches: [],
+          edges: [],
+          bufEdges: null,
+          edgeCount: 0,
+          getSubBatch(b) {
+            let sb = subMap.get(b.name);
+            if (!sb) {
+              sb = {
+                name: b.name,
+                color: b.color,
+                tex: b.tex,
+                alpha: b.alpha,
+                isGlass: b.isGlass,
+                pos: [],
+                norm: [],
+                uv: [],
+                bufPos: null,
+                bufNorm: null,
+                bufUV: null,
+                count: 0
+              };
+              subMap.set(b.name, sb);
+              this.subBatches.push(sb);
+            }
+            return sb;
+          }
+        };
+      }
+
+      function endDoorObject() {
+        if (!activeDoorObj) return;
+        doorObjects.push(activeDoorObj);
+        doorObjectsByCode.set(activeDoorObj.code, activeDoorObj);
+        activeDoorObj = null;
+      }
+
       function addEdge(a, b, isRoof = false) {
         const ta = xformPt(a), tb = xformPt(b);
-        const arr = isRoof ? lineVertsRoof : lineVerts;
+        const arr = activeDoorObj ? activeDoorObj.edges : (isRoof ? lineVertsRoof : lineVerts);
         arr.push(ta[0], ta[1], ta[2], tb[0], tb[1], tb[2]);
       }
 
@@ -659,14 +721,15 @@
           return [p[0] / tileScale, -p[1] / tileScale];
         }
 
+        const targetBatch = activeDoorObj ? activeDoorObj.getSubBatch(batch) : batch;
         const localPts = [p0, p1, p2];
         const worldPts = [tp0, tp1, tp2];
         for (let i = 0; i < 3; i++) {
           const wp = worldPts[i];
-          batch.pos.push(wp[0], wp[1], wp[2]);
-          batch.norm.push(nx, ny, nz);
+          targetBatch.pos.push(wp[0], wp[1], wp[2]);
+          targetBatch.norm.push(nx, ny, nz);
           const uv = uvOf(localPts[i]);
-          batch.uv.push(uv[0], uv[1]);
+          targetBatch.uv.push(uv[0], uv[1]);
         }
       }
 
@@ -808,8 +871,7 @@
             }
           } else if (h.type === 'door') {
             if (axis === 'Z') {
-              const isOpen = h.code && openDoors.has(h.code);
-              if (isOpen) setDoorRot(h.u1, mid, -85);
+              beginDoorObject(h.code, h.u1, mid, -85, 0);
               const st = 0.52, botR = 1.15, topR = 0.52;
               addBox(bTrim, h.u0, h.v0, z0 - 0.06, h.u0 + st, h.v1, z1 + 0.06, 4.5, true);
               addBox(bTrim, h.u1 - st, h.v0, z0 - 0.06, h.u1, h.v1, z1 + 0.06, 4.5, true);
@@ -818,30 +880,29 @@
               addQuad(bGlass, [h.u0 + st, h.v0 + botR, mid], [h.u1 - st, h.v0 + botR, mid], [h.u1 - st, h.v1 - topR, mid], [h.u0 + st, h.v1 - topR, mid], 4, false);
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
               addBox(bHandle, h.u0 + 0.22, h.v0 + 2.7, mid - 0.28, h.u0 + 0.36, h.v0 + 3.6, mid + 0.28, 2, false);
-              if (isOpen) setDoorRot(0, 0, 0);
+              endDoorObject();
             }
           } else if (h.type === 'french_door') {
             const st = 0.42, botR = 1.15, topR = 0.52;
-            const isOpen = h.code && openDoors.has(h.code);
             const isSecondLeaf = /-(S|E)$/i.test(h.code || '');
             if (axis === 'Z') {
-              if (isOpen) setDoorRot(isSecondLeaf ? h.u1 : h.u0, mid, isSecondLeaf ? -85 : 85);
+              beginDoorObject(h.code, isSecondLeaf ? h.u1 : h.u0, mid, isSecondLeaf ? -85 : 85, 0);
               addBox(bTrim, h.u0, h.v0, z0 - 0.04, h.u0 + st, h.v1, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u1 - st, h.v0, z0 - 0.04, h.u1, h.v1, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u0 + st, h.v0, z0 - 0.04, h.u1 - st, h.v0 + botR, z1 + 0.04, 4.5, true);
               addBox(bTrim, h.u0 + st, h.v1 - topR, z0 - 0.04, h.u1 - st, h.v1, z1 + 0.04, 4.5, true);
               addQuad(bGlass, [h.u0 + st, h.v0 + botR, mid], [h.u1 - st, h.v0 + botR, mid], [h.u1 - st, h.v1 - topR, mid], [h.u0 + st, h.v1 - topR, mid], 4, false);
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
-              if (isOpen) setDoorRot(0, 0, 0);
+              endDoorObject();
             } else {
-              if (isOpen) setDoorRot(mid, isSecondLeaf ? h.u1 : h.u0, isSecondLeaf ? 85 : -85);
+              beginDoorObject(h.code, mid, isSecondLeaf ? h.u1 : h.u0, isSecondLeaf ? 85 : -85, 0);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0, z1 + 0.04, h.v1, h.u0 + st, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u1 - st, z1 + 0.04, h.v1, h.u1, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0 + st, z1 + 0.04, h.v0 + botR, h.u1 - st, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v1 - topR, h.u0 + st, z1 + 0.04, h.v1, h.u1 - st, 4.5, true);
               addQuad(bGlass, [mid, h.v0 + botR, h.u0 + st], [mid, h.v0 + botR, h.u1 - st], [mid, h.v1 - topR, h.u1 - st], [mid, h.v1 - topR, h.u0 + st], 4, false);
               addQuad(bGlass, [mid, h.v0 + botR, h.u1 - st], [mid, h.v0 + botR, h.u0 + st], [mid, h.v1 - topR, h.u0 + st], [mid, h.v1 - topR, h.u1 - st], 4, false);
-              if (isOpen) setDoorRot(0, 0, 0);
+              endDoorObject();
             }
           }
           currentPart = parentPart;
@@ -1002,6 +1063,17 @@
         for (const p of pickables) {
           if (p.bufHighlight) gl.deleteBuffer(p.bufHighlight);
         }
+        for (const d of doorObjects) {
+          for (const sb of d.subBatches) {
+            if (sb.bufPos) gl.deleteBuffer(sb.bufPos);
+            if (sb.bufNorm) gl.deleteBuffer(sb.bufNorm);
+            if (sb.bufUV) gl.deleteBuffer(sb.bufUV);
+          }
+          if (d.bufEdges) gl.deleteBuffer(d.bufEdges);
+        }
+        doorObjects.length = 0;
+        doorObjectsByCode.clear();
+        activeDoorObj = null;
         pickablesMap.clear();
         pickables.length = 0;
         currentPart = null;
@@ -1754,19 +1826,20 @@
       ]);
       // Sliding Barn Door on the Living Room side of the Den doorway (slid partway open onto the solid South wall)
       setPart('INT-DEN-BARN-DOOR', 'Den — Sliding Wood Barn Door & Steel Track');
-      const barnDz = openDoors.has('INT-DEN-BARN-DOOR') ? 1.05 : 0;
       addBox(bMetal, -36.58, 15.85, -1.60, -36.44, 16.02, 4.50, 2, true); // Overhead dark steel sliding track
+      beginDoorObject('INT-DEN-BARN-DOOR', -36.5, 0.45, 0, 1.05);
       // Barn door wood slab + perimeter frame + diagonal Z-brace (slid partway open at z = 0.45..3.45)
-      addBox(bTrim,  -36.58,  9.05,  0.45 + barnDz, -36.42, 15.70, 3.45 + barnDz, 4.5, true); // Door panel
-      addBox(bWoodBeam, -36.42,  9.05,  0.45 + barnDz, -36.36, 15.70, 0.72 + barnDz, 4, true); // North stile
-      addBox(bWoodBeam, -36.42,  9.05,  3.18 + barnDz, -36.36, 15.70, 3.45 + barnDz, 4, true); // South stile
-      addBox(bWoodBeam, -36.42,  9.05,  0.45 + barnDz, -36.36,  9.45, 3.45 + barnDz, 4, true); // Bottom rail
-      addBox(bWoodBeam, -36.42, 12.15,  0.45 + barnDz, -36.36, 12.48, 3.45 + barnDz, 4, true); // Mid rail
-      addBox(bWoodBeam, -36.42, 15.30,  0.45 + barnDz, -36.36, 15.70, 3.45 + barnDz, 4, true); // Top rail
+      addBox(bTrim,  -36.58,  9.05,  0.45, -36.42, 15.70, 3.45, 4.5, true); // Door panel
+      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36, 15.70, 0.72, 4, true); // North stile
+      addBox(bWoodBeam, -36.42,  9.05,  3.18, -36.36, 15.70, 3.45, 4, true); // South stile
+      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36,  9.45, 3.45, 4, true); // Bottom rail
+      addBox(bWoodBeam, -36.42, 12.15,  0.45, -36.36, 12.48, 3.45, 4, true); // Mid rail
+      addBox(bWoodBeam, -36.42, 15.30,  0.45, -36.36, 15.70, 3.45, 4, true); // Top rail
       // Steel roller hanger straps & vertical pull handle
-      addBox(bMetal, -36.44, 15.10,  0.85 + barnDz, -36.34, 16.12, 1.05 + barnDz, 2, true); // North roller strap
-      addBox(bMetal, -36.44, 15.10,  2.85 + barnDz, -36.34, 16.12, 3.05 + barnDz, 2, true); // South roller strap
-      addBox(bMetal, -36.36, 11.70,  0.76 + barnDz, -36.24, 12.90, 0.88 + barnDz, 2, true); // Barn door pull handle
+      addBox(bMetal, -36.44, 15.10,  0.85, -36.34, 16.12, 1.05, 2, true); // North roller strap
+      addBox(bMetal, -36.44, 15.10,  2.85, -36.34, 16.12, 3.05, 2, true); // South roller strap
+      addBox(bMetal, -36.36, 11.70,  0.76, -36.24, 12.90, 0.88, 2, true); // Barn door pull handle
+      endDoorObject();
       // Built-in L-shaped bookshelves in the NW corner of Living-Dining (West wall + continuing onto North wall to LIVING-WIN-N-WEST)
       setPart('INT-LIVING-BOOKSHELVES', 'Living Room — NW Corner L-Shaped Built-In Bookshelves');
       // West wall run (x = -36.62..-35.52, z = -13.95..-8.55)
@@ -2261,6 +2334,27 @@
           p.edgeCount = p.edges.length / 3;
         }
       }
+
+      for (const d of doorObjects) {
+        for (const sb of d.subBatches) {
+          sb.count = sb.pos.length / 3;
+          sb.bufPos = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, sb.bufPos);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sb.pos), gl.STATIC_DRAW);
+          sb.bufNorm = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, sb.bufNorm);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sb.norm), gl.STATIC_DRAW);
+          sb.bufUV = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, sb.bufUV);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sb.uv), gl.STATIC_DRAW);
+        }
+        if (d.edges.length > 0) {
+          d.bufEdges = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, d.bufEdges);
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(d.edges), gl.STATIC_DRAW);
+          d.edgeCount = d.edges.length / 3;
+        }
+      }
       } // end buildHouse
 
       buildHouse('original');
@@ -2314,6 +2408,17 @@
           }
         }
         return out;
+      }
+
+      function mat4Door(px, pz, deg, slideDz = 0) {
+        const rad = deg * Math.PI / 180;
+        const c = Math.cos(rad), s = Math.sin(rad);
+        return new Float32Array([
+          c, 0, s, 0,
+          0, 1, 0, 0,
+          -s, 0, c, 0,
+          px - px * c + pz * s, 0, pz - px * s - pz * c + slideDz, 1
+        ]);
       }
 
       // =========================================================================
@@ -2488,6 +2593,11 @@
 
         const styleInt = state.style === 'shingle' ? 0 : (state.style === 'shaded' ? 1 : 2);
 
+        const doorMvps = doorObjects.map((d) => {
+          const t = getDoorT(d.code, now);
+          return t > 0 ? mat4Mul(mvp, mat4Door(d.pivotX, d.pivotZ, d.maxDeg * t, d.slideDz * t)) : mvp;
+        });
+
         // PASS 1: Opaque meshes (skipped in pure wireframe mode)
         if (state.style !== 'wire') {
           gl.useProgram(progMesh);
@@ -2498,7 +2608,8 @@
           gl.enableVertexAttribArray(locNorm);
           gl.enableVertexAttribArray(locUV);
 
-          gl.uniformMatrix4fv(gl.getUniformLocation(progMesh, 'uMVP'), false, mvp);
+          const locMVP = gl.getUniformLocation(progMesh, 'uMVP');
+          gl.uniformMatrix4fv(locMVP, false, mvp);
           gl.uniform3fv(gl.getUniformLocation(progMesh, 'uSunDir'), sun);
           gl.uniform1i(gl.getUniformLocation(progMesh, 'uStyle'), styleInt);
           gl.uniform1f(gl.getUniformLocation(progMesh, 'uIsLightTheme'), isLight ? 1.0 : 0.0);
@@ -2532,6 +2643,34 @@
             }
             gl.drawArrays(gl.TRIANGLES, 0, b.count);
           }
+
+          for (let di = 0; di < doorObjects.length; di++) {
+            const d = doorObjects[di];
+            gl.uniformMatrix4fv(locMVP, false, doorMvps[di]);
+            for (const b of d.subBatches) {
+              if (b.isGlass || b.count === 0) continue;
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufPos);
+              gl.vertexAttribPointer(locPos, 3, gl.FLOAT, false, 0, 0);
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufNorm);
+              gl.vertexAttribPointer(locNorm, 3, gl.FLOAT, false, 0, 0);
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufUV);
+              gl.vertexAttribPointer(locUV, 2, gl.FLOAT, false, 0, 0);
+
+              gl.uniform3fv(gl.getUniformLocation(progMesh, 'uColor'), b.color);
+              gl.uniform1f(gl.getUniformLocation(progMesh, 'uAlpha'), b.alpha);
+              gl.uniform1f(gl.getUniformLocation(progMesh, 'uIsGlass'), 0.0);
+              if (b.tex) {
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, b.tex);
+                gl.uniform1i(gl.getUniformLocation(progMesh, 'uTex'), 0);
+                gl.uniform1f(gl.getUniformLocation(progMesh, 'uUseTex'), 1.0);
+              } else {
+                gl.uniform1f(gl.getUniformLocation(progMesh, 'uUseTex'), 0.0);
+              }
+              gl.drawArrays(gl.TRIANGLES, 0, b.count);
+            }
+          }
+          gl.uniformMatrix4fv(locMVP, false, mvp);
           gl.disable(gl.POLYGON_OFFSET_FILL);
         }
 
@@ -2539,7 +2678,8 @@
         gl.useProgram(progLine);
         const locLPos = gl.getAttribLocation(progLine, 'aPos');
         gl.enableVertexAttribArray(locLPos);
-        gl.uniformMatrix4fv(gl.getUniformLocation(progLine, 'uMVP'), false, mvp);
+        const locLineMVP = gl.getUniformLocation(progLine, 'uMVP');
+        gl.uniformMatrix4fv(locLineMVP, false, mvp);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -2553,6 +2693,17 @@
         gl.vertexAttribPointer(locLPos, 3, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.LINES, 0, lineCount);
 
+        for (let di = 0; di < doorObjects.length; di++) {
+          const d = doorObjects[di];
+          if (d.edgeCount > 0) {
+            gl.uniformMatrix4fv(locLineMVP, false, doorMvps[di]);
+            gl.bindBuffer(gl.ARRAY_BUFFER, d.bufEdges);
+            gl.vertexAttribPointer(locLPos, 3, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.LINES, 0, d.edgeCount);
+          }
+        }
+        gl.uniformMatrix4fv(locLineMVP, false, mvp);
+
         if (!state.liftRoof) {
           gl.bindBuffer(gl.ARRAY_BUFFER, bufLinesRoof);
           gl.vertexAttribPointer(locLPos, 3, gl.FLOAT, false, 0, 0);
@@ -2565,6 +2716,8 @@
           const locPos = gl.getAttribLocation(progMesh, 'aPos');
           const locNorm = gl.getAttribLocation(progMesh, 'aNorm');
           const locUV = gl.getAttribLocation(progMesh, 'aUV');
+          const locMVP3 = gl.getUniformLocation(progMesh, 'uMVP');
+          gl.uniformMatrix4fv(locMVP3, false, mvp);
           gl.enable(gl.BLEND);
           gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
           gl.depthMask(false);
@@ -2616,6 +2769,26 @@
           gl.uniform1f(gl.getUniformLocation(progMesh, 'uUseTex'), 0.0);
           gl.uniform1f(gl.getUniformLocation(progMesh, 'uIsGlass'), 1.0);
           gl.drawArrays(gl.TRIANGLES, 0, bGlass.count);
+
+          for (let di = 0; di < doorObjects.length; di++) {
+            const d = doorObjects[di];
+            for (const b of d.subBatches) {
+              if (!b.isGlass || b.count === 0) continue;
+              gl.uniformMatrix4fv(locMVP3, false, doorMvps[di]);
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufPos);
+              gl.vertexAttribPointer(locPos, 3, gl.FLOAT, false, 0, 0);
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufNorm);
+              gl.vertexAttribPointer(locNorm, 3, gl.FLOAT, false, 0, 0);
+              gl.bindBuffer(gl.ARRAY_BUFFER, b.bufUV);
+              gl.vertexAttribPointer(locUV, 2, gl.FLOAT, false, 0, 0);
+              gl.uniform3fv(gl.getUniformLocation(progMesh, 'uColor'), b.color);
+              gl.uniform1f(gl.getUniformLocation(progMesh, 'uAlpha'), state.style === 'ink' ? 0.78 : b.alpha);
+              gl.uniform1f(gl.getUniformLocation(progMesh, 'uUseTex'), 0.0);
+              gl.uniform1f(gl.getUniformLocation(progMesh, 'uIsGlass'), 1.0);
+              gl.drawArrays(gl.TRIANGLES, 0, b.count);
+            }
+          }
+          gl.uniformMatrix4fv(locMVP3, false, mvp);
 
           // Floor navigation dots (double-tap to jump to 5.5' eye height)
           if (bNavDot.count > 0) {
@@ -2765,11 +2938,24 @@
         let groundPart = null;
         let groundT = Infinity;
 
+        const nowPick = performance.now();
         for (const p of pickables) {
           if (p.isRoof && state.liftRoof) continue;
+          let rEye = eye, rDir = dir;
+          const dObj = doorObjectsByCode.get(p.code);
+          if (dObj) {
+            const tDoor = getDoorT(dObj.code, nowPick);
+            if (tDoor > 0) {
+              const rad = (-dObj.maxDeg * tDoor) * Math.PI / 180;
+              const c = Math.cos(rad), s = Math.sin(rad);
+              const ex = eye[0] - dObj.pivotX, ez = eye[2] - dObj.pivotZ - dObj.slideDz * tDoor;
+              rEye = [dObj.pivotX + ex * c - ez * s, eye[1], dObj.pivotZ + ex * s + ez * c];
+              rDir = [dir[0] * c - dir[2] * s, dir[1], dir[0] * s + dir[2] * c];
+            }
+          }
           const tris = p.tris;
           for (let i = 0; i < tris.length; i += 3) {
-            const t = rayTriHit(eye, dir, tris[i], tris[i + 1], tris[i + 2]);
+            const t = rayTriHit(rEye, rDir, tris[i], tris[i + 1], tris[i + 2]);
             if (t !== null) {
               if (p.isGround) {
                 if (t < groundT) { groundT = t; groundPart = p; }
@@ -3019,9 +3205,7 @@
             if (now - lastTap.time < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 48) {
               const hit = pickPartAt(e.clientX, e.clientY);
               if (hit && hit.part && /DOOR/i.test(hit.part.code)) {
-                if (openDoors.has(hit.part.code)) openDoors.delete(hit.part.code);
-                else openDoors.add(hit.part.code);
-                buildHouse(currentDesignMode);
+                toggleDoor(hit.part.code);
               } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY/i.test(hit.part.code) && hit.point) {
                 jumpToNavDot({ x: hit.point[0], y: hit.point[1], z: hit.point[2], label: hit.part.label });
               } else {
