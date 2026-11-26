@@ -101,6 +101,10 @@
           <svg id="fs-icon-compress" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
           <span id="fs-label">Fullscreen</span>
         </button>
+        <button id="btn-reload" title="Reload Latest Version" class="px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-90 transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <span>Reload</span>
+        </button>
       </div>
     </div>
 
@@ -3436,6 +3440,10 @@
       btnDesignToggle.addEventListener('click', () => {
         const nextIdx = (DESIGN_MODES.indexOf(currentDesignMode) + 1) % DESIGN_MODES.length;
         setDesignMode(DESIGN_MODES[nextIdx]);
+      });
+
+      document.getElementById('btn-reload').addEventListener('click', () => {
+        window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
       });
 
       // Fullscreen toggle (pure full-canvas immersive mode with only a small top button to restore menus)
