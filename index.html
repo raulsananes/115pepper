@@ -1428,13 +1428,13 @@
       addBox(bIntWall, 9.50, eY0, 3.02, 9.92, eY0 + 5.6, 4.10, 6, false);          // East wall North of storage door
       addBox(bIntWall, 9.50, eY0, 6.10, 9.92, eY0 + 5.6, 6.55, 6, false);          // East wall South of storage door
 
-      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.00..9.95, housing Water Heater & Furnace per Sheet 3)
+      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.02..9.93, housing Water Heater & Furnace per Sheet 3)
       setPart('INT-LOWER-MECH', 'Lower Level — Mechanical Closet (Water Heater & Furnace)');
-      addBox(bIntWall, 15.38, eY0, 3.00, 15.80, eY1 - 0.85, 9.95, 6, false);       // East wall separating from South Bdrm
-      addBox(bIntWall, 13.30, eY0, 3.00, 15.80, eY1 - 0.85, 3.42, 6, false);       // North wall of mech closet
-      addBox(bIntWall, 13.30, eY0, 3.00, 13.72, eY1 - 0.85, 4.30, 6, false);       // West pier North of mech doors
-      addBox(bIntWall, 13.30, eY0, 8.60, 13.72, eY1 - 0.85, 9.95, 6, false);       // West pier South of mech doors
-      addBox(bIntWall, 13.30, eY0 + 6.8, 4.30, 13.72, eY1 - 0.85, 8.60, 6, false); // Header over mech doors
+      addBox(bIntWall, 15.38, eY0, 3.02, 15.80, eY1 - 0.88, 9.93, 6, false);       // East wall separating from South Bdrm
+      addBox(bIntWall, 13.72, eY0, 3.02, 15.38, eY1 - 0.88, 3.42, 6, false);       // North wall of mech closet
+      addBox(bIntWall, 13.30, eY0, 3.02, 13.72, eY1 - 0.88, 4.30, 6, false);       // West pier North of mech doors
+      addBox(bIntWall, 13.30, eY0, 8.60, 13.72, eY1 - 0.88, 9.93, 6, false);       // West pier South of mech doors
+      addBox(bIntWall, 13.30, eY0 + 6.8, 4.30, 13.72, eY1 - 0.88, 8.60, 6, false); // Header over mech doors
       addBox(bTrim, 13.36, eY0, 4.38, 13.56, eY0 + 6.75, 8.52, 4.5, true);         // Mechanical closet double doors
       addBox(bMetal, 13.90, eY0, 3.90, 15.25, eY0 + 5.2, 5.25, 4, true);           // Water heater tank
       addBox(bMetal, 13.90, eY0, 6.40, 15.25, eY0 + 5.6, 8.60, 4, true);           // Furnace cabinet
@@ -1548,8 +1548,8 @@
         const sx1 = sx0 + 0.90;
         const stepH = 5.4 / 8;
         const sy = 9.0 - (st + 1) * stepH;
-        addBox(bIntWall, sx0, sy - stepH, 7.05, sx1 - 0.06, sy - 0.14, 9.95, 6, false); // Closed riser
-        addBox(bDeck, sx0, sy - 0.14, 7.05, sx1 + 0.06, sy, 9.95, 4, true);             // Bullnose wood tread
+        addBox(bIntWall, sx0, sy - stepH, 7.05, sx1 - 0.06, sy - 0.14, 9.93, 6, false); // Closed riser
+        addBox(bDeck, sx0, sy - 0.14, 7.05, sx1 + 0.06, sy, 9.93, 4, true);             // Bullnose wood tread
       }
       setPart('INT-STAIRS-RAIL', 'Interior Stairs — Wood Handrails & Stairwell Guardrail');
       // Center handrail along UP flight (z = 6.95) + Upper Landing guardrail overlooking DOWN flight (x = 10.6..13.3)
