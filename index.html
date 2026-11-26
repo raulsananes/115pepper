@@ -458,6 +458,32 @@
         }
       });
 
+      // 3b) Classic California Vertical-Slab Cedar Fence (matching house shingle color)
+      const texFence = createProceduralTexture((ctx, S) => {
+        const rng = makeRng(11507);
+        const boards = 18;
+        const bw = S / boards;
+        for (let b = 0; b < boards; b++) {
+          const x = b * bw;
+          const tone = 0.84 + rng() * 0.28;
+          const red = Math.min(255, Math.round(176 * tone + (rng() - 0.5) * 14));
+          const grn = Math.min(255, Math.round(134 * tone + (rng() - 0.5) * 12));
+          const blu = Math.min(255, Math.round(94 * tone + (rng() - 0.5) * 10));
+          ctx.fillStyle = `rgb(${red},${grn},${blu})`;
+          ctx.fillRect(x, 0, bw, S);
+          // Subtle vertical wood grain
+          ctx.fillStyle = 'rgba(45, 28, 14, 0.11)';
+          for (let g = 0; g < 5; g++) ctx.fillRect(x + 2 + rng() * (bw - 4), 0, 1.3, S);
+          // Crisp vertical gap between wooden slabs
+          ctx.fillStyle = 'rgba(28, 18, 9, 0.62)';
+          ctx.fillRect(x + bw - 2.2, 0, 2.2, S);
+        }
+        // Subtle horizontal California fence rails
+        ctx.fillStyle = 'rgba(35, 22, 11, 0.22)';
+        ctx.fillRect(0, S * 0.16, S, S * 0.045);
+        ctx.fillRect(0, S * 0.80, S, S * 0.045);
+      });
+
       // 4) Interior Hardwood Floor
       const texFloor = createProceduralTexture((ctx, S) => {
         const rng = makeRng(2025);
@@ -550,6 +576,7 @@
       const bBorder     = createBatch('border',  [0.08, 0.09, 0.10], null);
       const bChimney    = createBatch('chimney', [0.70, 0.63, 0.56], texShingle);
       const bDoor       = createBatch('door',    [0.95, 0.85, 0.78], texDoor);
+      const bWhiteDoor  = createBatch('whiteDoor', [0.97, 0.97, 0.96], null);
       const bHandle     = createBatch('handle',  [0.88, 0.90, 0.92], null);
       const bIntWall    = createBatch('intWall', [0.96, 0.94, 0.90], texPlaster);
       const bIntFloor   = createBatch('intFlr',  [0.95, 0.92, 0.88], texFloor);
@@ -561,7 +588,7 @@
       const bSofa       = createBatch('sofa',    [0.44, 0.50, 0.54], null);
       const bBed        = createBatch('bed',     [0.84, 0.82, 0.78], null);
       const bGround     = createBatch('ground',  [0.72, 0.68, 0.64], texGrass, { alpha: 0.48, isGround: true });
-      const bFence      = createBatch('fence',   [0.64, 0.44, 0.26], texDeck,  { alpha: 0.46, isFence: true });
+      const bFence      = createBatch('fence',   [0.96, 0.93, 0.89], texFence, { alpha: 0.48, isFence: true });
       const bGlass      = createBatch('glass',   [0.25, 0.42, 0.58], null, { alpha: 0.38, isGlass: true });
       const bNavDot     = createBatch('navDot',  [0.92, 0.98, 1.00], null, { alpha: 0.82, isNavDot: true });
       const navDots     = [];
@@ -1165,21 +1192,20 @@
         }
       }
 
-      // 7'-0" tall semi-transparent wooden perimeter fence following the property boundary (open at street stair entry)
-      setPart('PROPERTY-FENCE', '115 Pepper Ave — 7\'-0" Wooden Semi-Transparent Perimeter Fence');
+      // 7'-0" tall semi-transparent California vertical-slab wooden perimeter fence (open on East Pepper Ave side)
+      setPart('PROPERTY-FENCE', '115 Pepper Ave — 7\'-0" California Vertical-Slab Perimeter Fence');
       const fenceH = 7.0;
       for (let i = 0; i < borderPts.length; i++) {
         const [ax, az] = borderPts[i];
         const [bx, bz] = borderPts[(i + 1) % borderPts.length];
+        // Remove fence on the East side (Pepper Ave frontage at x = 45.5)
+        if (Math.abs(ax - 45.5) < 0.5 && Math.abs(bx - 45.5) < 0.5) continue;
         const segLen = Math.hypot(bx - ax, bz - az);
         const steps = Math.max(2, Math.ceil(segLen / 7.5));
         for (let s = 0; s < steps; s++) {
           const t0 = s / steps, t1 = (s + 1) / steps;
           const x0 = ax + (bx - ax) * t0, z0 = az + (bz - az) * t0;
           const x1 = ax + (bx - ax) * t1, z1 = az + (bz - az) * t1;
-          const xm = (x0 + x1) * 0.5, zm = (z0 + z1) * 0.5;
-          // Leave a clean walk-in gap on Pepper Ave East edge for STAIRS-STREET-ENTRY
-          if (Math.abs(xm - 45.5) < 0.5 && zm > -21.0 && zm < -13.0) continue;
           const y0 = groundY(x0, z0) - 0.25, y1 = groundY(x1, z1) - 0.25;
           addQuad(bFence, [x0, y0, z0], [x1, y1, z1], [x1, y1 + fenceH, z1], [x0, y0 + fenceH, z0], 4.5, false);
           addQuad(bFence, [x1, y1, z1], [x0, y0, z0], [x0, y0 + fenceH, z0], [x1, y1 + fenceH, z1], 4.5, false);
@@ -1378,9 +1404,23 @@
       setPart('INT-LAUNDRY', 'Lower Level — Laundry (Washer & Dryer Side-by-Side)');
       addBox(bIntWall, 4.55, eY0,  2.60, 9.92, eY1 - 0.85, 3.02, 6, false);        // South wall behind Washer/Dryer
       addBox(bIntWall, 9.50, eY0, -0.20, 9.92, eY1 - 0.85, 2.60, 6, false);        // East wall separating Laundry from Hallway
+      addBox(bIntWall, 4.55, eY0 + 6.8, -0.20, 9.50, eY1 - 0.85, 0.20, 6, false);  // Header over laundry closet folding doors
       addBox(bFixture, 4.70, eY0,  0.20, 7.00, eY0 + 3.05, 2.50, 4, true);         // Washer (West)
       addBox(bFixture, 7.15, eY0,  0.20, 9.42, eY0 + 3.05, 2.50, 4, true);         // Dryer (East)
       addBox(bMetal,   4.75, eY0 + 3.05, 2.05, 9.38, eY0 + 3.45, 2.50, 2, false);  // Rear control panels
+      // White folding (bifold) doors on the North front of the laundry closet (double-tap to open)
+      setPart('INT-LAUNDRY-DOOR-W', 'Lower Level — Laundry White Folding Door (West)');
+      beginDoorObject('INT-LAUNDRY-DOOR-W', 4.60, -0.08, 75, 0);
+      addBox(bWhiteDoor, 4.60, eY0, -0.15, 5.79, eY0 + 6.75, -0.02, 4, true);
+      addBox(bWhiteDoor, 5.81, eY0, -0.15, 7.00, eY0 + 6.75, -0.02, 4, true);
+      addBox(bHandle,    6.82, eY0 + 3.1, -0.20, 6.94, eY0 + 3.5, -0.15, 2, false);
+      endDoorObject();
+      setPart('INT-LAUNDRY-DOOR-E', 'Lower Level — Laundry White Folding Door (East)');
+      beginDoorObject('INT-LAUNDRY-DOOR-E', 9.46, -0.08, -75, 0);
+      addBox(bWhiteDoor, 7.04, eY0, -0.15, 8.24, eY0 + 6.75, -0.02, 4, true);
+      addBox(bWhiteDoor, 8.26, eY0, -0.15, 9.46, eY0 + 6.75, -0.02, 4, true);
+      addBox(bHandle,    7.10, eY0 + 3.1, -0.20, 7.22, eY0 + 3.5, -0.15, 2, false);
+      endDoorObject();
 
       // Under-Stair Storage Room (x = 4.55..9.50, z = 3.02..6.95) under Upper Stair Flight
       setPart('INT-LOWER-STORAGE', 'Lower Level — Under-Stair Storage Room');
@@ -1410,9 +1450,39 @@
       // South Bdrm NW doorway header (x = 13.30..13.72, z = 0.20..3.00)
       addBox(bIntWall, 13.30, eY0 + 6.8,  0.20, 13.72, eY1 - 0.85,  3.00, 6, false);
 
-      setPart('INT-LOWER-BED-N', 'Lower North Bedroom — Bed');
-      addBox(bBed, 12.2, eY0, -12.8, 18.2, eY0 + 1.8, -7.1, 4, true);
-      addBox(bWoodBeam, 12.1, eY0, -13.2, 18.3, eY0 + 3.0, -12.8, 4, true);
+      // Regular wooden doors for the two downstairs bedrooms (double-tap to open/close)
+      setPart('INT-LOWER-DOOR-N', 'Lower North Bedroom — Wooden Door');
+      beginDoorObject('INT-LOWER-DOOR-N', 12.56, -1.99, 85, 0);
+      addBox(bDoor,   9.96, eY0, -2.06, 12.56, eY0 + 6.75, -1.92, 4.5, true);
+      addBox(bHandle, 10.15, eY0 + 2.95, -2.12, 10.35, eY0 + 3.35, -1.86, 2, false);
+      endDoorObject();
+
+      setPart('INT-LOWER-DOOR-S', 'Lower South Bedroom — Wooden Door');
+      beginDoorObject('INT-LOWER-DOOR-S', 13.51, 0.24, -85, 0);
+      addBox(bDoor,   13.44, eY0, 0.24, 13.58, eY0 + 6.75, 2.96, 4.5, true);
+      addBox(bHandle, 13.38, eY0 + 2.95, 2.65, 13.64, eY0 + 3.35, 2.85, 2, false);
+      endDoorObject();
+
+      // Bunk bed on the North wall of the Lower North Bedroom
+      setPart('INT-LOWER-BED-N', 'Lower North Bedroom — Bunk Bed');
+      // 4 corner posts
+      addBox(bWoodBeam, 12.20, eY0, -14.10, 12.48, eY0 + 6.20, -13.82, 4, true);
+      addBox(bWoodBeam, 18.32, eY0, -14.10, 18.60, eY0 + 6.20, -13.82, 4, true);
+      addBox(bWoodBeam, 12.20, eY0, -10.48, 12.48, eY0 + 6.20, -10.20, 4, true);
+      addBox(bWoodBeam, 18.32, eY0, -10.48, 18.60, eY0 + 6.20, -10.20, 4, true);
+      // Lower bunk frame & mattress
+      addBox(bWoodBeam, 12.25, eY0 + 0.85, -14.05, 18.55, eY0 + 1.20, -10.25, 4, true);
+      addBox(bBed,      12.48, eY0 + 1.20, -13.85, 18.32, eY0 + 1.90, -10.45, 4, true);
+      // Upper bunk frame, mattress & South safety rail
+      addBox(bWoodBeam, 12.25, eY0 + 4.05, -14.05, 18.55, eY0 + 4.40, -10.25, 4, true);
+      addBox(bBed,      12.48, eY0 + 4.40, -13.85, 18.32, eY0 + 5.10, -10.45, 4, true);
+      addBox(bWoodBeam, 13.70, eY0 + 5.35, -10.38, 18.40, eY0 + 5.65, -10.22, 4, true);
+      // Bunk ladder on South-West side
+      addBox(bWoodBeam, 12.60, eY0, -10.20, 12.76, eY0 + 5.20, -10.02, 4, true);
+      addBox(bWoodBeam, 13.45, eY0, -10.20, 13.61, eY0 + 5.20, -10.02, 4, true);
+      for (const ry of [1.1, 2.2, 3.3, 4.4]) {
+        addBox(bWoodBeam, 12.76, eY0 + ry, -10.18, 13.45, eY0 + ry + 0.14, -10.04, 4, true);
+      }
 
       // --- 4C. CONNECTING BRIDGE & RECESSED ENTRY COURTYARD (x = -9.5 to 4, true ~8'-6" breezeway width per Sheet 3) ---
       setPart('FOYER-FLOOR', 'Entry Foyer — Floor');
