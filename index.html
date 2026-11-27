@@ -358,6 +358,8 @@
         <!-- Specific Plan Image Viewer -->
         <div id="plan-single-view" class="hidden flex-1 relative overflow-hidden bg-neutral-900 touch-none cursor-grab">
           <img id="plan-single-img" alt="Architectural plan" draggable="false" class="absolute top-1/2 left-1/2 max-w-none select-none" style="transform-origin: center center;" />
+          <button id="plan-prev-btn" title="Previous Plan" class="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">‹</button>
+          <button id="plan-next-btn" title="Next Plan" class="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">›</button>
           <div id="plan-single-caption" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 max-w-[92%] px-3 py-1.5 rounded-full bg-black/70 text-white text-[11px] backdrop-blur-sm pointer-events-none truncate"></div>
         </div>
       </div>
@@ -3799,17 +3801,22 @@
         planTitleEl.textContent = `Reference Plans Used (${REF_PLANS.length})`;
         planSubEl.textContent = 'Click any plan to view it full-size with zoom & pan';
       }
+      let orderedPlans = [];
+      let currentPlanIndex = 0;
       function showSinglePlan(plan) {
+        const idx = orderedPlans.findIndex((p) => p.id === plan.id);
+        if (idx >= 0) currentPlanIndex = idx;
+        const activePlan = idx >= 0 ? orderedPlans[idx] : plan;
         plansListView.classList.add('hidden');
         planSingleView.classList.remove('hidden');
         planBackBtn.classList.remove('hidden');
         planZoomControls.classList.remove('hidden');
         planZoomControls.classList.add('flex');
-        planTitleEl.textContent = plan.title;
-        planSubEl.textContent = plan.source;
-        planSingleCaption.textContent = plan.desc;
+        planTitleEl.textContent = activePlan.title;
+        planSubEl.textContent = `${activePlan.source} (${currentPlanIndex + 1}/${orderedPlans.length})`;
+        planSingleCaption.textContent = activePlan.desc;
         planSingleImg.onload = fitPlanImage;
-        planSingleImg.src = plan.src;
+        planSingleImg.src = activePlan.src;
         if (planSingleImg.complete && planSingleImg.naturalWidth) fitPlanImage();
       }
 
@@ -3849,7 +3856,8 @@
         cat.items.forEach((item) => {
           const plan = REF_PLANS.find((p) => p.id === item.id);
           if (!plan) return;
-          plan.shortName = item.shortName;
+          const entry = { ...plan, title: item.shortName, source: cat.heading };
+          orderedPlans.push(entry);
           const card = document.createElement('button');
           card.className = 'text-left rounded-xl border border-[var(--border)] bg-[var(--background)]/70 hover:border-[var(--primary)] overflow-hidden transition flex flex-col group';
           card.innerHTML = `
@@ -3861,12 +3869,22 @@
               <div class="text-[11px] text-[var(--muted-foreground)] mt-1 line-clamp-2">${plan.desc}</div>
             </div>
           `;
-          card.addEventListener('click', () => {
-            showSinglePlan({ ...plan, title: item.shortName, source: cat.heading });
-          });
+          card.addEventListener('click', () => showSinglePlan(entry));
           plansListView.appendChild(card);
         });
       });
+
+      function stepPlan(delta) {
+        if (!orderedPlans.length) return;
+        currentPlanIndex = (currentPlanIndex + delta + orderedPlans.length) % orderedPlans.length;
+        showSinglePlan(orderedPlans[currentPlanIndex]);
+      }
+      const planPrevBtn = document.getElementById('plan-prev-btn');
+      const planNextBtn = document.getElementById('plan-next-btn');
+      planPrevBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      planNextBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      planPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); stepPlan(-1); });
+      planNextBtn.addEventListener('click', (e) => { e.stopPropagation(); stepPlan(1); });
 
       planBackBtn.addEventListener('click', showPlansList);
       document.getElementById('plan-close-btn').addEventListener('click', () => plansModal.classList.add('hidden'));
