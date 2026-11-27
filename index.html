@@ -268,19 +268,6 @@
       </div>
     </div>
 
-    <!-- Inside Mode Navigation Pad (shown only in Inside Tour mode) -->
-    <div id="inside-pad" class="hud-chrome hidden absolute right-3 bottom-6 pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl p-2 shadow-lg">
-      <div class="text-[10px] text-center text-[var(--muted-foreground)] mb-1 font-medium">Walk (WASD)</div>
-      <div class="grid grid-cols-3 gap-1 w-24">
-        <div></div>
-        <button data-move="fwd" class="move-btn h-7 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-bold active:opacity-70">↑</button>
-        <div></div>
-        <button data-move="left" class="move-btn h-7 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-bold active:opacity-70">←</button>
-        <button data-move="back" class="move-btn h-7 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-bold active:opacity-70">↓</button>
-        <button data-move="right" class="move-btn h-7 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-bold active:opacity-70">→</button>
-      </div>
-    </div>
-
     <!-- Permit Options Table Modal -->
     <div id="permit-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
       <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden">
@@ -820,6 +807,7 @@
       let activeDoorObj = null;
       let activeRot = null;
       const showFullLot = true;
+      let showCabinets = false;
 
       function getDoorT(code, now = performance.now()) {
         const a = doorAnims.get(code);
@@ -2576,7 +2564,7 @@
         addBox(bHandle, -16.10, 14.05, -13.25, -14.00, 14.45, -10.65, 2, true);
         addBox(bHandle, -16.05, 14.45, -12.45, -15.10, 17.85, -11.45, 2, true);
       }
-      if (state.showCabinets) {
+      if (showCabinets) {
         setPart('KITCHEN-PANTRY-WALL', 'Kitchen — East Wall Pantry Cabinets (To South Wall)');
         addBox(bCabinet, -4.35, 9.0, -13.00, -2.75, 14.80, -5.65, 4, true);
         for (const pz of [-10.55, -8.10]) {
@@ -3801,28 +3789,18 @@
       // 9. UI BUTTON WIRING & FULLSCREEN API (Windows 95 Cascading Menu)
       // =========================================================================
       const btnViewToggle = document.getElementById('view-toggle');
-      const insidePad = document.getElementById('inside-pad');
 
       function setViewMode(mode) {
         state.viewMode = mode;
         if (mode === 'exterior') {
           btnViewToggle.textContent = 'Outside';
-          insidePad.classList.add('hidden');
         } else {
           btnViewToggle.textContent = 'Inside';
-          insidePad.classList.remove('hidden');
           animateRoom(ROOMS.foyer);
         }
       }
       btnViewToggle.addEventListener('click', () => {
         setViewMode(state.viewMode === 'exterior' ? 'inside' : 'exterior');
-      });
-
-      // On-screen walk pad
-      document.querySelectorAll('.move-btn').forEach((btn) => {
-        btn.addEventListener('pointerdown', (e) => { e.stopPropagation(); activeMoveBtn = btn.dataset.move; });
-        btn.addEventListener('pointerup', () => { activeMoveBtn = null; });
-        btn.addEventListener('pointerleave', () => { activeMoveBtn = null; });
       });
 
       const toggleRoofEl = document.getElementById('toggle-roof');
@@ -3836,9 +3814,9 @@
       const btnCabinetsToggle = document.getElementById('btn-cabinets-toggle');
       if (btnCabinetsToggle) {
         btnCabinetsToggle.addEventListener('click', () => {
-          state.showCabinets = !state.showCabinets;
-          btnCabinetsToggle.textContent = state.showCabinets ? 'Cabinets ✓' : 'Cabinets';
-          btnCabinetsToggle.style.color = state.showCabinets ? '#93c5fd' : '';
+          showCabinets = !showCabinets;
+          btnCabinetsToggle.textContent = showCabinets ? 'Cabinets ✓' : 'Cabinets';
+          btnCabinetsToggle.style.color = showCabinets ? '#93c5fd' : '';
           buildHouse(currentDesignMode);
         });
       }
