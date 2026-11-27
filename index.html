@@ -3454,9 +3454,10 @@
             if (state.viewMode === 'exterior') {
               const scale = state.dist * 0.0018;
               const cy = Math.cos(state.yaw), sy = Math.sin(state.yaw);
-              state.target[0] += mdx * cy * scale;
-              state.target[2] += mdx * sy * scale;
-              state.target[1] += mdy * scale;
+              const cp = Math.cos(state.pitch), sp = Math.sin(state.pitch);
+              state.target[0] += (mdx * cy - mdy * sp * sy) * scale;
+              state.target[1] += mdy * cp * scale;
+              state.target[2] += (mdx * sy + mdy * sp * cy) * scale;
             } else {
               // Inside two-finger: left/right = strafe, down/up = move forward/backward (level eye height)
               const scale = 0.045;
@@ -3476,9 +3477,10 @@
             if (isRightDrag) {
               const scale = state.dist * 0.0018;
               const cy = Math.cos(state.yaw), sy = Math.sin(state.yaw);
-              state.target[0] += dx * cy * scale;
-              state.target[2] += dx * sy * scale;
-              state.target[1] += dy * scale;
+              const cp = Math.cos(state.pitch), sp = Math.sin(state.pitch);
+              state.target[0] += (dx * cy - dy * sp * sy) * scale;
+              state.target[1] += dy * cp * scale;
+              state.target[2] += (dx * sy + dy * sp * cy) * scale;
             } else {
               state.yaw += dx * 0.007;
               state.pitch = Math.max(0.04, Math.min(1.52, state.pitch + dy * 0.007));
@@ -3549,9 +3551,10 @@
           if (state.viewMode === 'exterior') {
             const scale = state.dist * 0.0014;
             const cy = Math.cos(state.yaw), sy = Math.sin(state.yaw);
-            state.target[0] -= e.deltaX * cy * scale;
-            state.target[2] -= e.deltaX * sy * scale;
-            state.target[1] -= e.deltaY * scale;
+            const cp = Math.cos(state.pitch), sp = Math.sin(state.pitch);
+            state.target[0] -= (e.deltaX * cy - e.deltaY * sp * sy) * scale;
+            state.target[1] -= e.deltaY * cp * scale;
+            state.target[2] -= (e.deltaX * sy + e.deltaY * sp * cy) * scale;
           } else {
             const scale = 0.035;
             const fx = Math.sin(state.fpYaw), fz = Math.cos(state.fpYaw);
