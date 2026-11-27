@@ -36,6 +36,9 @@
       width: 100%;
       height: 100%;
       touch-action: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+      -webkit-user-select: none;
       cursor: grab;
     }
     canvas#glcanvas:active {
@@ -2562,16 +2565,18 @@
         }
 
         // Covered 2-Car Carport (19' x 19' = 361 SF, directly adjoining Guest House on East: x=44..63, z=-16..3)
-        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (361 SF)');
         const cpX0 = 44.0, cpX1 = 63.0, cpZ0 = -16.0, cpZ1 = 3.0;
         const cpY = groundY((cpX0 + cpX1) * 0.5, (cpZ0 + cpZ1) * 0.5) + 0.1;
         const cpTop = cpY + 7.2, cpPeak = cpY + 10.2;
+        setPart('CARPORT-FLOOR', 'Carport — Stone/Concrete Floor Slab (361 SF)');
         addBox(bStone, cpX0, cpY - 0.55, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
+        setPart('CARPORT-POSTS', 'Carport — Timber Support Posts');
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
             addBox(bWoodBeam, px - 0.18, cpY, pz - 0.18, px + 0.18, cpTop, pz + 0.18, 4, true);
           }
         }
+        setPart('CARPORT-BEAMS', 'Carport — Roof Header Beams');
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ0 + 0.22, cpX1 - 0.2, cpTop, cpZ0 + 0.58, 4, true);
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
         addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false);
@@ -2579,19 +2584,24 @@
         // Guest House / East House / Cottage (17' x 27' = 459 SF, joined seamlessly to East side of Carport: x=63..80, z=-16..11)
         const ghX0 = 63.0, ghX1 = 80.0, ghZ0 = -16.0, ghZ1 = 11.0;
         const ghY0 = groundY((ghX0 + ghX1) * 0.5, (ghZ0 + ghZ1) * 0.5) + 0.35, ghTop = ghY0 + 8.4, ghPeak = ghY0 + 12.0;
-        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House / East House (459 SF)');
+        setPart('GUEST-FOUNDATION', 'Guest House — Stone Foundation');
         addBox(bStone, ghX0 - 0.5, ghY0 - 0.8, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
+        setPart('GUEST-FLOOR', 'Guest House — Interior Floor (459 SF)');
+        addBox(bIntFloor, ghX0 + 0.5, ghY0 - 0.1, ghZ0 + 0.5, ghX1 - 0.5, ghY0 + 0.05, ghZ1 - 0.5, 5.0, false);
+        setPart('GUEST-WALL-N', 'Guest House — North Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ0, ghX0, ghX1, ghY0, ghTop, 0.5, [
           { u0: ghX0 + 4.5, u1: ghX0 + 12.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
         ]);
+        setPart('GUEST-WALL-S', 'Guest House — South Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ1, ghX0, ghX1, ghY0, ghTop, -0.5, [
           { u0: ghX0 + 4.5, u1: ghX0 + 12.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
         ]);
+        setPart('GUEST-WALL-W', 'Guest House — West Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
           { u0: 4.5, u1: 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
         ]);
+        setPart('GUEST-WALL-E', 'Guest House — East Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
-          { u0: -12.5, u1: -9.5, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-E', label: 'Guest House — East Entry Door' },
           { u0: -4.5, u1: 3.5, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
@@ -3284,7 +3294,7 @@
         if (!hit || !hit.part) return;
         const part = hit.part;
         selectedPart = part;
-        const isFloorLike = /FLOOR|DECK|STOOP|STAIRS|WALKWAY|TERRAIN/i.test(part.code);
+        const isFloorLike = /FLOOR|DECK|STOOP|STAIRS|WALKWAY|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(part.code);
         let displayCode = part.code;
         if (isFloorLike && hit.point) {
           const [hx, hy, hz] = hit.point;
