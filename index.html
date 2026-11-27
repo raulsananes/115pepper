@@ -1289,8 +1289,8 @@
         } else if (x < 33.5) {
           y = 3.25;
         } else if (showFullLot) {
-          const t = Math.min(1, (x - 33.5) / 50.5);
-          y = 3.25 - t * 6.2;
+          const t = Math.min(1, (x - 33.5) / 60.5);
+          y = 3.25 - t * 6.8;
         } else {
           const t = Math.min(1, (x - 33.5) / 9.0);
           y = 3.25 - t * 5.2;
@@ -1302,21 +1302,22 @@
         else if (x >= -47.5 && x <= 4.0 && z >= -17.5 && z <= 10.7) y = Math.min(y, 8.65);
         return y;
       }
-      const lotEastX = showFullLot ? 84.0 : 45.5;
-      // Exact 115 Pepper Ave (APN 021-231-05) Property Boundary per Sheet 3 Site Plan & Sheet 4 Survey:
-      // South line: straight E-W at z = 12.2 (2.5' S of Living SE, ~9' S of Den SW);
-      // North line: 5' N setback above Living NW (-38.5, -23.2), NW jog above Den, straight along North stairs to Pepper Ave
+      const lotEastX = showFullLot ? 94.0 : 45.5;
+      // Exact 115 Pepper Ave (APN 021-231-05) Property Boundary per Sheet 3 Site Plan, Sheet 4 Survey & Parking Addition Plan:
       function propZNorth(x) {
         if (x < -58.5) return 12.2 + (-17.5 - 12.2) * ((x - (-64.0)) / 5.5);
         if (x < -47.5) return -17.5 + (-16.8 - (-17.5)) * ((x - (-58.5)) / 11.0);
         if (x < -38.5) return -16.8 + (-23.2 - (-16.8)) * ((x - (-47.5)) / 9.0);
         if (x <  14.0) return -23.2 + (-20.0 - (-23.2)) * ((x - (-38.5)) / 52.5);
-        if (showFullLot) return -20.0 + (-36.0 - (-20.0)) * Math.min(1, (x - 14.0) / 70.0);
+        if (showFullLot) {
+          if (x < 22.0) return -20.0 + (-34.0 - (-20.0)) * ((x - 14.0) / 8.0);
+          return -34.0;
+        }
         return -20.0 + (-22.0 - (-20.0)) * (Math.min(1, (x - 14.0) / 31.5));
       }
       const propZSouth = 12.2;
       const propXs = showFullLot
-        ? [-64.0, -58.5, -53.0, -47.5, -43.0, -38.5, -30.0, -20.0, -10.0, 0.0, 7.0, 14.0, 22.0, 30.0, 38.0, 45.5, 58.0, 71.0, 84.0]
+        ? [-64.0, -58.5, -53.0, -47.5, -43.0, -38.5, -30.0, -20.0, -10.0, 0.0, 7.0, 14.0, 22.0, 30.0, 38.0, 48.0, 60.0, 72.0, 84.0, 94.0]
         : [-64.0, -58.5, -53.0, -47.5, -43.0, -38.5, -30.0, -20.0, -10.0, 0.0, 7.0, 14.0, 22.0, 30.0, 38.0, 45.5];
       const gNZ = 8;
       for (let ix = 0; ix < propXs.length - 1; ix++) {
@@ -1342,10 +1343,9 @@
 
       // Visible property border line on the ground following the exact surveyed perimeter
       setPart('PROPERTY-BORDER', '115 Pepper Ave — Property Boundary Line (APN 021-231-05)');
-      const borderPts = [
-        [-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2],
-        [14.0, -20.0], [lotEastX, showFullLot ? -36.0 : -22.0], [lotEastX, 12.2]
-      ];
+      const borderPts = showFullLot
+        ? [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [22.0, -34.0], [94.0, -34.0], [94.0, 12.2]]
+        : [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [45.5, -22.0], [45.5, 12.2]];
       const bw = 0.28;
       for (let i = 0; i < borderPts.length; i++) {
         const [ax, az] = borderPts[i];
@@ -2552,31 +2552,23 @@
       addNavDot(31.0, eY0, -13.7, 'Lower Stone Walkway East');
       addNavDot(43.2, eY0 - 4.6, -13.7, 'Pepper Ave Street Entry');
 
-      // --- FULL LOT VIEW: Shared Driveway, Carports (Red), Guest House (Blue) & Additional Parking ---
+      // --- FULL LOT VIEW: Shared Driveway (North), Carport (540 SF), Guest House / Cottage (425 SF) & Additional Parking (New Pad 800 SF) ---
       if (showFullLot) {
-        // Shared Driveway entering from Pepper Ave (East, x=84) along the North-East / East access
-        setPart('LOT-SHARED-DRIVEWAY', 'Full Lot — Shared Driveway (Pepper Ave Access)');
+        // Shared Driveway & Easement Drive along the North side (x=32..94, z=-34..-19)
+        setPart('LOT-SHARED-DRIVEWAY', 'Full Lot — Shared Driveway & Easement Drive');
         const drvSteps = 8;
         for (let s = 0; s < drvSteps; s++) {
-          const x0 = 32.0 + (s / drvSteps) * (84.0 - 32.0);
-          const x1 = 32.0 + ((s + 1) / drvSteps) * (84.0 - 32.0);
-          const y0 = groundY(x0, -8.0) - 0.12;
-          const y1 = groundY(x1, -8.0) - 0.12;
-          addQuad(bStone, [x0, y0, -14.5], [x1, y1, -14.5], [x1, y1, -4.5], [x0, y0, -4.5], 8.0, true);
+          const x0 = 32.0 + (s / drvSteps) * (94.0 - 32.0);
+          const x1 = 32.0 + ((s + 1) / drvSteps) * (94.0 - 32.0);
+          const y0 = groundY(x0, -26.0) - 0.12;
+          const y1 = groundY(x1, -26.0) - 0.12;
+          addQuad(bStone, [x0, y0, -33.5], [x1, y1, -33.5], [x1, y1, -18.5], [x0, y0, -18.5], 8.0, true);
         }
 
-        // Additional Off-Street Parking Pad (just South-East of Main House East Bay, inside z=-3..6)
-        setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Off-Street Parking');
-        const pkY = groundY(36.0, 1.5) - 0.05;
-        addBox(bStone, 29.0, pkY - 0.45, -3.5, 43.0, pkY, 6.0, 6.0, true);
-        for (const sx of [33.6, 38.4]) {
-          addBox(bWhiteDoor, sx - 0.12, pkY + 0.02, -3.0, sx + 0.12, pkY + 0.06, 5.4, 2, false);
-        }
-
-        // Carports (Red area in Solar Site Plan: North-East of Main House, x=35..55, z=-30..-15)
-        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carports');
-        const cpX0 = 35.0, cpX1 = 54.5, cpZ0 = -30.0, cpZ1 = -15.0;
-        const cpY = groundY(44.5, -22.5) + 0.1;
+        // Covered 2-Car Carport (540 SF, directly East of Main House walkway: x=36..58, z=-15..7)
+        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (540 SF)');
+        const cpX0 = 36.0, cpX1 = 58.0, cpZ0 = -15.0, cpZ1 = 7.0;
+        const cpY = groundY(47.0, -4.0) + 0.1;
         addBox(bStone, cpX0, cpY - 0.65, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
@@ -2587,27 +2579,33 @@
         addBox(bTrim, cpX0 - 0.7, cpY + 7.95, cpZ0 - 0.6, cpX1 + 0.7, cpY + 8.75, cpZ0 - 0.3, 4, false);
         addBox(bTrim, cpX0 - 0.7, cpY + 7.95, cpZ1 + 0.3, cpX1 + 0.7, cpY + 8.75, cpZ1 + 0.6, 4, false);
 
-        // Guest House / East House (Blue area in Solar Site Plan: directly East of Carports, x=56..73, z=-29..-11)
-        const ghX0 = 56.0, ghX1 = 73.0, ghZ0 = -29.0, ghZ1 = -11.5;
-        const ghY0 = groundY(64.5, -20.0) + 0.35, ghTop = ghY0 + 8.2, ghPeak = ghY0 + 11.8;
-        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House (East House)');
+        // Guest House / East House / Cottage (425 SF, directly East of Carport: x=58.5..71.5, z=-19..10)
+        const ghX0 = 58.5, ghX1 = 71.5, ghZ0 = -19.0, ghZ1 = 10.0;
+        const ghY0 = groundY(65.0, -4.5) + 0.35, ghTop = ghY0 + 8.2, ghPeak = ghY0 + 11.6;
+        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House / East House (425 SF)');
         addBox(bStone, ghX0 - 0.5, ghY0 - 0.8, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ0, ghX0, ghX1, ghY0, ghTop, 0.5, [
-          { u0: ghX0 + 3.5, u1: ghX0 + 8.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
+          { u0: ghX0 + 3.0, u1: ghX0 + 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ1, ghX0, ghX1, ghY0, ghTop, -0.5, [
-          { u0: ghX0 + 2.5, u1: ghX0 + 5.5, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-S', label: 'Guest House — Entry Door' },
-          { u0: ghX0 + 7.5, u1: ghX0 + 12.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
+          { u0: ghX0 + 3.0, u1: ghX0 + 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
-          { u0: -23.0, u1: -18.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
+          { u0: -12.0, u1: -7.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
-          { u0: -23.5, u1: -17.5, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
+          { u0: -14.0, u1: -11.0, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-E', label: 'Guest House — East Entry Door' },
+          { u0: -6.0, u1: 1.0, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
-        setPart('LOT-GUEST-DECK', 'Guest House — Entry Porch Deck');
-        addBox(bDeck, ghX0 + 0.5, ghY0 - 0.35, ghZ1, ghX1 - 0.5, ghY0, ghZ1 + 3.0, 4.5, true);
+
+        // Additional Off-Street Parking ("New Pad" 800 SF, directly East of Guest House: x=73.5..92.0, z=-18..10)
+        setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad (800 SF)');
+        const pkY = groundY(82.5, -4.0) - 0.05;
+        addBox(bStone, 73.5, pkY - 0.65, -18.0, 92.0, pkY, 10.0, 6.0, true);
+        for (const sz of [-11.0, -4.0, 3.0]) {
+          addBox(bWhiteDoor, 74.5, pkY + 0.02, sz - 0.12, 91.0, pkY + 0.06, sz + 0.12, 2, false);
+        }
       }
 
       // Upload all batches to GPU buffers
@@ -2751,7 +2749,7 @@
       };
 
       const EXT_PRESETS = {
-        lot:   { yaw: 0.48, pitch: 0.78, dist: 142, target: [16, 4, -8] },
+        lot:   { yaw: 0.45, pitch: 0.82, dist: 155, target: [22, 4, -8] },
         iso:   { yaw: 0.68, pitch: 0.52, dist: 76, target: [-5, 11, -1] },
         door:  { yaw: 0.18, pitch: 0.22, dist: 24, target: [-3.2, 12.2, 1.8] },
         north: { yaw: 0.0,  pitch: 0.12, dist: 74, target: [-6, 11, -2] },
