@@ -129,7 +129,8 @@
     <div class="absolute top-2.5 right-3 z-40 pointer-events-auto flex items-center gap-3 text-xs font-semibold text-[var(--foreground)]">
       <button id="view-toggle" class="hud-text-btn hover:opacity-80 transition">Outside</button>
       <button id="btn-cabinets-toggle" class="hud-text-btn hover:opacity-80 transition" title="Toggle East Kitchen Pantry Cabinets">Cabinets</button>
-      <button id="btn-design-toggle" class="hud-text-btn hover:opacity-80 transition" title="Click to cycle Original / Remodel A-D">Original</button>
+      <button id="btn-stove-toggle" class="hud-text-btn hover:opacity-80 transition" title="Toggle Kitchen Stove Partition Wall & Metal Hood">Stove</button>
+      <button id="btn-design-toggle" class="hud-text-btn hover:opacity-80 transition" title="Click to cycle Original / Entrance A-D">Original</button>
       <button id="btn-reload" title="Reload Latest Version" class="hud-text-btn hover:opacity-80 transition flex items-center">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
       </button>
@@ -147,15 +148,15 @@
 
       <!-- Root Cascading Menu -->
       <div id="win95-menu" class="hidden mt-1.5 w95-menu">
-        <!-- Design / Remodel -->
+        <!-- Entrance -->
         <div class="w95-item w95-parent">
-          <span>Design / Remodel</span><span>▶</span>
+          <span>Entrance</span><span>▶</span>
           <div class="w95-menu w95-sub">
             <div class="w95-item" data-action="design" data-value="original"><span class="w95-chk w-3 inline-block">✓</span> Original (1977)</div>
-            <div class="w95-item" data-action="design" data-value="remodelA"><span class="w95-chk w-3 inline-block"></span> Remodel A</div>
-            <div class="w95-item" data-action="design" data-value="remodelB"><span class="w95-chk w-3 inline-block"></span> Remodel B</div>
-            <div class="w95-item" data-action="design" data-value="remodelC"><span class="w95-chk w-3 inline-block"></span> Remodel C</div>
-            <div class="w95-item" data-action="design" data-value="remodelD"><span class="w95-chk w-3 inline-block"></span> Remodel D</div>
+            <div class="w95-item" data-action="design" data-value="remodelA"><span class="w95-chk w-3 inline-block"></span> Entrance A</div>
+            <div class="w95-item" data-action="design" data-value="remodelB"><span class="w95-chk w-3 inline-block"></span> Entrance B</div>
+            <div class="w95-item" data-action="design" data-value="remodelC"><span class="w95-chk w-3 inline-block"></span> Entrance C</div>
+            <div class="w95-item" data-action="design" data-value="remodelD"><span class="w95-chk w-3 inline-block"></span> Entrance D</div>
             <div class="w95-sep"></div>
             <div class="w95-item" data-action="permit-table">Permit Options Table...</div>
           </div>
@@ -808,6 +809,7 @@
       let activeRot = null;
       const showFullLot = true;
       let showCabinets = false;
+      let showStoveRemodel = false;
 
       function getDoorT(code, now = performance.now()) {
         const a = doorAnims.get(code);
@@ -2433,7 +2435,7 @@
       // West sloped rake triangle meeting underside of ROOF-KITCHEN
       addTri(bShingleOld, [-16.67, 14.8, -16.2], [-16.67, 14.8, -14.5], [-16.67, rkBot(-14.5), -14.5], 5.5);
       addTri(bIntWall,    [-16.12, 14.8, -14.5], [-16.12, 14.8, -16.2], [-16.12, rkBot(-14.5), -14.5], 7.0);
-      if (!isRemodel) {
+      if (!showStoveRemodel) {
         // Interior Kitchen West & SW return wall separating stove/kitchen from Living-Dining (Original only; removed in Remodel!)
         setPart('INT-KITCHEN-WALL-WEST', 'Kitchen — Interior West & SW Partition Wall');
         const yKwEave = 15.65; // Flush with underside of ROOF-LIVING-N (16.2 - 0.5)
@@ -2559,27 +2561,39 @@
       addBox(bCounter, -14.85, 11.96, -12.90, -14.15, 12.08, -12.20, 2, true);
       addBox(bCounter, -15.75, 11.96, -11.80, -15.05, 12.08, -11.10, 2, true);
       addBox(bCounter, -14.85, 11.96, -11.80, -14.15, 12.08, -11.10, 2, true);
-      if (isRemodel) {
-        setPart('KITCHEN-RANGE-HOOD', 'Remodel — Stainless Metal Range Hood');
+      if (showStoveRemodel) {
+        setPart('KITCHEN-RANGE-HOOD', 'Stove Remodel — Stainless Metal Range Hood');
         addBox(bHandle, -16.10, 14.05, -13.25, -14.00, 14.45, -10.65, 2, true);
         addBox(bHandle, -16.05, 14.45, -12.45, -15.10, 17.85, -11.45, 2, true);
       }
+      const fridgeCabinetLook = isRemodel || showStoveRemodel;
+      const fridgeBodyBatch = fridgeCabinetLook ? bCabinet : bHandle;
+      const fridgePullBatch = fridgeCabinetLook ? bBlack : bHandle;
+
       if (showCabinets) {
         setPart('KITCHEN-PANTRY-WALL', 'Kitchen — East Wall Pantry Cabinets (To South Wall)');
-        addBox(bCabinet, -4.35, 9.0, -13.00, -2.75, 14.80, -5.65, 4, true);
-        for (const pz of [-10.55, -8.10]) {
+        // North pantry section (-15.60..-11.40) & South pantry section (-8.30..-5.65) flanking mid-wall fridge
+        addBox(bCabinet, -4.35, 9.0, -15.60, -2.75, 14.80, -11.40, 4, true);
+        addBox(bCabinet, -4.35, 9.0,  -8.30, -2.75, 14.80,  -5.65, 4, true);
+        addBox(bCabinet, -4.35, 14.85, -11.35, -2.75, 15.65, -8.35, 4, true); // Over-fridge cabinet
+        for (const pz of [-13.50, -6.95]) {
           addBox(bBlack, -4.38, 9.0, pz - 0.03, -4.33, 14.80, pz + 0.03, 2, false);
+          addBox(bBlack, -4.42, 11.50, pz - 0.16, -4.34, 12.20, pz - 0.08, 2, false);
+          addBox(bBlack, -4.42, 11.50, pz + 0.08, -4.34, 12.20, pz + 0.16, 2, false);
         }
-        for (const pz of [-11.80, -9.35, -6.90]) {
-          addBox(bBlack, -4.42, 11.50, pz - 0.05, -4.34, 12.20, pz + 0.05, 2, false);
-        }
+        // Fridge moved to middle of East wall, facing West toward stove
+        setPart('KITCHEN-FRIDGE', fridgeCabinetLook ? 'Kitchen — Integrated Cabinet Refrigerator (East Wall)' : 'Kitchen — Stainless Refrigerator (East Wall)');
+        addBox(fridgeBodyBatch, -4.85, 9.0,  -11.35, -2.75, 11.05, -8.35, 4, true); // Lower freezer
+        addBox(fridgeBodyBatch, -4.85, 11.10,-11.35, -2.75, 14.80, -8.35, 4, true); // Upper fridge
+        addBox(fridgePullBatch, -4.98, 11.55,-11.20, -4.85, 14.35, -11.06, 2, false); // Vertical fridge pull
+        addBox(fridgePullBatch, -4.98, 10.65,-11.10, -4.85, 10.77, -8.60, 2, false); // Horizontal freezer pull
+      } else {
+        setPart('KITCHEN-FRIDGE', fridgeCabinetLook ? 'Kitchen — Integrated Cabinet Refrigerator (NE Corner)' : 'Kitchen — Stainless Bottom-Freezer Refrigerator (NE Corner)');
+        addBox(fridgeBodyBatch, -5.15, 9.0,  -15.60, -2.85, 11.05, -13.10, 4, true); // Lower freezer drawer
+        addBox(fridgeBodyBatch, -5.15, 11.10,-15.60, -2.85, 14.85, -13.10, 4, true); // Upper fridge door
+        addBox(fridgePullBatch, -5.02, 11.55,-13.08, -4.90, 14.35, -12.94, 2, false); // Vertical fridge handle
+        addBox(fridgePullBatch, -5.00, 10.65,-13.08, -3.00, 10.77, -12.94, 2, false); // Horizontal freezer handle
       }
-
-      setPart('KITCHEN-FRIDGE', 'Kitchen — Stainless Bottom-Freezer Refrigerator (NE Corner)');
-      addBox(bHandle, -5.15, 9.0,  -15.60, -2.85, 11.05, -13.10, 4, true); // Lower freezer drawer
-      addBox(bHandle, -5.15, 11.10,-15.60, -2.85, 14.85, -13.10, 4, true); // Upper fridge door
-      addBox(bHandle, -5.02, 11.55,-13.08, -4.90, 14.35, -12.94, 2, false); // Vertical fridge handle
-      addBox(bHandle, -5.00, 10.65,-13.08, -3.00, 10.77, -12.94, 2, false); // Horizontal freezer handle
       // Stainless-steel dishwasher & black cabinet handles along North run
       setPart('KITCHEN-DISHWASHER', 'Kitchen — Stainless Dishwasher');
       addBox(bHandle, -8.70, 9.05, -13.58, -6.90, 11.75, -13.48, 2, true);
@@ -2594,7 +2608,7 @@
       addBox(bCabinet, -6.4,  13.8, -15.6, -5.25, 14.7, -14.5, 4, true); // Shorter upper cab next to fridge
       addBox(bBlack, -6.70, 13.50, -14.50, -6.60, 13.90, -14.38, 2, false);
       addBox(bBlack, -5.50, 13.95, -14.50, -5.40, 14.30, -14.38, 2, false);
-      if (!isRemodel) {
+      if (!showStoveRemodel) {
         // Original upper cabinets continuing along INT-KITCHEN-WALL-WEST (above stove) & SW return wall (above peninsula/island)
         addBox(bCabinet, -16.10, 13.3, -14.50, -14.95, 14.7, -13.20, 4, true); // NW corner run
         addBox(bCabinet, -16.10, 13.9, -13.20, -14.95, 14.7, -10.70, 4, true); // Over-stove cabinet (with range hood clearance)
@@ -3821,14 +3835,24 @@
         });
       }
 
+      const btnStoveToggle = document.getElementById('btn-stove-toggle');
+      if (btnStoveToggle) {
+        btnStoveToggle.addEventListener('click', () => {
+          showStoveRemodel = !showStoveRemodel;
+          btnStoveToggle.textContent = showStoveRemodel ? 'Stove ✓' : 'Stove';
+          btnStoveToggle.style.color = showStoveRemodel ? '#93c5fd' : '';
+          buildHouse(currentDesignMode);
+        });
+      }
+
       const btnDesignToggle = document.getElementById('btn-design-toggle');
       const DESIGN_MODES = ['original', 'remodelA', 'remodelB', 'remodelC', 'remodelD'];
       const DESIGN_LABELS = {
         original: 'Original',
-        remodelA: 'Remodel A',
-        remodelB: 'Remodel B',
-        remodelC: 'Remodel C',
-        remodelD: 'Remodel D'
+        remodelA: 'Entrance A',
+        remodelB: 'Entrance B',
+        remodelC: 'Entrance C',
+        remodelD: 'Entrance D'
       };
       let currentDesignMode = 'original';
       function setDesignMode(mode) {
