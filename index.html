@@ -1485,10 +1485,28 @@
       setPart('EAST-RIDGE-BEAM', 'Master Bedroom — Exposed Ridge Beam');
       addBox(bWoodBeam, 11.7, ePeak - 1.2, -14.7, 12.3, ePeak - 0.6, 9.8, 4, false);
 
-      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck
+      // Solar Panel Arrays on East Wing West & East Roof Slopes (per Solar Roof Pitch & Azimuths plan + Photo 11)
+      setPart('ROOF-SOLAR-PANELS', 'Main House — Roof Solar Panel Arrays', { isRoof: true });
+      const eSlope = (ePeak - eTop) / 8.0;
+      const eRoofW = (x) => eTop + (x - 4.0) * eSlope;
+      const eRoofE = (x) => eTop + (20.0 - x) * eSlope;
+      for (const [px0, px1, pz0, pz1] of [
+        [5.6, 8.2, -3.6, -0.6], [5.6, 8.2, -0.3, 2.7], [5.6, 8.2, 3.0, 6.0],
+        [8.5, 11.1, -3.6, -0.6], [8.5, 11.1, -0.3, 2.7]
+      ]) {
+        const py0 = eRoofW(px0) + 0.14, py1 = eRoofW(px1) + 0.14;
+        addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
+      }
+      for (const [pz0, pz1] of [[-9.6, -7.2], [-6.9, -4.5], [-4.2, -1.8], [-1.5, 0.9]]) {
+        const px0 = 13.0, px1 = 17.8;
+        const py0 = eRoofE(px0) + 0.14, py1 = eRoofE(px1) + 0.14;
+        addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
+      }
+
+      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck (stops at z=7.0 flush with Master South wall)
       const pB = [[20, eY0, -1.5], [27.6, eY0, 3.8], [27.6, eY0, 10.5], [20, eY0, 10.5]];
-      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 10.5], [20, eY1, 10.5]];
-      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 10.5], [20, eY1 + 3.4, 10.5]];
+      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 7.0], [20, eY1, 7.0]];
+      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 7.0], [20, eY1 + 3.4, 7.0]];
 
       const bayDiagLen = Math.hypot(27.6 - 20, 3.8 - (-1.5));
       setPart('EAST-BAY-WALL-ANGLED', 'East Wing — Lower Angled Bay Wall (NE)');
@@ -1506,7 +1524,7 @@
         { u0: 7.10, u1: 9.10, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-S', label: 'Lower Bedroom — Bay East French Door (South Leaf)' }
       ]);
       setPart('EAST-BAY-WALL-SOUTH', 'East Wing — Lower Bay South Wall');
-      addQuad(bShingleExt, [27.6, eY0, 10.5], [20, eY0, 10.5], pM[3], pM[2], 5.5, true);
+      addQuad(bShingleExt, [27.6, eY0, 10.5], [20, eY0, 10.5], [20, eY1, 10.5], [27.6, eY1, 10.5], 5.5, true);
       addQuad(bIntWall,    [20, eY0, 9.95], [27.05, eY0, 9.95], [27.05, eY1, 9.95], [20, eY1, 9.95], 7.0, false);
       setPart('EAST-BAY-FLOOR-LOWER', 'Lower Bedroom — Bay Floor');
       addTri(bIntFloor, pB[0], pB[1], pB[2], 5.0);
@@ -1520,7 +1538,7 @@
         addQuad(bShingleExt, pM[i + 1], pM[i], pR[i], pR[i + 1], 5.5, false);
       }
       setPart('EAST-BALCONY-SCUPPER', 'East Balcony — Drain Scupper');
-      addBox(bDeck, 27.5, eY1 + 0.2, 8.8, 28.9, eY1 + 0.8, 9.5, 3, true);
+      addBox(bDeck, 27.5, eY1 + 0.2, 5.8, 28.9, eY1 + 0.8, 6.5, 3, true);
 
       // =========================================================================
       // UPSTAIRS — MASTER SUITE (Exact Sheet 3 Floor Plan: 6'-0" Tub/WC + 5'-4" Sink + 7'-4" Closet)
@@ -2262,6 +2280,15 @@
       }
 
       addGableX(-37.17, -6.0, -14.5, 8.0, 16.2, 22.2, bShingleOld, 0.8, 'ROOF-LIVING', 'Living-Dining — Main Gable Roof', true, !isRemodel);
+      setPart('ROOF-SOLAR-PANELS', 'Main House — Roof Solar Panel Arrays', { isRoof: true });
+      const livSlopeS = (22.2 - 16.2) / 11.25;
+      const livRoofS = (z) => 16.2 + (8.0 - z) * livSlopeS;
+      for (const [pz0, pz1] of [[-2.0, 1.0], [1.3, 4.3]]) {
+        for (const [px0, px1] of [[-34.5, -29.8], [-29.4, -24.7], [-24.3, -19.6]]) {
+          const py0 = livRoofS(pz0) + 0.14, py1 = livRoofS(pz1) + 0.14;
+          addQuad(bBlack, [px0, py0, pz0], [px1, py0, pz0], [px1, py1, pz1], [px0, py1, pz1], 2, true);
+        }
+      }
       const yLivSlope = (z) => 22.2 - (6.0 / 11.25) * Math.abs(z + 3.25);
       if (!isRemodel) {
         // Custom East Gable Wall (ROOF-LIVING-GABLE) framed around the two cathedral trapezoidal courtyard windows
@@ -4008,6 +4035,44 @@
         }
       ];
 
+      function attachLongPressCopy(el, getText, labelText) {
+        if (!el) return;
+        let timer = null, startPt = null, fired = false;
+        const cancel = () => { if (timer !== null) { clearTimeout(timer); timer = null; } startPt = null; };
+        el.addEventListener('pointerdown', (e) => {
+          cancel();
+          fired = false;
+          startPt = { x: e.clientX, y: e.clientY };
+          timer = setTimeout(() => {
+            timer = null;
+            fired = true;
+            const txt = (getText() || '').trim();
+            if (!txt) return;
+            pickCodeEl.textContent = txt;
+            pickLabelEl.textContent = labelText;
+            pickToast.classList.remove('hidden');
+            if (navigator.vibrate) navigator.vibrate(30);
+            copyToClipboard(txt).then((ok) => {
+              pickCopiedEl.textContent = ok ? 'Copied!' : 'Tap Copy';
+              pickCopiedEl.classList.remove('hidden');
+            });
+          }, 450);
+        });
+        el.addEventListener('pointermove', (e) => {
+          if (startPt && Math.hypot(e.clientX - startPt.x, e.clientY - startPt.y) > 9) cancel();
+        });
+        el.addEventListener('pointerup', cancel);
+        el.addEventListener('pointercancel', cancel);
+        el.addEventListener('click', (e) => {
+          if (fired) { e.preventDefault(); e.stopImmediatePropagation(); fired = false; }
+        }, true);
+      }
+
+      document.querySelectorAll('.w95-item[data-action]').forEach((item) => {
+        attachLongPressCopy(item, () => item.textContent.replace(/[✓▸]/g, '').trim(), 'Menu Item');
+      });
+      attachLongPressCopy(planTitleEl, () => planTitleEl.textContent, 'Plan Name');
+
       PLAN_CATEGORIES.forEach((cat) => {
         const hdr = document.createElement('div');
         hdr.className = 'col-span-full text-xs font-semibold uppercase tracking-wider text-[var(--primary)] border-b border-[var(--border)]/60 pb-1 mt-1';
@@ -4030,6 +4095,7 @@
               <div class="text-[11px] text-[var(--muted-foreground)] mt-1 line-clamp-2">${plan.desc}</div>
             </div>
           `;
+          attachLongPressCopy(card, () => item.shortName, 'Plan Name');
           card.addEventListener('click', () => showSinglePlan(entry));
           plansListView.appendChild(card);
         });
