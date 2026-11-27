@@ -1107,7 +1107,8 @@
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
               endDoorObject();
             } else {
-              beginDoorObject(h.code, mid, isSecondLeaf ? h.u1 : h.u0, isSecondLeaf ? 85 : -85, 0);
+              const outSign = thick > 0 ? -1 : 1;
+              beginDoorObject(h.code, mid, isSecondLeaf ? h.u1 : h.u0, (isSecondLeaf ? 85 : -85) * outSign, 0);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0, z1 + 0.04, h.v1, h.u0 + st, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u1 - st, z1 + 0.04, h.v1, h.u1, 4.5, true);
               addBox(bTrim, z0 - 0.04, h.v0, h.u0 + st, z1 + 0.04, h.v0 + botR, h.u1 - st, 4.5, true);
@@ -1345,6 +1346,14 @@
           const xm = (xA + xB) * 0.5, zm = (zA0 + zA1 + zB0 + zB1) * 0.25;
           let yOff = -0.35;
           if (xm > 3.5 && xm < 27.8 && zm > -15.4 && zm < 10.7) yOff = -0.6;
+          let gCode = 'GROUND-EAST-LOT', gLabel = 'Outdoor Ground — East Lot & Parking Slope';
+          if (xm < -37) { gCode = 'GROUND-WEST-YARD'; gLabel = 'Outdoor Ground — West Yard & Hillside'; }
+          else if (xm < 4 && zm < -10) { gCode = 'GROUND-NORTH-COURTYARD'; gLabel = 'Outdoor Ground — North Entry Courtyard'; }
+          else if (xm < 4) { gCode = 'GROUND-SOUTH-YARD'; gLabel = 'Outdoor Ground — South Yard (West Wing)'; }
+          else if (xm < 20) { gCode = 'GROUND-EAST-WING-YARD'; gLabel = 'Outdoor Ground — East Wing Side Yard'; }
+          else if (xm < 44) { gCode = 'GROUND-FRONT-LAWN'; gLabel = 'Outdoor Ground — Front Yard & Retaining Slope'; }
+          else if (xm < 80) { gCode = 'GROUND-CARPORT-GUEST-YARD'; gLabel = 'Outdoor Ground — Carport & Guest House Yard'; }
+          setPart(gCode, gLabel, { isGround: true });
           addQuad(
             bGround,
             [xA, groundY(xA, zA0) + yOff, zA0],
@@ -1548,7 +1557,10 @@
       addBox(bIntWall, 9.50, eY1, -2.88, 9.92, eTop - 0.1, -0.80, 6, false);       // East closet wall North of doors
       addBox(bIntWall, 9.50, eY1,  1.80, 9.92, eTop - 0.1,  3.58, 6, false);       // East closet wall South of doors
       addBox(bIntWall, 9.50, eY1 + 6.8, -0.80, 9.92, eTop - 0.1, 1.80, 6, false);  // Header over closet doors
+      setPart('INT-MASTER-CLOSET-DOOR', 'Master Bedroom — Walk-In Closet Door');
+      beginDoorObject('INT-MASTER-CLOSET-DOOR', 9.65, -0.72, 85, 0);
       addBox(bTrim, 9.56, eY1, -0.72, 9.74, eY1 + 6.75, 1.72, 4.5, true);          // Walk-in closet bifold doors
+      endDoorObject();
       // Interior U-shaped closet shelving along North, West & South walls
       addBox(bWoodBeam, 4.60, eY1 + 5.4, -2.85, 9.45, eY1 + 5.55, -1.70, 4, false);
       addBox(bWoodBeam, 4.60, eY1 + 5.4, -1.70, 5.75, eY1 + 5.55,  2.40, 4, false);
@@ -1673,7 +1685,14 @@
       addBox(bIntWall, 12.60, eY0, -2.20, 13.02, eY1 - 0.85,  0.20, 6, false);     // West end of North Bdrm closet
       addBox(bIntWall, 12.60, eY0, -0.22, 19.45, eY1 - 0.85,  0.20, 6, false);     // Solid South wall of closet (North wall of South Bdrm)
       addBox(bIntWall, 12.60, eY0 + 6.8, -2.20, 19.45, eY1 - 0.85, -1.78, 6, false); // Closet header
-      addBox(bTrim, 13.10, eY0, -2.14, 18.90, eY0 + 6.75, -1.96, 4.5, true);       // North bedroom bifold closet doors
+      setPart('INT-LOWER-CLOSET-DOOR-W', 'Lower North Bedroom — Closet Door (West)');
+      beginDoorObject('INT-LOWER-CLOSET-DOOR-W', 13.10, -2.05, 80, 0);
+      addBox(bTrim, 13.10, eY0, -2.14, 15.98, eY0 + 6.75, -1.96, 4.5, true);
+      endDoorObject();
+      setPart('INT-LOWER-CLOSET-DOOR-E', 'Lower North Bedroom — Closet Door (East)');
+      beginDoorObject('INT-LOWER-CLOSET-DOOR-E', 18.90, -2.05, -80, 0);
+      addBox(bTrim, 16.02, eY0, -2.14, 18.90, eY0 + 6.75, -1.96, 4.5, true);
+      endDoorObject();
       // North Bdrm SW doorway header (x = 9.92..12.60, z = -2.20)
       addBox(bIntWall,  9.92, eY0 + 6.8, -2.20, 12.60, eY1 - 0.85, -1.78, 6, false);
       // South Bdrm NW doorway header (x = 13.30..13.72, z = 0.20..3.00)
@@ -1745,10 +1764,12 @@
         addBox(bWoodBeam, -3.86, 16.20, 7.14, -0.74, 16.36, 7.68, 4, true);
         addBox(bWoodBeam, -3.86, 16.20, 7.14, -3.32, 16.36, 9.98, 4, true);
         addBox(bWoodBeam, -1.28, 16.20, 7.14, -0.74, 16.36, 9.98, 4, true);
-        // Right side (West face, x = -3.8): proud wood casing + 3D 6-panel wood door + doorknob
+        // Right side (West face, x = -3.8): proud wood casing + animated 3D 6-panel wood door + doorknob
         addBox(bTrim, -3.88, 9.0, 7.36, -3.76, 15.98, 7.54, 4, true);
         addBox(bTrim, -3.88, 9.0, 9.66, -3.76, 15.98, 9.84, 4, true);
         addBox(bTrim, -3.88, 15.80, 7.36, -3.76, 16.00, 9.84, 4, true);
+        setPart('FOYER-CLOSET-DOOR-W', 'Entry Foyer — Coat Closet Door (West)');
+        beginDoorObject('FOYER-CLOSET-DOOR-W', -3.78, 9.66, -85, 0);
         addBox(bTrim, -3.84, 9.0, 7.54, -3.72, 15.80, 9.66, 4.5, true); // Door core
         const cZm = 8.60;
         for (const [cy0, cy1] of [[9.35, 11.15], [11.45, 13.55], [13.85, 15.40]]) {
@@ -1756,36 +1777,48 @@
           addBox(bWoodBeam, -3.87, cy0, cZm + 0.12, -3.71, cy1, 9.44, 4, true);
         }
         addBox(bHandle, -3.96, 12.02, 7.66, -3.82, 12.22, 7.86, 2, false);
+        endDoorObject();
         // Left side (East face, x = -0.8): two sets of two doors, one above the other ("2 above 2")
-        // Lower pair (y = 9.0..13.55)
+        setPart('FOYER-CLOSET-DOOR-E-N', 'Entry Foyer — Coat Closet Doors (East North)');
+        beginDoorObject('FOYER-CLOSET-DOOR-E-N', -0.86, 7.48, -85, 0);
         addBox(bTrim,   -0.96, 9.0,  7.48, -0.76, 13.55, 8.56, 4.5, true);
-        addBox(bTrim,   -0.96, 9.0,  8.64, -0.76, 13.55, 9.72, 4.5, true);
         addBox(bHandle, -0.78, 12.1, 8.38, -0.68, 12.6,  8.48, 2, false);
-        addBox(bHandle, -0.78, 12.1, 8.72, -0.68, 12.6,  8.82, 2, false);
-        // Upper pair (y = 13.70..15.85)
         addBox(bTrim,   -0.96, 13.70, 7.48, -0.76, 15.85, 8.56, 4.5, true);
-        addBox(bTrim,   -0.96, 13.70, 8.64, -0.76, 15.85, 9.72, 4.5, true);
         addBox(bHandle, -0.78, 14.0,  8.38, -0.68, 14.4,  8.48, 2, false);
+        endDoorObject();
+        setPart('FOYER-CLOSET-DOOR-E-S', 'Entry Foyer — Coat Closet Doors (East South)');
+        beginDoorObject('FOYER-CLOSET-DOOR-E-S', -0.86, 9.72, 85, 0);
+        addBox(bTrim,   -0.96, 9.0,  8.64, -0.76, 13.55, 9.72, 4.5, true);
+        addBox(bHandle, -0.78, 12.1, 8.72, -0.68, 12.6,  8.82, 2, false);
+        addBox(bTrim,   -0.96, 13.70, 8.64, -0.76, 15.85, 9.72, 4.5, true);
         addBox(bHandle, -0.78, 14.0,  8.72, -0.68, 14.4,  8.82, 2, false);
+        endDoorObject();
       } else {
         setPart('FOYER-COAT-CLOSET', 'Remodel — Expanded Full-Width Foyer Coat Closet');
         addBox(bIntWall, -9.68, 9.0, 7.2, -0.8, 16.2, 7.62, 6, false);   // Full-width North closet face
         addBox(bIntWall, -1.22, 9.0, 7.2, -0.8, 16.2, 9.95, 6, false);   // East closet end wall
         addBox(bIntWall, -6.95, 9.0, 7.2, -6.65, 16.2, 9.95, 6, false);  // Divider between right door & left double doors
         // Right side (West when facing South): single full-height coat closet door
+        setPart('REMODEL-CLOSET-DOOR-W', 'Remodel — Coat Closet Door (West)');
+        beginDoorObject('REMODEL-CLOSET-DOOR-W', -9.38, 7.26, -85, 0);
         addBox(bTrim, -9.38, 9.0, 7.16, -7.12, 15.85, 7.36, 4.5, true);
         addBox(bHandle, -7.36, 12.1, 7.08, -7.26, 12.6, 7.18, 2, false);
+        endDoorObject();
         // Left side (East when facing South): double doors, 2 lower + 2 upper ("2 above 2")
-        // Lower pair (y = 9.0..13.55)
-        addBox(bTrim, -6.50, 9.0, 7.16, -3.94, 13.55, 7.36, 4.5, true);  // Lower-right leaf
-        addBox(bTrim, -3.84, 9.0, 7.16, -1.28, 13.55, 7.36, 4.5, true);  // Lower-left leaf
+        setPart('REMODEL-CLOSET-DOOR-E-W', 'Remodel — Coat Closet Doors (East-West)');
+        beginDoorObject('REMODEL-CLOSET-DOOR-E-W', -6.50, 7.26, -85, 0);
+        addBox(bTrim, -6.50, 9.0, 7.16, -3.94, 13.55, 7.36, 4.5, true);
         addBox(bHandle, -4.12, 12.1, 7.08, -4.02, 12.6, 7.18, 2, false);
-        addBox(bHandle, -3.76, 12.1, 7.08, -3.66, 12.6, 7.18, 2, false);
-        // Upper pair (y = 13.70..15.85)
-        addBox(bTrim, -6.50, 13.70, 7.16, -3.94, 15.85, 7.36, 4.5, true); // Upper-right leaf
-        addBox(bTrim, -3.84, 13.70, 7.16, -1.28, 15.85, 7.36, 4.5, true); // Upper-left leaf
+        addBox(bTrim, -6.50, 13.70, 7.16, -3.94, 15.85, 7.36, 4.5, true);
         addBox(bHandle, -4.12, 14.0, 7.08, -4.02, 14.4, 7.18, 2, false);
+        endDoorObject();
+        setPart('REMODEL-CLOSET-DOOR-E-E', 'Remodel — Coat Closet Doors (East-East)');
+        beginDoorObject('REMODEL-CLOSET-DOOR-E-E', -1.28, 7.26, 85, 0);
+        addBox(bTrim, -3.84, 9.0, 7.16, -1.28, 13.55, 7.36, 4.5, true);
+        addBox(bHandle, -3.76, 12.1, 7.08, -3.66, 12.6, 7.18, 2, false);
+        addBox(bTrim, -3.84, 13.70, 7.16, -1.28, 15.85, 7.36, 4.5, true);
         addBox(bHandle, -3.76, 14.0, 7.08, -3.66, 14.4, 7.18, 2, false);
+        endDoorObject();
       }
 
       setPart('INT-STAIRS-UP', 'Interior Stairs — Upper Flight (Up to Master Bedroom)');
@@ -2688,18 +2721,8 @@
       addNavDot(31.0, eY0, -13.7, 'Lower Stone Walkway East');
       addNavDot(43.2, eY0 - 4.6, -13.7, 'Pepper Ave Street Entry');
 
-      // --- FULL LOT VIEW: Shared Driveway (North), Carport (540 SF), Guest House / Cottage (425 SF) & Additional Parking (New Pad 800 SF) ---
+      // --- FULL LOT VIEW: Carport, Guest House / Cottage & Additional Parking ---
       if (showFullLot) {
-        // Shared Driveway & Easement Drive along the North side (x=32..94, z=-34..-19)
-        setPart('LOT-SHARED-DRIVEWAY', 'Full Lot — Shared Driveway & Easement Drive');
-        const drvSteps = 8;
-        for (let s = 0; s < drvSteps; s++) {
-          const x0 = 32.0 + (s / drvSteps) * (94.0 - 32.0);
-          const x1 = 32.0 + ((s + 1) / drvSteps) * (94.0 - 32.0);
-          const y0 = groundY(x0, -26.0) - 0.12;
-          const y1 = groundY(x1, -26.0) - 0.12;
-          addQuad(bStone, [x0, y0, -33.5], [x1, y1, -33.5], [x1, y1, -18.5], [x0, y0, -18.5], 8.0, true);
-        }
 
         // Covered 2-Car Carport (19' x 19' = 361 SF, directly adjoining Guest House on East: x=44..63, z=-16..3)
         const cpX0 = 44.0, cpX1 = 63.0, cpZ0 = -16.0, cpZ1 = 3.0;
