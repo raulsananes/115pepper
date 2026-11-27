@@ -2561,10 +2561,10 @@
           addQuad(bStone, [x0, y0, -33.5], [x1, y1, -33.5], [x1, y1, -18.5], [x0, y0, -18.5], 8.0, true);
         }
 
-        // Covered 2-Car Carport (directly East of Main House walkway: 20' x 22' per Lot Coverage plan)
-        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport');
-        const cpX0 = 37.0, cpX1 = 57.0, cpZ0 = -14.0, cpZ1 = 6.0;
-        const cpY = groundY(47.0, -4.0) + 0.1;
+        // Covered 2-Car Carport (540 SF = 24' x 22.5', directly East of Main House walkway: x=34..58, z=-15..7.5)
+        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (540 SF)');
+        const cpX0 = 34.0, cpX1 = 58.0, cpZ0 = -15.0, cpZ1 = 7.5;
+        const cpY = groundY(46.0, -3.75) + 0.1;
         addBox(bStone, cpX0, cpY - 0.55, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
@@ -2575,16 +2575,16 @@
         addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ0 - 0.45, cpX1 + 0.55, cpY + 7.60, cpZ0 - 0.25, 4, false);
         addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ1 + 0.25, cpX1 + 0.55, cpY + 7.60, cpZ1 + 0.45, 4, false);
 
-        // Guest House / East House / Cottage (425 SF, directly East of Carport: x=58.5..71.5, z=-19..10)
-        const ghX0 = 58.5, ghX1 = 71.5, ghZ0 = -19.0, ghZ1 = 10.0;
-        const ghY0 = groundY(65.0, -4.5) + 0.35, ghTop = ghY0 + 8.2, ghPeak = ghY0 + 11.6;
+        // Guest House / East House / Cottage (425 SF = 13.5' x 31', directly East of Carport: x=58.5..72.0, z=-20.5..10.5)
+        const ghX0 = 58.5, ghX1 = 72.0, ghZ0 = -20.5, ghZ1 = 10.5;
+        const ghY0 = groundY(65.25, -5.0) + 0.35, ghTop = ghY0 + 8.2, ghPeak = ghY0 + 11.6;
         setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House / East House (425 SF)');
         addBox(bStone, ghX0 - 0.5, ghY0 - 0.8, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ0, ghX0, ghX1, ghY0, ghTop, 0.5, [
-          { u0: ghX0 + 3.0, u1: ghX0 + 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
+          { u0: ghX0 + 3.0, u1: ghX0 + 9.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ1, ghX0, ghX1, ghY0, ghTop, -0.5, [
-          { u0: ghX0 + 3.0, u1: ghX0 + 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
+          { u0: ghX0 + 3.0, u1: ghX0 + 9.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
           { u0: -12.0, u1: -7.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
@@ -2595,12 +2595,12 @@
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
 
-        // Additional Off-Street Parking ("New Pad" 800 SF, directly East of Guest House: x=73.5..92.0, z=-18..10)
+        // Additional Off-Street Parking ("New Pad" 800 SF, directly East of Guest House: x=73.5..92.5, z=-19..10)
         setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad (800 SF)');
-        const pkY = groundY(82.5, -4.0) - 0.05;
-        addBox(bStone, 73.5, pkY - 0.65, -18.0, 92.0, pkY, 10.0, 6.0, true);
-        for (const sz of [-11.0, -4.0, 3.0]) {
-          addBox(bWhiteDoor, 74.5, pkY + 0.02, sz - 0.12, 91.0, pkY + 0.06, sz + 0.12, 2, false);
+        const pkY = groundY(83.0, -4.5) - 0.05;
+        addBox(bStone, 73.5, pkY - 0.65, -19.0, 92.5, pkY, 10.0, 6.0, true);
+        for (const sz of [-11.5, -4.5, 2.5]) {
+          addBox(bWhiteDoor, 74.5, pkY + 0.02, sz - 0.12, 91.5, pkY + 0.06, sz + 0.12, 2, false);
         }
       }
 
@@ -2796,8 +2796,8 @@
         if (keysDown.has('KeyD') || keysDown.has('ArrowRight') || activeMoveBtn === 'right') { dx -= rx; dz -= rz; }
         const len = Math.hypot(dx, dz);
         if (len > 0) {
-          state.fpPos[0] = Math.max(-37, Math.min(24, state.fpPos[0] + (dx / len) * speed));
-          state.fpPos[2] = Math.max(-13.5, Math.min(9.2, state.fpPos[2] + (dz / len) * speed));
+          state.fpPos[0] = Math.max(-64, Math.min(95, state.fpPos[0] + (dx / len) * speed));
+          state.fpPos[2] = Math.max(-35, Math.min(14, state.fpPos[2] + (dz / len) * speed));
         }
       }
 
@@ -3462,8 +3462,8 @@
               const scale = 0.045;
               const fx = Math.sin(state.fpYaw), fz = Math.cos(state.fpYaw);
               const rx = Math.cos(state.fpYaw), rz = -Math.sin(state.fpYaw);
-              state.fpPos[0] = Math.max(-62, Math.min(46, state.fpPos[0] + (mdx * rx + mdy * fx) * scale));
-              state.fpPos[2] = Math.max(-24, Math.min(14, state.fpPos[2] + (mdx * rz + mdy * fz) * scale));
+              state.fpPos[0] = Math.max(-64, Math.min(95, state.fpPos[0] + (mdx * rx + mdy * fx) * scale));
+              state.fpPos[2] = Math.max(-35, Math.min(14, state.fpPos[2] + (mdx * rz + mdy * fz) * scale));
             }
           }
           prevPinchDist = dist;
@@ -3488,8 +3488,8 @@
               const scale = 0.045;
               const fx = Math.sin(state.fpYaw), fz = Math.cos(state.fpYaw);
               const rx = Math.cos(state.fpYaw), rz = -Math.sin(state.fpYaw);
-              state.fpPos[0] = Math.max(-62, Math.min(46, state.fpPos[0] + (dx * rx + dy * fx) * scale));
-              state.fpPos[2] = Math.max(-24, Math.min(14, state.fpPos[2] + (dx * rz + dy * fz) * scale));
+              state.fpPos[0] = Math.max(-64, Math.min(95, state.fpPos[0] + (dx * rx + dy * fx) * scale));
+              state.fpPos[2] = Math.max(-35, Math.min(14, state.fpPos[2] + (dx * rz + dy * fz) * scale));
             } else {
               // Inside 360° look-around (drag-scene style matching exterior)
               state.fpYaw += dx * 0.0055;
@@ -3509,7 +3509,7 @@
               const hit = pickPartAt(e.clientX, e.clientY);
               if (hit && hit.part && /DOOR/i.test(hit.part.code)) {
                 toggleDoor(hit.part.code);
-              } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY/i.test(hit.part.code) && hit.point) {
+              } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(hit.part.code) && hit.point) {
                 jumpToNavDot({ x: hit.point[0], y: hit.point[1], z: hit.point[2], label: hit.part.label });
               } else {
                 const dot = pickNavDotAt(e.clientX, e.clientY);
@@ -3556,8 +3556,8 @@
             const scale = 0.035;
             const fx = Math.sin(state.fpYaw), fz = Math.cos(state.fpYaw);
             const rx = Math.cos(state.fpYaw), rz = -Math.sin(state.fpYaw);
-            state.fpPos[0] = Math.max(-62, Math.min(46, state.fpPos[0] - (e.deltaX * rx + e.deltaY * fx) * scale));
-            state.fpPos[2] = Math.max(-24, Math.min(14, state.fpPos[2] - (e.deltaX * rz + e.deltaY * fz) * scale));
+            state.fpPos[0] = Math.max(-64, Math.min(95, state.fpPos[0] - (e.deltaX * rx + e.deltaY * fx) * scale));
+            state.fpPos[2] = Math.max(-35, Math.min(14, state.fpPos[2] - (e.deltaX * rz + e.deltaY * fz) * scale));
           }
         }
       }, { passive: false });
