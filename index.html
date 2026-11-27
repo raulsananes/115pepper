@@ -1561,8 +1561,9 @@
       // Master Bedroom interior stairwell enclosure walls (drywall on all faces) + framed entry doorway at top of UP stairs
       setPart('INT-MASTER-STAIR-WALL', 'Master Bedroom — Interior Stairwell Wall & Entry Doorway');
       addBox(bIntWall, 4.55, 9.0, 3.58, 13.50, eTop - 0.1, 4.00, 6, false);          // North stairwell wall
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', 13.51, 7.00, 10.00, eY0 + 3.6, eTop - 0.1, -0.42, [
-        { u0: 7.40, u1: 9.65, v0: eY0 + 4.0, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.35, code: 'STAIR-WIN-E', label: 'Stairwell — Tall East Exterior Window' }
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 13.51, 7.00, 10.00, eY0 + 3.0, eTop - 0.1, -0.42, [
+        { u0: 7.45, u1: 9.60, v0: eY1 + 0.6, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.48, code: 'STAIR-WIN-E-UPPER', label: 'Stairwell — Upper East Exterior Window' },
+        { u0: 7.45, u1: 9.60, v0: eY0 + 3.4, v1: eY1 - 0.1, type: 'window', mullionV: false, mullionH: 0.45, code: 'STAIR-WIN-E-LOWER', label: 'Stairwell — Lower East Exterior Window' }
       ]);
       addBox(bIntWall, 13.51, eY1, 6.82, 19.60, eTop - 0.1, 7.12, 6, false);       // Master Bedroom South wall along stairwell (z=7.0)
       addBox(bIntWall, 13.30, eY1 + 6.8, 3.58, 13.72, eTop - 0.1, 7.00, 6, false);   // Header over Master doorway
@@ -2091,12 +2092,23 @@
       }
       setPart('STAIRS-BOARDWALK', 'Exterior Stairs — Lower Flat Stone Walkway (4\'-0" wide)');
       addBox(bStone, 20.0, eY0 - 0.55, nWalkZ0, 33.5, eY0, nWalkZ1, 5.5, true);
-      setPart('STAIRS-LOWER-FLIGHT', 'Exterior Stairs — Lower Stone Street Flight (7 steps)');
+      setPart('STAIRS-LOWER-FLIGHT', 'Exterior Stairs — Lower Brick Street Flight (7 steps)');
       for (let i = 0; i < 7; i++) {
         const sx0 = 33.5 + i * 1.0;
         const sx1 = sx0 + 0.95;
         const sy = eY0 - (i + 1) * (4.6 / 7);
-        addBox(bStone, sx0, sy - 0.55, nWalkZ0, sx1, sy, nWalkZ1, 5.5, true);
+        addBox(bChimney, sx0, sy - 0.55, nWalkZ0, sx1, sy, nWalkZ1, 5.5, true);
+      }
+      // Black metal handrail along South side of lower street steps (matching street photos)
+      addBox(bBlack, 33.5, eY0, nWalkZ1 - 0.15, 33.62, eY0 + 2.8, nWalkZ1 - 0.03, 2, false);
+      addBox(bBlack, 40.3, eY0 - 4.6, nWalkZ1 - 0.15, 40.42, eY0 - 1.8, nWalkZ1 - 0.03, 2, false);
+      addQuad(bBlack, [33.56, eY0 + 2.75, nWalkZ1 - 0.13], [40.36, eY0 - 1.85, nWalkZ1 - 0.13], [40.36, eY0 - 1.73, nWalkZ1 - 0.13], [33.56, eY0 + 2.87, nWalkZ1 - 0.13], 2, false);
+      // Weathered timber plank retaining wall along East front (x=21.6, z=-15..10.5)
+      setPart('EAST-RETAINING-TIMBER', 'East Front — Weathered Timber Retaining Wall');
+      const retY0 = groundY(21.6, -2.0) - 0.6;
+      addBox(bDeck, 21.4, retY0, -15.0, 21.75, retY0 + 2.6, 10.5, 5.5, true);
+      for (const rz of [-14.5, -8.5, -2.5, 3.5, 9.8]) {
+        addBox(bDeck, 21.75, retY0 - 0.2, rz - 0.18, 22.05, retY0 + 2.75, rz + 0.18, 4, true);
       }
       setPart('STREET-RETAINING-WALL', 'Pepper Ave — Grey Stone Retaining Wall');
       addBox(bStone, 41.0, eY0 - 6.2, -22.0, 42.2, eY0 - 3.6, -7.5, 5.5, true);
