@@ -1487,19 +1487,19 @@
 
       // Solar Panel Arrays on East Wing West & East Roof Slopes (per Solar Roof Pitch & Azimuths plan + Photo 11)
       setPart('ROOF-SOLAR-PANELS', 'Main House — Roof Solar Panel Arrays', { isRoof: true });
-      const eSlope = (ePeak - eTop) / 8.0;
-      const eRoofW = (x) => eTop + (x - 4.0) * eSlope;
-      const eRoofE = (x) => eTop + (20.0 - x) * eSlope;
+      const solSlope = (ePeak - eTop) / 8.0;
+      const solRoofW = (x) => eTop + (x - 4.0) * solSlope;
+      const solRoofE = (x) => eTop + (20.0 - x) * solSlope;
       for (const [px0, px1, pz0, pz1] of [
         [5.6, 8.2, -3.6, -0.6], [5.6, 8.2, -0.3, 2.7], [5.6, 8.2, 3.0, 6.0],
         [8.5, 11.1, -3.6, -0.6], [8.5, 11.1, -0.3, 2.7]
       ]) {
-        const py0 = eRoofW(px0) + 0.14, py1 = eRoofW(px1) + 0.14;
+        const py0 = solRoofW(px0) + 0.14, py1 = solRoofW(px1) + 0.14;
         addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
       }
       for (const [pz0, pz1] of [[-9.6, -7.2], [-6.9, -4.5], [-4.2, -1.8], [-1.5, 0.9]]) {
         const px0 = 13.0, px1 = 17.8;
-        const py0 = eRoofE(px0) + 0.14, py1 = eRoofE(px1) + 0.14;
+        const py0 = solRoofE(px0) + 0.14, py1 = solRoofE(px1) + 0.14;
         addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
       }
 
