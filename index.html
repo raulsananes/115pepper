@@ -2818,7 +2818,11 @@
         ]);
         setPart('GUEST-WALL-E', 'Guest House — East Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
-          { u0: -4.5, u1: 3.5, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
+          { u0: -14.2, u1: -10.2, v0: ghY0 + 4.8, v1: ghY0 + 7.8, type: 'window', mullionV: true, code: 'GUEST-WIN-E-1', label: 'Guest House — East Window 1 (North)' },
+          { u0: -9.6,  u1: -5.6,  v0: ghY0 + 4.8, v1: ghY0 + 7.8, type: 'window', mullionV: true, code: 'GUEST-WIN-E-2', label: 'Guest House — East Window 2' },
+          { u0: -4.2,  u1: -0.6,  v0: ghY0 + 4.8, v1: ghY0 + 7.8, type: 'window', mullionV: true, code: 'GUEST-WIN-E-3', label: 'Guest House — East Window 3' },
+          { u0:  0.0,  u1:  3.6,  v0: ghY0 + 4.8, v1: ghY0 + 7.8, type: 'window', mullionV: true, code: 'GUEST-WIN-E-4', label: 'Guest House — East Window 4' },
+          { u0:  4.2,  u1:  7.8,  v0: ghY0 + 4.8, v1: ghY0 + 7.8, type: 'window', mullionV: true, code: 'GUEST-WIN-E-5', label: 'Guest House — East Window 5 (South)' }
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
         // Guest House roof skylight (West slope) & Slate Flagstone Patio (matching Photo 14)
@@ -3474,7 +3478,7 @@
         const nowPick = performance.now();
         for (const p of pickables) {
           if (p.isRoof && state.liftRoof) continue;
-          if (ignoreFenceAndBorder && (p.code === 'PROPERTY-FENCE' || p.code === 'PROPERTY-BORDER')) continue;
+          if (ignoreFenceAndBorder && (p.code === 'PROPERTY-FENCE' || p.code === 'PROPERTY-BORDER' || /-WIN-/i.test(p.code))) continue;
           let rEye = eye, rDir = dir;
           const dObj = doorObjectsByCode.get(p.code);
           if (dObj) {
