@@ -764,6 +764,7 @@
       const bIntWall    = createBatch('intWall', [0.97, 0.94, 0.86], texPlaster);
       const bIntFloor   = createBatch('intFlr',  [0.96, 0.89, 0.78], texFloor);
       const bWoodBeam   = createBatch('beam',    [0.62, 0.40, 0.22], null);
+      const bCopper     = createBatch('copper',  [0.38, 0.62, 0.54], null);
       const bCabinet    = createBatch('cab',     [0.82, 0.77, 0.70], texPlaster);
       const bCounter    = createBatch('counter', [0.32, 0.34, 0.36], null);
       const bFixture    = createBatch('fixture', [0.95, 0.96, 0.97], null);
@@ -2013,7 +2014,7 @@
         addBox(bWoodBeam, gx - 0.09, gy + 7.0, gzN - 0.85, gx + 0.09, gy + 7.22, gzS + 0.09, 4, true); // Top header beam (extends past North post)
         // Short cedar shingle privacy panel on North side with verdigris copper mailbox
         addBox(bShingleExt, gx - 0.12, gy, gzN - 0.85, gx + 0.12, gy + 5.8, gzN - 0.09, 5, true);
-        addBox(bBlueWall, gx + 0.12, gy + 3.4, gzN - 0.65, gx + 0.30, gy + 4.2, gzN - 0.25, 3, true);
+        addBox(bCopper, gx + 0.12, gy + 3.4, gzN - 0.65, gx + 0.30, gy + 4.2, gzN - 0.25, 3, true);
 
         setPart('STAIRS-GATE-DOOR', 'Mid-Landing — 5-Plank Wooden Gate Door');
         beginDoorObject('STAIRS-GATE-DOOR', gx, gzS - 0.12, -90);
@@ -2036,8 +2037,8 @@
         addBox(bWoodBeam, gx - 0.13, gy + 0.35, zEnd + 0.08, gx - 0.05, gy + 0.65, zStart - 0.08, 4, true);
         addBox(bWoodBeam, gx - 0.13, gy + 4.95, zEnd + 0.08, gx - 0.05, gy + 5.25, zStart - 0.08, 4, true);
         // Black strap hinges on South stile
-        addBox(bDarkRoof, gx - 0.08, gy + 0.42, zStart - 0.18, gx + 0.07, gy + 0.62, zStart + 0.04, 2, true);
-        addBox(bDarkRoof, gx - 0.08, gy + 5.00, zStart - 0.18, gx + 0.07, gy + 5.20, zStart + 0.04, 2, true);
+        addBox(bBlack, gx - 0.08, gy + 0.42, zStart - 0.18, gx + 0.07, gy + 0.62, zStart + 0.04, 2, true);
+        addBox(bBlack, gx - 0.08, gy + 5.00, zStart - 0.18, gx + 0.07, gy + 5.20, zStart + 0.04, 2, true);
         endDoorObject();
       }
       setPart('STAIRS-MID-FLIGHT', 'Exterior Stairs — Middle Flight (4 steps, 4\'-0" wide)');
