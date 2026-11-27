@@ -800,6 +800,7 @@
       const doorObjectsByCode = new Map();
       let activeDoorObj = null;
       let activeRot = null;
+      let showFullLot = false;
 
       function getDoorT(code, now = performance.now()) {
         const a = doorAnims.get(code);
@@ -2552,7 +2553,7 @@
       addNavDot(43.2, eY0 - 4.6, -13.7, 'Pepper Ave Street Entry');
 
       // --- FULL LOT VIEW: Shared Driveway, Carport, Additional Parking & Guest House (East House) ---
-      if (typeof state !== 'undefined' && state.showFullLot) {
+      if (showFullLot) {
         // Shared Driveway entering from Pepper Ave (East) along South-East frontage
         setPart('LOT-SHARED-DRIVEWAY', 'Full Lot — Shared Driveway (Pepper Ave Access)');
         addBox(bStone, 38.0, -1.8, 12.2, 58.0, -1.35, 24.5, 8.0, true);
@@ -3598,7 +3599,7 @@
         state.liftRoof = e.target.checked;
       });
       toggleFullLotEl.addEventListener('change', (e) => {
-        state.showFullLot = e.target.checked;
+        showFullLot = e.target.checked;
         buildHouse(currentDesignMode);
       });
       document.getElementById('sun-slider').addEventListener('input', (e) => {
@@ -3682,8 +3683,8 @@
           if (action === 'design') {
             setDesignMode(val);
           } else if (action === 'preset') {
-            if (val === 'lot' && !state.showFullLot) {
-              state.showFullLot = true;
+            if (val === 'lot' && !showFullLot) {
+              showFullLot = true;
               toggleFullLotEl.checked = true;
               buildHouse(currentDesignMode);
             }
