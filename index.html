@@ -1720,13 +1720,26 @@
       // Foyer Coat Closet along ENTRY-WALL-SOUTH (Original: 3'-0" wide; Remodel: expanded all the way West to ENTRY-WALL-WEST-RETURN)
       if (!isRemodel) {
         setPart('FOYER-COAT-CLOSET', 'Entry Foyer — Coat Closet');
-        // Plain solid white wall on the North side (z = 7.2..7.62)
+        // Plain solid white walls + top lid
         addBox(bIntWall, -3.8, 9.0, 7.2, -0.8, 16.2, 7.62, 6, false);
         addBox(bIntWall, -3.8, 9.0, 7.2, -3.38, 16.2, 9.95, 6, false);
         addBox(bIntWall, -1.22, 9.0, 7.2, -0.8, 16.2, 9.95, 6, false);
-        // Right side (West face, x = -3.8): single coat closet door + handle
-        addBox(bTrim,   -3.84, 9.0,  7.50, -3.64, 15.85, 9.70, 4.5, true);
-        addBox(bHandle, -3.92, 12.1, 7.66, -3.82, 12.6,  7.76, 2, false);
+        addBox(bIntWall, -3.8, 16.05, 7.2, -0.8, 16.2, 9.95, 6, false); // Closet top lid
+        // Warm oak top cap trim around closet rim (matching photo)
+        addBox(bWoodBeam, -3.86, 16.20, 7.14, -0.74, 16.36, 7.68, 4, true);
+        addBox(bWoodBeam, -3.86, 16.20, 7.14, -3.32, 16.36, 9.98, 4, true);
+        addBox(bWoodBeam, -1.28, 16.20, 7.14, -0.74, 16.36, 9.98, 4, true);
+        // Right side (West face, x = -3.8): proud wood casing + 3D 6-panel wood door + doorknob
+        addBox(bTrim, -3.88, 9.0, 7.36, -3.76, 15.98, 7.54, 4, true);
+        addBox(bTrim, -3.88, 9.0, 9.66, -3.76, 15.98, 9.84, 4, true);
+        addBox(bTrim, -3.88, 15.80, 7.36, -3.76, 16.00, 9.84, 4, true);
+        addBox(bTrim, -3.84, 9.0, 7.54, -3.72, 15.80, 9.66, 4.5, true); // Door core
+        const cZm = 8.60;
+        for (const [cy0, cy1] of [[9.35, 11.15], [11.45, 13.55], [13.85, 15.40]]) {
+          addBox(bWoodBeam, -3.87, cy0, 7.76, -3.71, cy1, cZm - 0.12, 4, true);
+          addBox(bWoodBeam, -3.87, cy0, cZm + 0.12, -3.71, cy1, 9.44, 4, true);
+        }
+        addBox(bHandle, -3.96, 12.02, 7.66, -3.82, 12.22, 7.86, 2, false);
         // Left side (East face, x = -0.8): two sets of two doors, one above the other ("2 above 2")
         // Lower pair (y = 9.0..13.55)
         addBox(bTrim,   -0.96, 9.0,  7.48, -0.76, 13.55, 8.56, 4.5, true);
