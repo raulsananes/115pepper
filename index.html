@@ -2566,10 +2566,11 @@
 
         // Covered 2-Car Carport (19' x 19' = 361 SF, directly adjoining Guest House on East: x=44..63, z=-16..3)
         const cpX0 = 44.0, cpX1 = 63.0, cpZ0 = -16.0, cpZ1 = 3.0;
-        const cpY = groundY((cpX0 + cpX1) * 0.5, (cpZ0 + cpZ1) * 0.5) + 0.1;
-        const cpTop = cpY + 7.2, cpPeak = cpY + 10.2;
+        const sharedLotLevelY = groundY((cpX0 + cpX1) * 0.5, (cpZ0 + cpZ1) * 0.5) - 1.9;
+        const cpY = sharedLotLevelY;
+        const cpTop = cpY + 7.6, cpPeak = cpY + 10.6;
         setPart('CARPORT-FLOOR', 'Carport — Stone/Concrete Floor Slab (361 SF)');
-        addBox(bStone, cpX0, cpY - 0.55, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
+        addBox(bStone, cpX0, cpY - 1.5, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         setPart('CARPORT-POSTS', 'Carport — Timber Support Posts');
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
@@ -2581,11 +2582,11 @@
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
         addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false);
 
-        // Guest House / East House / Cottage (17' x 27' = 459 SF, joined seamlessly to East side of Carport: x=63..80, z=-16..11)
+        // Guest House / East House / Cottage (17' x 27' = 459 SF, same floor level as Carport: x=63..80, z=-16..11)
         const ghX0 = 63.0, ghX1 = 80.0, ghZ0 = -16.0, ghZ1 = 11.0;
-        const ghY0 = groundY((ghX0 + ghX1) * 0.5, (ghZ0 + ghZ1) * 0.5) + 0.35, ghTop = ghY0 + 8.4, ghPeak = ghY0 + 12.0;
+        const ghY0 = sharedLotLevelY, ghTop = ghY0 + 8.4, ghPeak = ghY0 + 12.0;
         setPart('GUEST-FOUNDATION', 'Guest House — Stone Foundation');
-        addBox(bStone, ghX0 - 0.5, ghY0 - 0.8, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
+        addBox(bStone, ghX0 - 0.5, ghY0 - 2.0, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
         setPart('GUEST-FLOOR', 'Guest House — Interior Floor (459 SF)');
         addBox(bIntFloor, ghX0 + 0.5, ghY0 - 0.1, ghZ0 + 0.5, ghX1 - 0.5, ghY0 + 0.05, ghZ1 - 0.5, 5.0, false);
         setPart('GUEST-WALL-N', 'Guest House — North Wall');
@@ -2606,10 +2607,10 @@
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
 
-        // Additional Off-Street Parking ("New Pad", directly East of Guest House: x=81.5..93.5, z=-18.5..10)
+        // Additional Off-Street Parking ("New Pad", directly East of Guest House: x=81.5..93.5, z=-18.5..10, lowered 3 ft)
         setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad');
-        const pkY = groundY(87.5, -4.25) - 0.05;
-        addBox(bStone, 81.5, pkY - 0.65, -18.5, 93.5, pkY, 10.0, 6.0, true);
+        const pkY = groundY(87.5, -4.25) - 3.05;
+        addBox(bStone, 81.5, pkY - 0.8, -18.5, 93.5, pkY, 10.0, 6.0, true);
         for (const sz of [-11.5, -4.5, 2.5]) {
           addBox(bWhiteDoor, 82.2, pkY + 0.02, sz - 0.12, 92.8, pkY + 0.06, sz + 0.12, 2, false);
         }
