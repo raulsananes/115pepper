@@ -765,8 +765,8 @@
       const bIntFloor   = createBatch('intFlr',  [0.96, 0.89, 0.78], texFloor);
       const bWoodBeam   = createBatch('beam',    [0.62, 0.40, 0.22], null);
       const bCopper     = createBatch('copper',  [0.38, 0.62, 0.54], null);
-      const bCabinet    = createBatch('cab',     [0.82, 0.77, 0.70], texPlaster);
-      const bCounter    = createBatch('counter', [0.32, 0.34, 0.36], null);
+      const bCabinet    = createBatch('cab',     [0.95, 0.94, 0.90], texPlaster);
+      const bCounter    = createBatch('counter', [0.95, 0.95, 0.94], null);
       const bFixture    = createBatch('fixture', [0.95, 0.96, 0.97], null);
       const bMetal      = createBatch('metal',   [0.22, 0.24, 0.26], null);
       const bSofa       = createBatch('sofa',    [0.44, 0.50, 0.54], null);
@@ -1575,7 +1575,7 @@
       addBox(bTrim, 13.22, eY1, 6.82, 13.78, eY1 + 6.85, 7.08, 4, true);
       addBox(bTrim, 13.22, eY1 + 6.62, 3.92, 13.78, eY1 + 6.88, 7.08, 4, true);
       setPart('MASTER-DOOR', 'Master Bedroom — 6-Panel Wood Entry Door');
-      beginDoorObject('MASTER-DOOR', 13.51, 6.82, -88);
+      beginDoorObject('MASTER-DOOR', 13.51, 6.82, 88);
       // 3D 6-panel (2x3) wood door leaf
       addBox(bTrim, 13.45, eY1, 4.18, 13.57, eY1 + 6.62, 6.82, 4, true); // Base door core
       const dZ0 = 4.18, dZ1 = 6.82, dZm = 5.50;
@@ -2475,13 +2475,25 @@
       addBox(bCounter, -15.75, 11.96, -11.80, -15.05, 12.08, -11.10, 2, true);
       addBox(bCounter, -14.85, 11.96, -11.80, -14.15, 12.08, -11.10, 2, true);
 
-      setPart('KITCHEN-FRIDGE', 'Kitchen — Refrigerator (NE Corner)');
-      addBox(bFixture, -5.15, 9.0, -15.60, -2.85, 14.85, -13.10, 4, true);
-      addBox(bMetal,   -5.05, 11.4, -13.10, -4.92, 14.2, -12.98, 2, false);
+      setPart('KITCHEN-FRIDGE', 'Kitchen — Stainless Bottom-Freezer Refrigerator (NE Corner)');
+      addBox(bHandle, -5.15, 9.0,  -15.60, -2.85, 11.05, -13.10, 4, true); // Lower freezer drawer
+      addBox(bHandle, -5.15, 11.10,-15.60, -2.85, 14.85, -13.10, 4, true); // Upper fridge door
+      addBox(bHandle, -5.02, 11.55,-13.08, -4.90, 14.35, -12.94, 2, false); // Vertical fridge handle
+      addBox(bHandle, -5.00, 10.65,-13.08, -3.00, 10.77, -12.94, 2, false); // Horizontal freezer handle
+      // Stainless-steel dishwasher & black cabinet handles along North run
+      setPart('KITCHEN-DISHWASHER', 'Kitchen — Stainless Dishwasher');
+      addBox(bHandle, -8.70, 9.05, -13.58, -6.90, 11.75, -13.48, 2, true);
+      addBox(bBlack,  -8.40, 11.50,-13.48, -7.20, 11.60, -13.40, 2, false);
+      setPart('KITCHEN-COUNTERS', 'Kitchen — Perimeter Base Cabinets & Counters');
+      addBox(bBlack, -6.15, 11.35, -13.58, -5.85, 11.45, -13.44, 2, false); // Drawer pull
+      addBox(bBlack, -6.65, 10.35, -13.58, -6.55, 10.75, -13.44, 2, false); // Lower door pull
 
       setPart('KITCHEN-UPPER-CABS', 'Kitchen — Upper Wall Cabinets');
       addBox(bCabinet, -16.1, 13.3, -15.6, -11.7, 14.7, -14.5, 4, true);
-      addBox(bCabinet, -8.3,  13.3, -15.6, -5.3,  14.7, -14.5, 4, true);
+      addBox(bCabinet, -8.3,  13.3, -15.6, -6.4,  14.7, -14.5, 4, true);
+      addBox(bCabinet, -6.4,  13.8, -15.6, -5.25, 14.7, -14.5, 4, true); // Shorter upper cab next to fridge
+      addBox(bBlack, -6.70, 13.50, -14.50, -6.60, 13.90, -14.38, 2, false);
+      addBox(bBlack, -5.50, 13.95, -14.50, -5.40, 14.30, -14.38, 2, false);
       if (!isRemodel) {
         // Original upper cabinets continuing along INT-KITCHEN-WALL-WEST (above stove) & SW return wall (above peninsula/island)
         addBox(bCabinet, -16.10, 13.3, -14.50, -14.95, 14.7, -13.20, 4, true); // NW corner run
