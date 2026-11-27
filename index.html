@@ -1211,7 +1211,7 @@
         currentPart = prevPart;
       }
 
-      function addGableX(x0, x1, z0, z1, yEave, yPeak, wallBatch, overhang = 0.8, roofCode, roofLabel, skipEastGable = false, eastSoffit = !skipEastGable) {
+      function addGableX(x0, x1, z0, z1, yEave, yPeak, wallBatch, overhang = 0.8, roofCode, roofLabel, skipEastGable = false, eastSoffit = !skipEastGable, ceilingBatch = bCeiling, intGableBatch = bIntWall) {
         const zm = (z0 + z1) / 2;
         const ox0 = x0 - overhang, ox1 = x1 + overhang;
         const oz0 = z0 - overhang, oz1 = z1 + overhang;
@@ -1221,27 +1221,27 @@
         const prevPart = currentPart;
         if (roofCode) setPart(roofCode + '-GABLE', (roofLabel || roofCode) + ' Gable Wall');
         addTri(wallBatch, [x0, yEave, z1], [x0, yEave, z0], [x0, yPeak, zm], 5.5);
-        addTri(bIntWall,  [x0 + 0.5, yEave, z0], [x0 + 0.5, yEave, z1], [x0 + 0.5, yPeak - 0.3, zm], 7.0);
+        addTri(intGableBatch, [x0 + 0.5, yEave, z0], [x0 + 0.5, yEave, z1], [x0 + 0.5, yPeak - 0.3, zm], 7.0);
         addEdge([x0, yEave, z0], [x0, yPeak, zm], true);
         addEdge([x0, yEave, z1], [x0, yPeak, zm], true);
         if (!skipEastGable) {
           addTri(wallBatch, [x1, yEave, z0], [x1, yEave, z1], [x1, yPeak, zm], 5.5);
-          addTri(bIntWall,  [x1 - 0.5, yEave, z1], [x1 - 0.5, yEave, z0], [x1 - 0.5, yPeak - 0.3, zm], 7.0);
+          addTri(intGableBatch, [x1 - 0.5, yEave, z1], [x1 - 0.5, yEave, z0], [x1 - 0.5, yPeak - 0.3, zm], 7.0);
           addEdge([x1, yEave, z0], [x1, yPeak, zm], true);
           addEdge([x1, yEave, z1], [x1, yPeak, zm], true);
         }
 
         const thick = 0.5;
-        const eastUnder = eastSoffit ? bSoffit : bCeiling;
+        const eastUnder = eastSoffit ? bSoffit : ceilingBatch;
         if (roofCode) setPart(roofCode + '-N', (roofLabel || roofCode) + ' (North Slope)', { isRoof: true });
         addQuad(bRoof,    [ox0, yOver, oz0], [ox1, yOver, oz0], [ox1, yPeak, zm], [ox0, yPeak, zm], 6.0, true);
-        addQuad(bCeiling, [x1, yEave - thick, z0], [x0, yEave - thick, z0], [x0, yPeak - thick, zm], [x1, yPeak - thick, zm], 6.0, false);
+        addQuad(ceilingBatch, [x1, yEave - thick, z0], [x0, yEave - thick, z0], [x0, yPeak - thick, zm], [x1, yPeak - thick, zm], 6.0, false);
         addQuad(bSoffit,  [ox1, yOver - thick, oz0], [ox0, yOver - thick, oz0], [ox0, yEave - thick, z0], [ox1, yEave - thick, z0], 6.0, false);
         addQuad(bSoffit,  [x0, yEave - thick, z0], [ox0, yEave - thick, z0], [ox0, yPeak - thick, zm], [x0, yPeak - thick, zm], 6.0, false);
         addQuad(eastUnder,[ox1, yEave - thick, z0], [x1, yEave - thick, z0], [x1, yPeak - thick, zm], [ox1, yPeak - thick, zm], 6.0, false);
         if (roofCode) setPart(roofCode + '-S', (roofLabel || roofCode) + ' (South Slope)', { isRoof: true });
         addQuad(bRoof,    [ox1, yOver, oz1], [ox0, yOver, oz1], [ox0, yPeak, zm], [ox1, yPeak, zm], 6.0, true);
-        addQuad(bCeiling, [x0, yEave - thick, z1], [x1, yEave - thick, z1], [x1, yPeak - thick, zm], [x0, yPeak - thick, zm], 6.0, false);
+        addQuad(ceilingBatch, [x0, yEave - thick, z1], [x1, yEave - thick, z1], [x1, yPeak - thick, zm], [x0, yPeak - thick, zm], 6.0, false);
         addQuad(bSoffit,  [ox0, yOver - thick, oz1], [ox1, yOver - thick, oz1], [ox1, yEave - thick, z1], [ox0, yEave - thick, z1], 6.0, false);
         addQuad(bSoffit,  [ox0, yEave - thick, z1], [x0, yEave - thick, z1], [x0, yPeak - thick, zm], [ox0, yPeak - thick, zm], 6.0, false);
         addQuad(eastUnder,[x1, yEave - thick, z1], [ox1, yEave - thick, z1], [ox1, yPeak - thick, zm], [x1, yPeak - thick, zm], 6.0, false);
@@ -2149,12 +2149,12 @@
       addBox(bBlack, 20.0, eY0, nWalkZ1 - 0.15, 20.12, eY0 + 2.8, nWalkZ1 - 0.03, 2, false);
       addBox(bBlack, 26.8, eY0 - 4.6, nWalkZ1 - 0.15, 26.92, eY0 - 1.8, nWalkZ1 - 0.03, 2, false);
       addQuad(bBlack, [20.06, eY0 + 2.75, nWalkZ1 - 0.13], [26.86, eY0 - 1.85, nWalkZ1 - 0.13], [26.86, eY0 - 1.73, nWalkZ1 - 0.13], [20.06, eY0 + 2.87, nWalkZ1 - 0.13], 2, false);
-      // Weathered timber plank retaining wall along East front (x=21.6, z=-15..10.5)
-      setPart('EAST-RETAINING-TIMBER', 'East Front — Weathered Timber Retaining Wall');
-      const retY0 = groundY(21.6, -2.0) - 0.6;
-      addBox(bDeck, 21.4, retY0, -15.0, 21.75, retY0 + 2.6, 10.5, 5.5, true);
-      for (const rz of [-14.5, -8.5, -2.5, 3.5, 9.8]) {
-        addBox(bDeck, 21.75, retY0 - 0.2, rz - 0.18, 22.05, retY0 + 2.75, rz + 0.18, 4, true);
+      // Weathered timber plank retaining wall along East lot edge (x=93.1)
+      setPart('EAST-RETAINING-TIMBER', 'East Lot — Weathered Timber Retaining Wall');
+      const retY0 = -5.75;
+      addBox(bDeck, 92.95, retY0, -18.5, 93.30, retY0 + 2.6, 10.5, 5.5, true);
+      for (const rz of [-18.0, -12.0, -6.0, 0.0, 6.0, 10.0]) {
+        addBox(bDeck, 93.30, retY0 - 0.2, rz - 0.18, 93.60, retY0 + 2.75, rz + 0.18, 4, true);
       }
       setPart('STREET-RETAINING-WALL', 'Pepper Ave — Grey Stone Retaining Wall');
       addBox(bStone, 41.0, eY0 - 6.2, -22.0, 42.2, eY0 - 3.6, -7.5, 5.5, true);
@@ -2740,7 +2740,7 @@
         setPart('CARPORT-BEAMS', 'Carport — Roof Header Beams');
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ0 + 0.22, cpX1 - 0.2, cpTop, cpZ0 + 0.58, 4, true);
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
-        addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false);
+        addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false, bWoodBeam, bWoodBeam);
 
         // Guest House / East House / Cottage (17' x 27' = 459 SF, same floor level as Carport: x=63..80, z=-16..11)
         const ghX0 = 63.0, ghX1 = 80.0, ghZ0 = -16.0, ghZ1 = 11.0;
