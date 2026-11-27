@@ -683,15 +683,30 @@
       // 6) Solid Cedar Main Door
       const texDoor = createProceduralTexture((ctx, S) => {
         const rng = makeRng(42);
-        ctx.fillStyle = '#9c4f28';
+        ctx.fillStyle = '#8b4a24';
         ctx.fillRect(0, 0, S, S);
-        for (let i = 0; i < 40; i++) {
-          ctx.fillStyle = rng() > 0.5 ? 'rgba(255,210,160,0.08)' : 'rgba(40,15,5,0.12)';
-          ctx.fillRect(rng() * S, 0, 4 + rng() * 14, S);
+        for (let i = 0; i < 45; i++) {
+          ctx.fillStyle = rng() > 0.5 ? 'rgba(255,205,150,0.08)' : 'rgba(40,15,5,0.12)';
+          ctx.fillRect(rng() * S, 0, 3 + rng() * 12, S);
         }
-        // Subtle architectural vertical tongue-and-groove plank lines
-        ctx.fillStyle = 'rgba(40,18,8,0.28)';
-        for (let x = 0; x < S; x += S / 6) ctx.fillRect(x, 0, 2, S);
+        // 6-panel (2 columns x 3 rows) raised wood door panels matching photo
+        const cols = [0.16, 0.53], pw = 0.31;
+        const rows = [
+          { y: 0.08, h: 0.16 },
+          { y: 0.28, h: 0.30 },
+          { y: 0.64, h: 0.28 }
+        ];
+        for (const cx of cols) {
+          for (const r of rows) {
+            const px = cx * S, py = r.y * S, w = pw * S, h = r.h * S;
+            ctx.strokeStyle = 'rgba(38,16,6,0.45)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(px, py, w, h);
+            ctx.strokeStyle = 'rgba(255,210,165,0.16)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(px + 3, py + 3, w - 6, h - 6);
+          }
+        }
       }, 256);
 
       // 7) Marin Hillside Terrain (Brown-Grey Earth)
@@ -739,16 +754,16 @@
       const bCeilingFixed = createBatch('ceilingFixed', [0.98, 0.98, 0.97], null);
       const bDeck       = createBatch('deck',    [0.95, 0.90, 0.85], texDeck);
       const bStone      = createBatch('stone',   [0.78, 0.79, 0.80], texRoof);
-      const bTrim       = createBatch('trim',    [0.58, 0.39, 0.24], null);
+      const bTrim       = createBatch('trim',    [0.56, 0.34, 0.19], null);
       const bBlack      = createBatch('black',   [0.08, 0.09, 0.10], null);
       const bBorder     = createBatch('border',  [0.08, 0.09, 0.10], null);
       const bChimney    = createBatch('chimney', [0.70, 0.63, 0.56], texShingle);
-      const bDoor       = createBatch('door',    [0.95, 0.85, 0.78], texDoor);
+      const bDoor       = createBatch('door',    [0.96, 0.88, 0.80], texDoor);
       const bWhiteDoor  = createBatch('whiteDoor', [0.97, 0.97, 0.96], null);
       const bHandle     = createBatch('handle',  [0.88, 0.90, 0.92], null);
-      const bIntWall    = createBatch('intWall', [0.96, 0.94, 0.90], texPlaster);
-      const bIntFloor   = createBatch('intFlr',  [0.95, 0.92, 0.88], texFloor);
-      const bWoodBeam   = createBatch('beam',    [0.58, 0.39, 0.24], null);
+      const bIntWall    = createBatch('intWall', [0.97, 0.94, 0.86], texPlaster);
+      const bIntFloor   = createBatch('intFlr',  [0.96, 0.89, 0.78], texFloor);
+      const bWoodBeam   = createBatch('beam',    [0.62, 0.40, 0.22], null);
       const bCabinet    = createBatch('cab',     [0.82, 0.77, 0.70], texPlaster);
       const bCounter    = createBatch('counter', [0.32, 0.34, 0.36], null);
       const bFixture    = createBatch('fixture', [0.95, 0.96, 0.97], null);
@@ -1551,6 +1566,11 @@
       addBox(bTrim, 13.26, eY1, 4.00, 13.76, eY1 + 6.8, 4.18, 4, true);
       addBox(bTrim, 13.26, eY1, 6.82, 13.76, eY1 + 6.8, 7.00, 4, true);
       addBox(bTrim, 13.26, eY1 + 6.62, 4.00, 13.76, eY1 + 6.8, 7.00, 4, true);
+      setPart('MASTER-DOOR', 'Master Bedroom — 6-Panel Wood Entry Door');
+      beginDoorObject('MASTER-DOOR', 13.51, 6.82, -88);
+      addBox(bDoor,   13.44, eY1, 4.18, 13.58, eY1 + 6.62, 6.82, 4.5, true);
+      addBox(bBlack,  13.36, eY1 + 3.05, 4.36, 13.66, eY1 + 3.22, 4.52, 2, false);
+      endDoorObject();
 
       // =========================================================================
       // DOWNSTAIRS — LOWER LEVEL (Exact Sheet 3 Floor Plan)
@@ -1717,8 +1737,8 @@
         const sx1 = sx0 + 1.10;
         const stepH = 3.6 / 6;
         const sy = 9.0 + (st + 1) * stepH;
-        addBox(bIntWall, sx0 + 0.08, sy - stepH, 4.02, sx1, sy - 0.14, 6.95, 6, false); // Closed riser
-        addBox(bDeck, sx0 - 0.06, sy - 0.14, 4.02, sx1, sy, 6.95, 4, true);             // Bullnose wood tread
+        addBox(bIntFloor, sx0 + 0.08, sy - stepH, 4.02, sx1, sy - 0.14, 6.95, 5, false); // Oak riser
+        addBox(bIntFloor, sx0 - 0.06, sy - 0.14, 4.02, sx1, sy, 6.95, 5, true);             // Oak bullnose tread
       }
       setPart('INT-STAIRS-DOWN', 'Interior Stairs — Lower Flight (Down to Lower Level)');
       // Lower split-level flight inside East Wing stairwell: 8 steps West->East (x = 4.0 -> 11.2, y = 9.0 -> 3.6)
@@ -1730,15 +1750,15 @@
         addBox(bIntWall, sx0, sy - stepH, 7.05, sx1 - 0.06, sy - 0.14, 9.93, 6, false); // Closed riser
         addBox(bDeck, sx0, sy - 0.14, 7.05, sx1 + 0.06, sy, 9.93, 4, true);             // Bullnose wood tread
       }
-      setPart('INT-STAIRS-RAIL', 'Interior Stairs — Wood Handrails & Stairwell Guardrail');
-      // Center handrail along UP flight (z = 6.95) + Upper Landing guardrail overlooking DOWN flight (x = 10.6..13.3)
-      addBox(bWoodBeam,  3.95,  9.0, 6.88,  4.15, 12.1, 7.08, 4, true); // Bottom newel post
-      addBox(bWoodBeam, 10.50, 12.6, 6.88, 10.70, 15.6, 7.08, 4, true); // Top newel post
-      addBox(bWoodBeam, 13.10, 12.6, 6.88, 13.30, 15.6, 7.08, 4, true); // Landing end post
-      addQuad(bWoodBeam, [4.05, 11.95, 6.90], [10.60, 15.45, 6.90], [10.60, 15.65, 6.90], [4.05, 12.15, 6.90], 4, true);
-      addQuad(bWoodBeam, [4.05, 12.15, 7.06], [10.60, 15.65, 7.06], [10.60, 15.45, 7.06], [4.05, 11.95, 7.06], 4, false);
-      addBox(bWoodBeam, 10.60, 15.42, 6.88, 13.30, 15.62, 7.08, 4, true); // Upper landing top guardrail
-      addBox(bWoodBeam, 10.60, 14.00, 6.92, 13.30, 14.14, 7.04, 4, true); // Upper landing mid rail
+      setPart('INT-STAIRS-RAIL', 'Interior Stairs — White Plaster Knee Wall & Oak Handrail Cap');
+      // Solid white plaster knee wall along UP flight (z = 6.95) & Upper Landing (x = 10.6..13.3) with warm oak cap
+      addQuad(bIntWall, [4.05, 9.00, 6.86], [10.60, 12.60, 6.86], [10.60, 15.50, 6.86], [4.05, 11.95, 6.86], 6, false);
+      addQuad(bIntWall, [10.60, 12.60, 7.04], [4.05, 9.00, 7.04], [4.05, 11.95, 7.04], [10.60, 15.50, 7.04], 6, false);
+      addBox(bIntWall, 10.60, 12.60, 6.86, 13.30, 15.50, 7.04, 6, false);
+      addQuad(bWoodBeam, [4.05, 11.95, 6.84], [10.60, 15.50, 6.84], [10.60, 15.72, 6.84], [4.05, 12.17, 6.84], 4, true);
+      addQuad(bWoodBeam, [10.60, 15.50, 7.06], [4.05, 11.95, 7.06], [4.05, 12.17, 7.06], [10.60, 15.72, 7.06], 4, false);
+      addQuad(bWoodBeam, [4.05, 12.17, 6.84], [10.60, 15.72, 6.84], [10.60, 15.72, 7.06], [4.05, 12.17, 7.06], 4, true);
+      addBox(bWoodBeam, 10.60, 15.50, 6.84, 13.30, 15.72, 7.06, 4, true); // Upper landing oak cap
       // Handrail along South wall for DOWN flight (z = 9.80)
       addBox(bWoodBeam,  3.95, 9.0, 9.72,  4.15, 11.9, 9.92, 4, true);
       addBox(bWoodBeam, 11.10, 3.6, 9.72, 11.30,  6.6, 9.92, 4, true);
