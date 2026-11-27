@@ -31,6 +31,14 @@
       height: 100vh;
       overflow: hidden;
     }
+    #app-root.immersive-fs #menu-root,
+    #app-root:fullscreen #menu-root,
+    #app-root:-webkit-full-screen #menu-root {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 50;
+    }
     canvas#glcanvas {
       display: block;
       width: 100%;
@@ -120,6 +128,7 @@
     <!-- Top-Right: Single-line boxless Outside/Inside toggle, Original/Remodel cycle, Fullscreen icon (same in fullscreen & normal) -->
     <div class="absolute top-2.5 right-3 z-40 pointer-events-auto flex items-center gap-3 text-xs font-semibold text-[var(--foreground)]">
       <button id="view-toggle" class="hud-text-btn hover:opacity-80 transition">Outside</button>
+      <button id="btn-cabinets-toggle" class="hud-text-btn hover:opacity-80 transition" title="Toggle East Kitchen Pantry Cabinets">Cabinets</button>
       <button id="btn-design-toggle" class="hud-text-btn hover:opacity-80 transition" title="Click to cycle Original / Remodel A-D">Original</button>
       <button id="btn-reload" title="Reload Latest Version" class="hud-text-btn hover:opacity-80 transition flex items-center">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
@@ -1430,10 +1439,11 @@
       // Split around the stairwell opening (x = 4.0..10.6, z = 3.8..10.1 & lower flight x = 10.6..13.5, z = 7.0..10.1)
       addBox(bIntFloor,  4.4, eY1 - 0.85, -14.8, 19.6, eY1,  3.8, 5.0, false); // North & center Master floor
       addBox(bIntFloor, 10.6, eY1 - 0.85,   3.8, 13.5, eY1,  7.0, 5.0, false); // Upper stair landing at top of UP flight
-      addBox(bIntFloor, 13.5, eY1 - 0.85,   3.8, 19.6, eY1,  7.0, 5.0, false); // Master Bedroom SE floor (stops at stairwell z=7.0)
+      addBox(bIntFloor, 13.5, eY1 - 0.85,   3.8, 19.6, eY1, 10.1, 5.0, false); // Master Bedroom SE floor (covers lower floor completely)
       // Crisp white Downstairs ceiling underside right below EAST-FLOOR-UPPER
       addQuad(bCeilingFixed, [4.4, eY1 - 0.87, -14.8], [4.4, eY1 - 0.87, 3.8], [19.6, eY1 - 0.87, 3.8], [19.6, eY1 - 0.87, -14.8], 6.0, false);
-      addQuad(bCeilingFixed, [10.6, eY1 - 0.87, 3.8], [10.6, eY1 - 0.87, 7.0], [19.6, eY1 - 0.87, 7.0], [19.6, eY1 - 0.87, 3.8], 6.0, false);
+      addQuad(bCeilingFixed, [10.6, eY1 - 0.87, 3.8], [10.6, eY1 - 0.87, 7.0], [13.5, eY1 - 0.87, 7.0], [13.5, eY1 - 0.87, 3.8], 6.0, false);
+      addQuad(bCeilingFixed, [13.5, eY1 - 0.87, 3.8], [13.5, eY1 - 0.87, 10.1], [19.6, eY1 - 0.87, 10.1], [19.6, eY1 - 0.87, 3.8], 6.0, false);
 
       // Exact Sheet 3 East Wing N-S length: 25'-8" (z = -15.2..10.5), aligning flush with KITCHEN-WALL-NORTH NE corner (-15.6)
       setPart('EAST-WALL-NORTH', 'East Wing — North Wall');
@@ -1448,8 +1458,8 @@
         { u0: -14.6, u1: -10.6, v0: eY0 + 2.4, v1: eY0 + 7.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-LOWER-E', label: 'East Wing — Lower NE Corner Window (East)' },
         { u0: 2.2,   u1: 4.2,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
         { u0: 4.25,  u1: 6.25,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
-        { u0: 7.0,   u1: 10.5,  v0: eY0 + 3.6, v1: eTop, type: 'open' },
-        { u0: -1.1,  u1: 7.0,   v0: eY0,       v1: eY1 - 0.87, type: 'open' }
+        { u0: 7.2,   u1: 9.8,   v0: eY1 + 2.4, v1: eY1 + 6.8, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-SE-TALL', label: 'East Wing — Wide SE Corner Window' },
+        { u0: -1.1,  u1: 9.8,   v0: eY0,       v1: eY1 - 0.87, type: 'open' }
       ]);
       // Exterior portion of EAST-WALL-WEST (only where exposed to the outdoor North courtyard/breezeway)
       const ewExtZEnd = isRemodelD ? -14.68 : isRemodelC ? -12.66 : isRemodelB ? -8.05 : isRemodel ? -4.50 : 2.0;
@@ -1505,10 +1515,10 @@
         addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
       }
 
-      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck (stops at z=7.0 flush with Master South wall)
+      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck (fully covers lower bay floor)
       const pB = [[20, eY0, -1.5], [27.6, eY0, 3.8], [27.6, eY0, 10.5], [20, eY0, 10.5]];
-      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 7.0], [20, eY1, 7.0]];
-      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 7.0], [20, eY1 + 3.4, 7.0]];
+      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 10.5], [20, eY1, 10.5]];
+      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 10.5], [20, eY1 + 3.4, 10.5]];
 
       const bayDiagLen = Math.hypot(27.6 - 20, 3.8 - (-1.5));
       setPart('EAST-BAY-WALL-ANGLED', 'East Wing — Lower Angled Bay Wall (NE)');
@@ -2561,6 +2571,21 @@
       addBox(bCounter, -14.85, 11.96, -12.90, -14.15, 12.08, -12.20, 2, true);
       addBox(bCounter, -15.75, 11.96, -11.80, -15.05, 12.08, -11.10, 2, true);
       addBox(bCounter, -14.85, 11.96, -11.80, -14.15, 12.08, -11.10, 2, true);
+      if (isRemodel) {
+        setPart('KITCHEN-RANGE-HOOD', 'Remodel — Stainless Metal Range Hood');
+        addBox(bHandle, -16.10, 14.05, -13.25, -14.00, 14.45, -10.65, 2, true);
+        addBox(bHandle, -16.05, 14.45, -12.45, -15.10, 17.85, -11.45, 2, true);
+      }
+      if (state.showCabinets) {
+        setPart('KITCHEN-PANTRY-WALL', 'Kitchen — East Wall Pantry Cabinets (To South Wall)');
+        addBox(bCabinet, -4.35, 9.0, -13.00, -2.75, 14.80, -5.65, 4, true);
+        for (const pz of [-10.55, -8.10]) {
+          addBox(bBlack, -4.38, 9.0, pz - 0.03, -4.33, 14.80, pz + 0.03, 2, false);
+        }
+        for (const pz of [-11.80, -9.35, -6.90]) {
+          addBox(bBlack, -4.42, 11.50, pz - 0.05, -4.34, 12.20, pz + 0.05, 2, false);
+        }
+      }
 
       setPart('KITCHEN-FRIDGE', 'Kitchen — Stainless Bottom-Freezer Refrigerator (NE Corner)');
       addBox(bHandle, -5.15, 9.0,  -15.60, -2.85, 11.05, -13.10, 4, true); // Lower freezer drawer
@@ -3807,6 +3832,16 @@
       document.getElementById('sun-slider').addEventListener('input', (e) => {
         state.sunAz = Number(e.target.value);
       });
+
+      const btnCabinetsToggle = document.getElementById('btn-cabinets-toggle');
+      if (btnCabinetsToggle) {
+        btnCabinetsToggle.addEventListener('click', () => {
+          state.showCabinets = !state.showCabinets;
+          btnCabinetsToggle.textContent = state.showCabinets ? 'Cabinets ✓' : 'Cabinets';
+          btnCabinetsToggle.style.color = state.showCabinets ? '#93c5fd' : '';
+          buildHouse(currentDesignMode);
+        });
+      }
 
       const btnDesignToggle = document.getElementById('btn-design-toggle');
       const DESIGN_MODES = ['original', 'remodelA', 'remodelB', 'remodelC', 'remodelD'];
