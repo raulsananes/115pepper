@@ -2565,19 +2565,19 @@
           addQuad(bStone, [x0, y0, -33.5], [x1, y1, -33.5], [x1, y1, -18.5], [x0, y0, -18.5], 8.0, true);
         }
 
-        // Covered 2-Car Carport (540 SF, directly East of Main House walkway: x=36..58, z=-15..7)
-        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (540 SF)');
-        const cpX0 = 36.0, cpX1 = 58.0, cpZ0 = -15.0, cpZ1 = 7.0;
+        // Covered 2-Car Carport (directly East of Main House walkway: 20' x 22' per Lot Coverage plan)
+        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport');
+        const cpX0 = 37.0, cpX1 = 57.0, cpZ0 = -14.0, cpZ1 = 6.0;
         const cpY = groundY(47.0, -4.0) + 0.1;
-        addBox(bStone, cpX0, cpY - 0.65, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
+        addBox(bStone, cpX0, cpY - 0.55, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
-            addBox(bWoodBeam, px - 0.22, cpY, pz - 0.22, px + 0.22, cpY + 8.0, pz + 0.22, 4, true);
+            addBox(bWoodBeam, px - 0.18, cpY, pz - 0.18, px + 0.18, cpY + 7.2, pz + 0.18, 4, true);
           }
         }
-        addBox(bRoof, cpX0 - 0.6, cpY + 8.0, cpZ0 - 0.5, cpX1 + 0.6, cpY + 8.7, cpZ1 + 0.5, 6.0, true);
-        addBox(bTrim, cpX0 - 0.7, cpY + 7.95, cpZ0 - 0.6, cpX1 + 0.7, cpY + 8.75, cpZ0 - 0.3, 4, false);
-        addBox(bTrim, cpX0 - 0.7, cpY + 7.95, cpZ1 + 0.3, cpX1 + 0.7, cpY + 8.75, cpZ1 + 0.6, 4, false);
+        addBox(bRoof, cpX0 - 0.5, cpY + 7.2, cpZ0 - 0.4, cpX1 + 0.5, cpY + 7.55, cpZ1 + 0.4, 6.0, true);
+        addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ0 - 0.45, cpX1 + 0.55, cpY + 7.60, cpZ0 - 0.25, 4, false);
+        addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ1 + 0.25, cpX1 + 0.55, cpY + 7.60, cpZ1 + 0.45, 4, false);
 
         // Guest House / East House / Cottage (425 SF, directly East of Carport: x=58.5..71.5, z=-19..10)
         const ghX0 = 58.5, ghX1 = 71.5, ghZ0 = -19.0, ghZ1 = 10.0;
