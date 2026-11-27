@@ -225,10 +225,6 @@
               <input id="toggle-roof" type="checkbox" />
               <span>Lift Roof</span>
             </label>
-            <label class="w95-item" style="justify-content: flex-start;">
-              <input id="toggle-full-lot" type="checkbox" />
-              <span>Show Full Lot (Carport, East House, Parking)</span>
-            </label>
             <div class="w95-sep"></div>
             <div class="px-2 py-1.5 flex items-center justify-between gap-2 text-[11px]">
               <span>Sun Angle</span>
@@ -793,7 +789,7 @@
       const doorObjectsByCode = new Map();
       let activeDoorObj = null;
       let activeRot = null;
-      let showFullLot = false;
+      const showFullLot = true;
 
       function getDoorT(code, now = performance.now()) {
         const a = doorAnims.get(code);
@@ -2734,13 +2730,12 @@
         viewMode: 'exterior', // 'exterior' | 'inside'
         style: 'shingle',     // 'shingle' | 'shaded' | 'ink' | 'wire'
         liftRoof: false,
-        showFullLot: false,
         sunAz: 46,
-        // Exterior orbit camera
-        yaw: 0.68,
-        pitch: 0.52,
-        dist: 76,
-        target: [-5, 11, -1],
+        // Exterior orbit camera (default: West at top, East at bottom, from above)
+        yaw: Math.PI / 2,
+        pitch: 1.18,
+        dist: 148,
+        target: [15, 4, -8],
         // Inside first-person camera
         fpPos: [-3.5, 14.3, 5.2],
         fpYaw: Math.PI, // looking North at Main Door (0 = +Z South, PI = -Z North)
@@ -2749,7 +2744,7 @@
       };
 
       const EXT_PRESETS = {
-        lot:   { yaw: 0.45, pitch: 0.82, dist: 155, target: [22, 4, -8] },
+        lot:   { yaw: Math.PI / 2, pitch: 1.18, dist: 148, target: [15, 4, -8] },
         iso:   { yaw: 0.68, pitch: 0.52, dist: 76, target: [-5, 11, -1] },
         door:  { yaw: 0.18, pitch: 0.22, dist: 24, target: [-3.2, 12.2, 1.8] },
         north: { yaw: 0.0,  pitch: 0.12, dist: 74, target: [-6, 11, -2] },
@@ -3599,13 +3594,8 @@
       });
 
       const toggleRoofEl = document.getElementById('toggle-roof');
-      const toggleFullLotEl = document.getElementById('toggle-full-lot');
       toggleRoofEl.addEventListener('change', (e) => {
         state.liftRoof = e.target.checked;
-      });
-      toggleFullLotEl.addEventListener('change', (e) => {
-        showFullLot = e.target.checked;
-        buildHouse(currentDesignMode);
       });
       document.getElementById('sun-slider').addEventListener('input', (e) => {
         state.sunAz = Number(e.target.value);
@@ -3693,11 +3683,6 @@
           if (action === 'design') {
             setDesignMode(val);
           } else if (action === 'preset') {
-            if (val === 'lot' && !showFullLot) {
-              showFullLot = true;
-              toggleFullLotEl.checked = true;
-              buildHouse(currentDesignMode);
-            }
             if (state.viewMode !== 'exterior') setViewMode('exterior');
             if (EXT_PRESETS[val]) animateExt(EXT_PRESETS[val]);
           } else if (action === 'room') {
