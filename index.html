@@ -3383,7 +3383,7 @@
         return t > 0.25 ? t : null;
       }
 
-      function pickPartAt(clientX, clientY) {
+      function pickPartAt(clientX, clientY, ignoreFenceAndBorder = false) {
         const rect = canvas.getBoundingClientRect();
         const ndcX = ((clientX - rect.left) / rect.width) * 2 - 1;
         const ndcY = 1 - ((clientY - rect.top) / rect.height) * 2;
@@ -3418,6 +3418,7 @@
         const nowPick = performance.now();
         for (const p of pickables) {
           if (p.isRoof && state.liftRoof) continue;
+          if (ignoreFenceAndBorder && (p.code === 'PROPERTY-FENCE' || p.code === 'PROPERTY-BORDER')) continue;
           let rEye = eye, rDir = dir;
           const dObj = doorObjectsByCode.get(p.code);
           if (dObj) {
@@ -3457,7 +3458,7 @@
         if (!hit || !hit.part) return;
         const part = hit.part;
         selectedPart = part;
-        const isFloorLike = /FLOOR|DECK|STOOP|STAIRS|WALKWAY|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(part.code);
+        const isFloorLike = /FLOOR|DECK|STOOP|STAIRS|WALKWAY|PATIO|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(part.code);
         let displayCode = part.code;
         if (isFloorLike && hit.point) {
           const [hx, hy, hz] = hit.point;
@@ -3682,10 +3683,10 @@
           const move = Math.hypot(e.clientX - tapStart.x, e.clientY - tapStart.y);
           if (dur < 320 && move < 12) {
             if (now - lastTap.time < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 48) {
-              const hit = pickPartAt(e.clientX, e.clientY);
+              const hit = pickPartAt(e.clientX, e.clientY, true);
               if (hit && hit.part && /DOOR/i.test(hit.part.code)) {
                 toggleDoor(hit.part.code);
-              } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(hit.part.code) && hit.point) {
+              } else if (hit && hit.part && /FLOOR|DECK|STOOP|STAIRS|WALKWAY|PATIO|GROUND|TERRAIN|DRIVEWAY|PARKING|CARPORT/i.test(hit.part.code) && hit.point) {
                 jumpToNavDot({ x: hit.point[0], y: hit.point[1], z: hit.point[2], label: hit.part.label });
               } else {
                 const dot = pickNavDotAt(e.clientX, e.clientY);
