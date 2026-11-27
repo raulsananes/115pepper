@@ -1561,7 +1561,7 @@
       // Master Bedroom interior stairwell enclosure walls (drywall on all faces) + framed entry doorway at top of UP stairs
       setPart('INT-MASTER-STAIR-WALL', 'Master Bedroom — Interior Stairwell Wall & Entry Doorway');
       addBox(bIntWall, 4.55, 9.0, 3.58, 13.50, eTop - 0.1, 4.00, 6, false);          // North stairwell wall
-      addWallWithOpenings(bIntWall, bShingleExt, 'X', 13.51, 7.00, 10.00, eY0 + 3.6, eTop - 0.1, -0.42, [
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 13.51, 7.00, 10.00, eY0 + 3.6, eTop - 0.1, -0.42, [
         { u0: 7.40, u1: 9.65, v0: eY0 + 4.0, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.35, code: 'STAIR-WIN-E', label: 'Stairwell — Tall East Exterior Window' }
       ]);
       addBox(bIntWall, 13.51, eY1, 6.82, 19.60, eTop - 0.1, 7.12, 6, false);       // Master Bedroom South wall along stairwell (z=7.0)
