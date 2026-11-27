@@ -48,6 +48,62 @@
     #app-root.immersive-fs .hud-chrome {
       display: none !important;
     }
+    /* Windows 95-style cascading menu */
+    .w95-menu {
+      background: #c0c0c0;
+      color: #111111;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 2px 2px 0 #00000080, inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+      font-family: Tahoma, "MS Sans Serif", system-ui, sans-serif;
+      font-size: 12px;
+      padding: 2px;
+      min-width: 192px;
+    }
+    .w95-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 5px 10px 5px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .w95-item:hover, .w95-item.w95-open {
+      background: #000080;
+      color: #ffffff;
+    }
+    .w95-sep {
+      height: 0;
+      margin: 3px 2px;
+      border-top: 1px solid #808080;
+      border-bottom: 1px solid #ffffff;
+    }
+    .w95-sub {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: -2px;
+      z-index: 60;
+      margin-left: -2px;
+    }
+    .w95-item.w95-open > .w95-sub {
+      display: block;
+    }
+    @media (max-width: 640px) {
+      .w95-sub {
+        left: 72%;
+        top: 18px;
+      }
+      .w95-sub .w95-sub {
+        left: 35%;
+        top: 22px;
+      }
+    }
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased select-none">
@@ -60,51 +116,139 @@
       <span>Show Menu</span>
     </button>
 
-    <!-- Outside/Inside + Original/Remodel Controls pinned to Top-Right (always visible, including Fullscreen) -->
+    <!-- Top-Right: ONLY Inside/Outside + Fullscreen -->
     <div class="absolute top-3 right-3 z-40 pointer-events-auto flex items-center gap-2">
       <div class="glass-panel flex items-center bg-[var(--card)]/85 p-1 rounded-xl border border-[var(--border)] shadow-lg text-xs">
         <button id="view-exterior" class="px-2.5 py-1 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition">Outside</button>
         <button id="view-inside" class="px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:opacity-80 transition">Inside Tour</button>
       </div>
-      <button id="btn-design-toggle" class="glass-panel px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--card)]/85 shadow-lg text-xs font-semibold text-[var(--foreground)] hover:opacity-90 transition" title="Toggle between 1977 Original and Remodel">Original</button>
+      <button id="btn-fullscreen" title="Toggle Fullscreen" class="glass-panel px-2.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--card)]/85 text-[var(--foreground)] shadow-lg text-xs font-medium hover:opacity-90 transition flex items-center gap-1.5">
+        <svg id="fs-icon-expand" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <svg id="fs-icon-compress" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+        <span id="fs-label">Fullscreen</span>
+      </button>
     </div>
 
-    <!-- Top Floating Header & Style Switcher -->
-    <div class="hud-chrome absolute top-3 left-3 right-72 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-      <!-- Title & Roof Cutaway -->
-      <div class="pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl px-3 py-2 shadow-lg flex flex-wrap items-center gap-3">
-        <div>
-          <div class="text-sm font-semibold leading-tight text-[var(--foreground)]">115 Pepper Ave · Larkspur</div>
-          <div class="text-[11px] text-[var(--muted-foreground)]">Permit 77-260 · APN 021-231-05</div>
-        </div>
-        <div class="h-6 w-px bg-[var(--border)] hidden sm:block"></div>
-        <!-- Roof Cutaway Toggle -->
-        <label class="flex items-center gap-1.5 text-xs text-[var(--foreground)] cursor-pointer pl-1">
-          <input id="toggle-roof" type="checkbox" class="accent-[var(--primary)] rounded" />
-          <span>Lift Roof</span>
-        </label>
+    <!-- Top-Left: Windows 95-style Menu Button & Cascading Submenus -->
+    <div id="menu-root" class="hud-chrome absolute top-3 left-3 z-40 pointer-events-auto">
+      <div class="flex items-center gap-2">
+        <button id="btn-main-menu" class="glass-panel px-3 py-2 rounded-xl border border-[var(--border)] bg-[var(--card)]/85 text-[var(--foreground)] shadow-lg text-xs font-semibold hover:opacity-90 transition flex items-center gap-2">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          <span>Menu</span>
+          <span id="menu-active-badge" class="px-1.5 py-0.5 rounded bg-[var(--primary)]/80 text-[10px] text-white">Original</span>
+        </button>
       </div>
 
-      <!-- Visual Styles + Fullscreen -->
-      <div class="pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl px-2.5 py-1.5 shadow-lg flex flex-wrap items-center gap-1.5 text-xs">
-        <button data-style="shingle" class="style-btn px-2.5 py-1 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition">Wooden Tiles</button>
-        <button data-style="shaded" class="style-btn px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:bg-[var(--secondary)] transition">Shaded</button>
-        <button data-style="ink" class="style-btn px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:bg-[var(--secondary)] transition">1977 Ink</button>
-        <button data-style="wire" class="style-btn px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:bg-[var(--secondary)] transition">Wireframe</button>
-        <div class="h-5 w-px bg-[var(--border)] mx-0.5"></div>
-        <button id="btn-plans" title="Reference Architectural Plans" class="px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-90 transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-          <span>Plans</span>
-        </button>
-        <button id="btn-fullscreen" title="Toggle Fullscreen" class="px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-90 transition flex items-center gap-1.5">
-          <svg id="fs-icon-expand" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          <svg id="fs-icon-compress" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
-          <span id="fs-label">Fullscreen</span>
-        </button>
-        <button id="btn-reload" title="Reload Latest Version" class="px-2.5 py-1 rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-90 transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          <span>Reload</span>
-        </button>
+      <!-- Root Cascading Menu -->
+      <div id="win95-menu" class="hidden mt-1.5 w95-menu">
+        <!-- Design / Remodel -->
+        <div class="w95-item w95-parent">
+          <span>Design / Remodel</span><span>▶</span>
+          <div class="w95-menu w95-sub">
+            <div class="w95-item" data-action="design" data-value="original"><span class="w95-chk w-3 inline-block">✓</span> Original (1977)</div>
+            <div class="w95-item" data-action="design" data-value="remodelA"><span class="w95-chk w-3 inline-block"></span> Remodel A</div>
+            <div class="w95-item" data-action="design" data-value="remodelB"><span class="w95-chk w-3 inline-block"></span> Remodel B</div>
+            <div class="w95-item" data-action="design" data-value="remodelC"><span class="w95-chk w-3 inline-block"></span> Remodel C</div>
+            <div class="w95-item" data-action="design" data-value="remodelD"><span class="w95-chk w-3 inline-block"></span> Remodel D</div>
+            <div class="w95-sep"></div>
+            <div class="w95-item" data-action="permit-table">Permit Options Table...</div>
+          </div>
+        </div>
+
+        <!-- Exterior & Full Lot Views -->
+        <div class="w95-item w95-parent">
+          <span>Views</span><span>▶</span>
+          <div class="w95-menu w95-sub">
+            <div class="w95-item font-semibold" data-action="preset" data-value="lot">Full Lot (Carport, East House, Parking, Driveway)</div>
+            <div class="w95-sep"></div>
+            <div class="w95-item" data-action="preset" data-value="iso">Plan 3D (NE)</div>
+            <div class="w95-item" data-action="preset" data-value="door">Main Door</div>
+            <div class="w95-item" data-action="preset" data-value="north">North</div>
+            <div class="w95-item" data-action="preset" data-value="south">South</div>
+            <div class="w95-item" data-action="preset" data-value="east">East Deck</div>
+            <div class="w95-item" data-action="preset" data-value="top">Top Plan</div>
+          </div>
+        </div>
+
+        <!-- Inside Rooms -->
+        <div class="w95-item w95-parent">
+          <span>Inside Rooms</span><span>▶</span>
+          <div class="w95-menu w95-sub">
+            <div class="w95-item" data-action="room" data-value="foyer">Entry / Main Door</div>
+            <div class="w95-item" data-action="room" data-value="living">Living-Dining</div>
+            <div class="w95-item" data-action="room" data-value="kitchen">Kitchen</div>
+            <div class="w95-item" data-action="room" data-value="den">Den</div>
+            <div class="w95-item" data-action="room" data-value="master">Master Bedroom</div>
+            <div class="w95-item" data-action="room" data-value="lower">Lower Bedrooms</div>
+          </div>
+        </div>
+
+        <!-- Visual Styles -->
+        <div class="w95-item w95-parent">
+          <span>Style</span><span>▶</span>
+          <div class="w95-menu w95-sub">
+            <div class="w95-item" data-action="style" data-value="shingle"><span class="w95-style-chk w-3 inline-block">✓</span> Wooden Tiles</div>
+            <div class="w95-item" data-action="style" data-value="shaded"><span class="w95-style-chk w-3 inline-block"></span> Shaded</div>
+            <div class="w95-item" data-action="style" data-value="ink"><span class="w95-style-chk w-3 inline-block"></span> 1977 Ink</div>
+            <div class="w95-item" data-action="style" data-value="wire"><span class="w95-style-chk w-3 inline-block"></span> Wireframe</div>
+          </div>
+        </div>
+
+        <!-- Organized Plans Submenu -->
+        <div class="w95-item w95-parent">
+          <span>Plans</span><span>▶</span>
+          <div class="w95-menu w95-sub">
+            <div class="w95-item w95-parent">
+              <span>Floor &amp; Section Plans</span><span>▶</span>
+              <div class="w95-menu w95-sub">
+                <div class="w95-item" data-action="open-plan" data-value="p77_floors">Upper &amp; Lower Floor Plans</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_sections">Split-Level Cross Sections</div>
+              </div>
+            </div>
+            <div class="w95-item w95-parent">
+              <span>Exterior &amp; 3D Views</span><span>▶</span>
+              <div class="w95-menu w95-sub">
+                <div class="w95-item" data-action="open-plan" data-value="p77_elevations">Exterior Elevations</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_3d">Architect 3D Massing</div>
+              </div>
+            </div>
+            <div class="w95-item w95-parent">
+              <span>Site, Lot &amp; Roof</span><span>▶</span>
+              <div class="w95-menu w95-sub">
+                <div class="w95-item" data-action="open-plan" data-value="p77_site">Building Footprint &amp; Setbacks</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_topo">Parcel Boundary &amp; Slope Survey</div>
+                <div class="w95-item" data-action="open-plan" data-value="p80_site">Lot Coverage, Carport &amp; Parking</div>
+                <div class="w95-item" data-action="open-plan" data-value="p25_solar">Solar Roof Pitch &amp; Azimuths</div>
+              </div>
+            </div>
+            <div class="w95-sep"></div>
+            <div class="w95-item" data-action="all-plans">Browse All Plans...</div>
+          </div>
+        </div>
+
+        <!-- Scene Options -->
+        <div class="w95-item w95-parent">
+          <span>Options</span><span>▶</span>
+          <div class="w95-menu w95-sub" style="min-width: 210px;">
+            <label class="w95-item" style="justify-content: flex-start;">
+              <input id="toggle-roof" type="checkbox" />
+              <span>Lift Roof</span>
+            </label>
+            <label class="w95-item" style="justify-content: flex-start;">
+              <input id="toggle-full-lot" type="checkbox" />
+              <span>Show Full Lot (Carport, East House, Parking)</span>
+            </label>
+            <div class="w95-sep"></div>
+            <div class="px-2 py-1.5 flex items-center justify-between gap-2 text-[11px]">
+              <span>Sun Angle</span>
+              <input id="sun-slider" type="range" min="0" max="360" value="46" class="w-24" />
+            </div>
+          </div>
+        </div>
+
+        <div class="w95-sep"></div>
+        <div class="w95-item" data-action="permit-table">Permit Options Table...</div>
+        <div class="w95-item" data-action="reload">Reload Latest Version</div>
       </div>
     </div>
 
@@ -124,7 +268,7 @@
     </div>
 
     <!-- Inside Mode Navigation Pad (shown only in Inside Tour mode) -->
-    <div id="inside-pad" class="hud-chrome hidden absolute right-3 bottom-20 pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl p-2 shadow-lg">
+    <div id="inside-pad" class="hud-chrome hidden absolute right-3 bottom-6 pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl p-2 shadow-lg">
       <div class="text-[10px] text-center text-[var(--muted-foreground)] mb-1 font-medium">Walk (WASD)</div>
       <div class="grid grid-cols-3 gap-1 w-24">
         <div></div>
@@ -136,38 +280,66 @@
       </div>
     </div>
 
-    <!-- Bottom Floating Camera Presets & Sun Controls -->
-    <div class="hud-chrome absolute bottom-3 left-3 right-3 flex flex-wrap items-end justify-between gap-2 pointer-events-none">
-      <!-- Exterior Presets -->
-      <div id="presets-exterior" class="pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl px-2.5 py-2 shadow-lg flex flex-wrap items-center gap-1.5 text-xs">
-        <span class="text-[var(--muted-foreground)] font-medium mr-1">Views:</span>
-        <button data-preset="iso" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-85 transition">Plan 3D (NE)</button>
-        <button data-preset="door" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium hover:opacity-90 transition">Main Door</button>
-        <button data-preset="north" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">North</button>
-        <button data-preset="south" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">South</button>
-        <button data-preset="east" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">East Deck</button>
-        <button data-preset="top" class="preset-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">Top Plan</button>
-      </div>
-
-      <!-- Inside Room Presets -->
-      <div id="presets-inside" class="hidden pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl px-2.5 py-2 shadow-lg flex flex-wrap items-center gap-1.5 text-xs">
-        <span class="text-[var(--muted-foreground)] font-medium mr-1">Rooms:</span>
-        <button data-room="foyer" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium hover:opacity-90 transition">Entry / Main Door</button>
-        <button data-room="living" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-85 transition">Living-Dining</button>
-        <button data-room="kitchen" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">Kitchen</button>
-        <button data-room="den" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">Den</button>
-        <button data-room="master" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">Master Bdrm</button>
-        <button data-room="lower" class="room-btn px-2.5 py-1 rounded-lg bg-[var(--background)]/70 border border-[var(--border)] text-[var(--foreground)] hover:opacity-85 transition">Lower Bdrm</button>
-      </div>
-
-      <!-- Sun & Touch Hint -->
-      <div class="pointer-events-auto glass-panel bg-[var(--card)]/85 border border-[var(--border)] rounded-xl px-3 py-2 shadow-lg flex items-center gap-3 text-xs">
-        <label class="flex items-center gap-2 text-[var(--muted-foreground)]">
-          <span>Sun</span>
-          <input id="sun-slider" type="range" min="0" max="360" value="46" class="w-20 accent-[var(--primary)]" />
-        </label>
-        <div class="h-4 w-px bg-[var(--border)] hidden md:block"></div>
-        <span id="hint-text" class="text-[11px] text-[var(--muted-foreground)] hidden md:inline">Drag orbit · Pinch zoom · Long-press part for code</span>
+    <!-- Permit Options Table Modal -->
+    <div id="permit-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[88vh] flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] shrink-0">
+          <div>
+            <div class="text-sm font-semibold text-[var(--foreground)]">115 Pepper Ave — Design Options &amp; Permit Guide</div>
+            <div class="text-[11px] text-[var(--muted-foreground)]">APN 021-231-05 · City of Larkspur Permit Comparison</div>
+          </div>
+          <button id="permit-close-btn" class="px-2.5 py-1 rounded-lg bg-[var(--secondary)] text-[var(--secondary-foreground)] text-xs font-medium hover:opacity-85 transition">✕ Close</button>
+        </div>
+        <div class="overflow-auto p-3 sm:p-4">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+                <th class="py-2 pr-3 font-semibold">Option</th>
+                <th class="py-2 pr-3 font-semibold">Scope of Work</th>
+                <th class="py-2 pr-3 font-semibold">Permit Classification</th>
+                <th class="py-2 font-semibold">Review / Notes</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border)]/50 text-[var(--foreground)]">
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Original (1977)</td>
+                <td class="py-2.5 pr-3">Existing split-level residence, recessed South French doors, open entry breezeway</td>
+                <td class="py-2.5 pr-3 text-emerald-400 font-medium">Permit 77-260 (As-Built)</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">Approved baseline structure &amp; footprint</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Remodel A</td>
+                <td class="py-2.5 pr-3">Relocates front entry door outward and encloses entry courtyard under existing roof</td>
+                <td class="py-2.5 pr-3 text-sky-400 font-medium">Interior / Entry Alteration Permit</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">No roofline change; minimal exterior envelope impact</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Remodel B</td>
+                <td class="py-2.5 pr-3">Entry enclosure + pushes South Living-Dining French doors flush under South hood</td>
+                <td class="py-2.5 pr-3 text-emerald-400 font-medium">Building Alteration Permit</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">Adds conditioned SF under existing roof overhang; Title 24 check</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Remodel C</td>
+                <td class="py-2.5 pr-3">Expanded entry foyer, raised entry roof &amp; clerestory glazing + flush South doors</td>
+                <td class="py-2.5 pr-3 text-amber-400 font-medium">Building Permit + Structural Review</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">Modifies entry roof framing &amp; glazing; requires structural calcs</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Remodel D</td>
+                <td class="py-2.5 pr-3">Full entry expansion, reframed entry door, flush South doors &amp; full clerestory</td>
+                <td class="py-2.5 pr-3 text-violet-400 font-medium">Full Building Permit &amp; Design Review</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">Full structural, Title 24 energy &amp; City of Larkspur design review</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold whitespace-nowrap">Full Lot View</td>
+                <td class="py-2.5 pr-3">9,200 SF parcel: Main House, Carport, Guest House (East House), Additional Parking &amp; Shared Driveway</td>
+                <td class="py-2.5 pr-3 text-cyan-400 font-medium">Site / Lot Coverage &amp; Parking Compliance</td>
+                <td class="py-2.5 text-[var(--muted-foreground)]">Used to verify FAR, setbacks, off-street parking &amp; ADU/guest house layout</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -1431,15 +1603,18 @@
       addBox(bIntWall, 4.55, eY0, 6.55, 9.92, eY0 + 5.6, 6.97, 6, false);          // South wall along lower stair run
       addBox(bIntWall, 9.50, eY0, 3.02, 9.92, eY0 + 5.6, 4.10, 6, false);          // East wall North of storage door
       addBox(bIntWall, 9.50, eY0, 6.10, 9.92, eY0 + 5.6, 6.55, 6, false);          // East wall South of storage door
+      // Door at X=9.8, Y=3.6, Z=5.3 (double-tap to open/close)
+      setPart('INT-LOWER-STORAGE-DOOR', 'Lower Level — Under-Stair Storage Door');
+      beginDoorObject('INT-LOWER-STORAGE-DOOR', 9.71, 4.14, 85, 0);
+      addBox(bDoor,   9.64, eY0, 4.14, 9.78, eY0 + 5.55, 6.06, 4.5, true);
+      addBox(bHandle, 9.58, eY0 + 2.75, 5.80, 9.84, eY0 + 3.10, 5.96, 2, false);
+      endDoorObject();
 
-      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.02..9.93, housing Water Heater & Furnace per Sheet 3)
+      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.02..9.93, solid wall at X=13.1, Y=3.6, Z=6.2)
       setPart('INT-LOWER-MECH', 'Lower Level — Mechanical Closet (Water Heater & Furnace)');
       addBox(bIntWall, 15.38, eY0, 3.02, 15.80, eY1 - 0.88, 9.93, 6, false);       // East wall separating from South Bdrm
       addBox(bIntWall, 13.72, eY0, 3.02, 15.38, eY1 - 0.88, 3.42, 6, false);       // North wall of mech closet
-      addBox(bIntWall, 13.30, eY0, 3.02, 13.72, eY1 - 0.88, 4.30, 6, false);       // West pier North of mech doors
-      addBox(bIntWall, 13.30, eY0, 8.60, 13.72, eY1 - 0.88, 9.93, 6, false);       // West pier South of mech doors
-      addBox(bIntWall, 13.30, eY0 + 6.8, 4.30, 13.72, eY1 - 0.88, 8.60, 6, false); // Header over mech doors
-      addBox(bTrim, 13.36, eY0, 4.38, 13.56, eY0 + 6.75, 8.52, 4.5, true);         // Mechanical closet double doors
+      addBox(bIntWall, 13.30, eY0, 3.02, 13.72, eY1 - 0.88, 9.93, 6, false);       // Solid West wall along lower hallway (X=13.1, Z=6.2)
       addBox(bMetal, 13.90, eY0, 3.90, 15.25, eY0 + 5.2, 5.25, 4, true);           // Water heater tank
       addBox(bMetal, 13.90, eY0, 6.40, 15.25, eY0 + 5.6, 8.60, 4, true);           // Furnace cabinet
 
@@ -2376,6 +2551,55 @@
       addNavDot(31.0, eY0, -13.7, 'Lower Stone Walkway East');
       addNavDot(43.2, eY0 - 4.6, -13.7, 'Pepper Ave Street Entry');
 
+      // --- FULL LOT VIEW: Shared Driveway, Carport, Additional Parking & Guest House (East House) ---
+      if (typeof state !== 'undefined' && state.showFullLot) {
+        // Shared Driveway entering from Pepper Ave (East) along South-East frontage
+        setPart('LOT-SHARED-DRIVEWAY', 'Full Lot — Shared Driveway (Pepper Ave Access)');
+        addBox(bStone, 38.0, -1.8, 12.2, 58.0, -1.35, 24.5, 8.0, true);
+        addBox(bStone, 46.0, -2.2, -22.0, 56.0, -1.75, 12.2, 8.0, true); // Pepper Ave frontage lane
+
+        // Covered 2-Car Carport
+        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport');
+        const cpY = 1.2;
+        addBox(bStone, 22.0, cpY - 0.45, 13.5, 38.0, cpY, 23.8, 6.0, true);
+        for (const px of [22.4, 30.0, 37.6]) {
+          for (const pz of [13.9, 23.4]) {
+            addBox(bWoodBeam, px - 0.22, cpY, pz - 0.22, px + 0.22, cpY + 8.2, pz + 0.22, 4, true);
+          }
+        }
+        addBox(bRoof, 21.4, cpY + 8.2, 13.0, 38.6, cpY + 8.9, 24.3, 6.0, true);
+        addBox(bTrim, 21.3, cpY + 8.15, 12.9, 38.7, cpY + 8.95, 13.2, 4, false);
+        addBox(bTrim, 21.3, cpY + 8.15, 24.1, 38.7, cpY + 8.95, 24.4, 4, false);
+
+        // Additional Parking Pad with stall lines
+        setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Off-Street Parking');
+        addBox(bStone, 4.0, cpY - 0.45, 14.0, 22.0, cpY, 23.8, 6.0, true);
+        for (const sx of [9.8, 15.8]) {
+          addBox(bWhiteDoor, sx - 0.12, cpY + 0.02, 14.5, sx + 0.12, cpY + 0.06, 22.8, 2, false);
+        }
+
+        // Guest House (East House) on the East/Lower terrace
+        const ghX0 = 31.2, ghX1 = 44.2, ghZ0 = -10.8, ghZ1 = 4.2, ghY0 = 1.6, ghTop = 9.8, ghPeak = 13.4;
+        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House (East House)');
+        addBox(bStone, ghX0 - 0.5, ghY0 - 0.5, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
+        addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ0, ghX0, ghX1, ghY0, ghTop, 0.5, [
+          { u0: ghX0 + 3.0, u1: ghX0 + 7.2, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
+        ]);
+        addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ1, ghX0, ghX1, ghY0, ghTop, -0.5, [
+          { u0: ghX0 + 2.0, u1: ghX0 + 5.0, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-S', label: 'Guest House — Entry Door' },
+          { u0: ghX0 + 6.5, u1: ghX0 + 10.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
+        ]);
+        addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
+          { u0: -5.5, u1: -1.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
+        ]);
+        addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
+          { u0: -6.0, u1: -1.0, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
+        ]);
+        addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
+        setPart('LOT-GUEST-DECK', 'Guest House — Entry Porch Deck');
+        addBox(bDeck, ghX0 + 0.5, ghY0 - 0.35, ghZ1, ghX1 - 0.5, ghY0, ghZ1 + 3.4, 4.5, true);
+      }
+
       // Upload all batches to GPU buffers
       for (const b of batches) {
         b.count = b.pos.length / 3;
@@ -2502,6 +2726,7 @@
         viewMode: 'exterior', // 'exterior' | 'inside'
         style: 'shingle',     // 'shingle' | 'shaded' | 'ink' | 'wire'
         liftRoof: false,
+        showFullLot: false,
         sunAz: 46,
         // Exterior orbit camera
         yaw: 0.68,
@@ -2516,6 +2741,7 @@
       };
 
       const EXT_PRESETS = {
+        lot:   { yaw: 0.45, pitch: 0.72, dist: 128, target: [4, 6, 4] },
         iso:   { yaw: 0.68, pitch: 0.52, dist: 76, target: [-5, 11, -1] },
         door:  { yaw: 0.18, pitch: 0.22, dist: 24, target: [-3.2, 12.2, 1.8] },
         north: { yaw: 0.0,  pitch: 0.12, dist: 74, target: [-6, 11, -2] },
@@ -3337,64 +3563,27 @@
       window.addEventListener('keyup', (e) => keysDown.delete(e.code));
 
       // =========================================================================
-      // 9. UI BUTTON WIRING & FULLSCREEN API
+      // 9. UI BUTTON WIRING & FULLSCREEN API (Windows 95 Cascading Menu)
       // =========================================================================
       const btnExt = document.getElementById('view-exterior');
       const btnIn = document.getElementById('view-inside');
-      const presetsExt = document.getElementById('presets-exterior');
-      const presetsIn = document.getElementById('presets-inside');
       const insidePad = document.getElementById('inside-pad');
-      const hintText = document.getElementById('hint-text');
 
       function setViewMode(mode) {
         state.viewMode = mode;
         if (mode === 'exterior') {
-          btnExt.className = 'px-2.5 py-1 rounded-md font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition';
-          btnIn.className = 'px-2.5 py-1 rounded-md font-medium text-[var(--foreground)] hover:opacity-80 transition';
-          presetsExt.classList.remove('hidden');
-          presetsIn.classList.add('hidden');
+          btnExt.className = 'px-2.5 py-1 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition';
+          btnIn.className = 'px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:opacity-80 transition';
           insidePad.classList.add('hidden');
-          hintText.textContent = '1-finger orbit · 2-finger pinch zoom & pan';
         } else {
-          btnIn.className = 'px-2.5 py-1 rounded-md font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition';
-          btnExt.className = 'px-2.5 py-1 rounded-md font-medium text-[var(--foreground)] hover:opacity-80 transition';
-          presetsIn.classList.remove('hidden');
-          presetsExt.classList.add('hidden');
+          btnIn.className = 'px-2.5 py-1 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition';
+          btnExt.className = 'px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:opacity-80 transition';
           insidePad.classList.remove('hidden');
-          hintText.textContent = 'Drag to look 360° · Pinch to zoom · WASD / arrows to walk';
           animateRoom(ROOMS.foyer);
         }
       }
       btnExt.onclick = () => setViewMode('exterior');
       btnIn.onclick = () => setViewMode('inside');
-
-      // Style buttons
-      const styleBtns = document.querySelectorAll('.style-btn');
-      styleBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          state.style = btn.dataset.style;
-          styleBtns.forEach((b) => {
-            if (b === btn) b.className = 'style-btn px-2.5 py-1 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] transition';
-            else b.className = 'style-btn px-2.5 py-1 rounded-lg font-medium text-[var(--foreground)] hover:bg-[var(--secondary)] transition';
-          });
-        });
-      });
-
-      // Exterior presets
-      document.querySelectorAll('.preset-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const p = EXT_PRESETS[btn.dataset.preset];
-          if (p) animateExt(p);
-        });
-      });
-
-      // Inside room presets
-      document.querySelectorAll('.room-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const r = ROOMS[btn.dataset.room];
-          if (r) animateRoom(r);
-        });
-      });
 
       // On-screen walk pad
       document.querySelectorAll('.move-btn').forEach((btn) => {
@@ -3403,47 +3592,128 @@
         btn.addEventListener('pointerleave', () => { activeMoveBtn = null; });
       });
 
-      document.getElementById('toggle-roof').addEventListener('change', (e) => {
+      const toggleRoofEl = document.getElementById('toggle-roof');
+      const toggleFullLotEl = document.getElementById('toggle-full-lot');
+      toggleRoofEl.addEventListener('change', (e) => {
         state.liftRoof = e.target.checked;
+      });
+      toggleFullLotEl.addEventListener('change', (e) => {
+        state.showFullLot = e.target.checked;
+        buildHouse(currentDesignMode);
       });
       document.getElementById('sun-slider').addEventListener('input', (e) => {
         state.sunAz = Number(e.target.value);
       });
 
-      // Original / Remodel A / Remodel B / Remodel C / Remodel D 5-way cycling toggle button
-      const btnDesignToggle = document.getElementById('btn-design-toggle');
-      const DESIGN_MODES = ['original', 'remodelA', 'remodelB', 'remodelC', 'remodelD'];
+      const menuActiveBadge = document.getElementById('menu-active-badge');
+      const DESIGN_LABELS = {
+        original: 'Original',
+        remodelA: 'Remodel A',
+        remodelB: 'Remodel B',
+        remodelC: 'Remodel C',
+        remodelD: 'Remodel D'
+      };
       let currentDesignMode = 'original';
       function setDesignMode(mode) {
         currentDesignMode = mode;
-        const baseCls = 'glass-panel px-3 py-2 rounded-xl border shadow-lg text-xs font-semibold hover:opacity-90 transition';
-        if (mode === 'remodelA') {
-          btnDesignToggle.textContent = 'Remodel A';
-          btnDesignToggle.className = baseCls + ' border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]';
-        } else if (mode === 'remodelB') {
-          btnDesignToggle.textContent = 'Remodel B';
-          btnDesignToggle.className = baseCls + ' border-emerald-500 bg-emerald-600 text-white';
-        } else if (mode === 'remodelC') {
-          btnDesignToggle.textContent = 'Remodel C';
-          btnDesignToggle.className = baseCls + ' border-amber-500 bg-amber-600 text-white';
-        } else if (mode === 'remodelD') {
-          btnDesignToggle.textContent = 'Remodel D';
-          btnDesignToggle.className = baseCls + ' border-violet-500 bg-violet-600 text-white';
-        } else {
-          btnDesignToggle.textContent = 'Original';
-          btnDesignToggle.className = baseCls + ' border-[var(--border)] bg-[var(--card)]/85 text-[var(--foreground)]';
-        }
+        if (menuActiveBadge) menuActiveBadge.textContent = DESIGN_LABELS[mode] || 'Original';
+        document.querySelectorAll('[data-action="design"]').forEach((el) => {
+          const chk = el.querySelector('.w95-chk');
+          if (chk) chk.textContent = el.dataset.value === mode ? '✓' : '';
+        });
         const pt = document.getElementById('pick-toast');
         if (pt) pt.classList.add('hidden');
         buildHouse(mode);
       }
-      btnDesignToggle.addEventListener('click', () => {
-        const nextIdx = (DESIGN_MODES.indexOf(currentDesignMode) + 1) % DESIGN_MODES.length;
-        setDesignMode(DESIGN_MODES[nextIdx]);
+
+      // Windows 95 Cascading Menu Behavior
+      const menuRoot = document.getElementById('menu-root');
+      const btnMainMenu = document.getElementById('btn-main-menu');
+      const win95Menu = document.getElementById('win95-menu');
+      const permitModal = document.getElementById('permit-modal');
+
+      function closeWin95Menu() {
+        win95Menu.classList.add('hidden');
+        win95Menu.querySelectorAll('.w95-open').forEach((el) => el.classList.remove('w95-open'));
+      }
+
+      btnMainMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = win95Menu.classList.contains('hidden');
+        if (isHidden) win95Menu.classList.remove('hidden');
+        else closeWin95Menu();
       });
 
-      document.getElementById('btn-reload').addEventListener('click', () => {
-        window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
+      // Open submenus on hover (desktop) or tap (mobile/touch)
+      win95Menu.querySelectorAll('.w95-parent').forEach((parentEl) => {
+        parentEl.addEventListener('pointerenter', (e) => {
+          if (e.pointerType === 'touch') return;
+          const siblings = parentEl.parentElement ? [...parentEl.parentElement.children] : [];
+          siblings.forEach((sib) => { if (sib !== parentEl) sib.classList.remove('w95-open'); });
+          parentEl.classList.add('w95-open');
+        });
+        parentEl.addEventListener('click', (e) => {
+          if (e.target.closest('.w95-sub') && !e.target.closest('.w95-parent')?.isSameNode(parentEl)) return;
+          const directSub = parentEl.querySelector(':scope > .w95-sub');
+          if (e.target.closest('.w95-sub') === directSub) return;
+          e.stopPropagation();
+          const wasOpen = parentEl.classList.contains('w95-open');
+          const siblings = parentEl.parentElement ? [...parentEl.parentElement.children] : [];
+          siblings.forEach((sib) => { if (sib !== parentEl) sib.classList.remove('w95-open'); });
+          parentEl.classList.toggle('w95-open', !wasOpen);
+        });
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('pointerdown', (e) => {
+        if (!menuRoot.contains(e.target)) closeWin95Menu();
+      });
+
+      // Permit Options Table modal
+      document.getElementById('permit-close-btn').addEventListener('click', () => permitModal.classList.add('hidden'));
+      permitModal.addEventListener('click', (e) => { if (e.target === permitModal) permitModal.classList.add('hidden'); });
+
+      // Leaf menu item actions
+      win95Menu.querySelectorAll('[data-action]').forEach((item) => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const action = item.dataset.action;
+          const val = item.dataset.value;
+          if (action === 'design') {
+            setDesignMode(val);
+          } else if (action === 'preset') {
+            if (val === 'lot' && !state.showFullLot) {
+              state.showFullLot = true;
+              toggleFullLotEl.checked = true;
+              buildHouse(currentDesignMode);
+            }
+            if (state.viewMode !== 'exterior') setViewMode('exterior');
+            if (EXT_PRESETS[val]) animateExt(EXT_PRESETS[val]);
+          } else if (action === 'room') {
+            if (state.viewMode !== 'inside') setViewMode('inside');
+            if (ROOMS[val]) animateRoom(ROOMS[val]);
+          } else if (action === 'style') {
+            state.style = val;
+            document.querySelectorAll('[data-action="style"]').forEach((el) => {
+              const chk = el.querySelector('.w95-style-chk');
+              if (chk) chk.textContent = el.dataset.value === val ? '✓' : '';
+            });
+          } else if (action === 'open-plan') {
+            const p = REF_PLANS.find((pl) => pl.id === val);
+            if (p) {
+              showSinglePlan(p);
+              plansModal.classList.remove('hidden');
+            }
+          } else if (action === 'all-plans') {
+            showPlansList();
+            plansModal.classList.remove('hidden');
+          } else if (action === 'permit-table') {
+            permitModal.classList.remove('hidden');
+          } else if (action === 'reload') {
+            window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
+          }
+          closeWin95Menu();
+        });
       });
 
       // Fullscreen toggle (pure full-canvas immersive mode with only a small top button to restore menus)
@@ -3542,28 +3812,61 @@
         if (planSingleImg.complete && planSingleImg.naturalWidth) fitPlanImage();
       }
 
-      // Populate plan cards
-      REF_PLANS.forEach((plan) => {
-        const card = document.createElement('button');
-        card.className = 'text-left rounded-xl border border-[var(--border)] bg-[var(--background)]/70 hover:border-[var(--primary)] overflow-hidden transition flex flex-col group';
-        card.innerHTML = `
-          <div class="h-36 w-full bg-neutral-900 overflow-hidden flex items-center justify-center p-1">
-            <img src="${plan.src}" alt="${plan.title}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-200" />
-          </div>
-          <div class="p-2.5">
-            <div class="text-xs font-semibold text-[var(--foreground)] leading-snug">${plan.title}</div>
-            <div class="text-[10px] text-[var(--primary)] font-medium mt-0.5">${plan.source}</div>
-            <div class="text-[11px] text-[var(--muted-foreground)] mt-1 line-clamp-2">${plan.desc}</div>
-          </div>
-        `;
-        card.addEventListener('click', () => showSinglePlan(plan));
-        plansListView.appendChild(card);
+      // Organize plans by what they are with meaningful short names (no plan codes)
+      const PLAN_CATEGORIES = [
+        {
+          heading: 'Floor & Section Plans',
+          items: [
+            { id: 'p77_floors', shortName: 'Upper & Lower Floor Plans' },
+            { id: 'p77_sections', shortName: 'Split-Level Cross Sections' }
+          ]
+        },
+        {
+          heading: 'Exterior & 3D Views',
+          items: [
+            { id: 'p77_elevations', shortName: 'Exterior Elevations' },
+            { id: 'p77_3d', shortName: 'Architect 3D Massing' }
+          ]
+        },
+        {
+          heading: 'Site, Lot & Roof',
+          items: [
+            { id: 'p77_site', shortName: 'Building Footprint & Setbacks' },
+            { id: 'p77_topo', shortName: 'Parcel Boundary & Slope Survey' },
+            { id: 'p80_site', shortName: 'Lot Coverage, Carport & Parking' },
+            { id: 'p25_solar', shortName: 'Solar Roof Pitch & Azimuths' }
+          ]
+        }
+      ];
+
+      PLAN_CATEGORIES.forEach((cat) => {
+        const hdr = document.createElement('div');
+        hdr.className = 'col-span-full text-xs font-semibold uppercase tracking-wider text-[var(--primary)] border-b border-[var(--border)]/60 pb-1 mt-1';
+        hdr.textContent = cat.heading;
+        plansListView.appendChild(hdr);
+
+        cat.items.forEach((item) => {
+          const plan = REF_PLANS.find((p) => p.id === item.id);
+          if (!plan) return;
+          plan.shortName = item.shortName;
+          const card = document.createElement('button');
+          card.className = 'text-left rounded-xl border border-[var(--border)] bg-[var(--background)]/70 hover:border-[var(--primary)] overflow-hidden transition flex flex-col group';
+          card.innerHTML = `
+            <div class="h-36 w-full bg-neutral-900 overflow-hidden flex items-center justify-center p-1">
+              <img src="${plan.src}" alt="${item.shortName}" class="max-h-full max-w-full object-contain group-hover:scale-105 transition duration-200" />
+            </div>
+            <div class="p-2.5">
+              <div class="text-xs font-semibold text-[var(--foreground)] leading-snug">${item.shortName}</div>
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-1 line-clamp-2">${plan.desc}</div>
+            </div>
+          `;
+          card.addEventListener('click', () => {
+            showSinglePlan({ ...plan, title: item.shortName, source: cat.heading });
+          });
+          plansListView.appendChild(card);
+        });
       });
 
-      document.getElementById('btn-plans').addEventListener('click', () => {
-        showPlansList();
-        plansModal.classList.remove('hidden');
-      });
       planBackBtn.addEventListener('click', showPlansList);
       document.getElementById('plan-close-btn').addEventListener('click', () => plansModal.classList.add('hidden'));
       plansModal.addEventListener('click', (e) => { if (e.target === plansModal) plansModal.classList.add('hidden'); });
