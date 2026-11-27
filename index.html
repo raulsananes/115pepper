@@ -1982,6 +1982,44 @@
       }
       setPart('STAIRS-MID-LANDING', 'Exterior Stairs — Mid-Landing (4\'-0" wide)');
       addBox(bDeck, 10.65, 5.05, nWalkZ0, 15.80, 5.6, nWalkZ1, 4.5, true);
+      // Self-contained wooden gate frame & 5-plank dog-ear door at Mid-Landing (X=13.4, Y=5.6)
+      {
+        const gx = 13.4, gy = 5.6;
+        const gzS = nWalkZ1 - 0.08; // South post (-15.28)
+        const gzN = nWalkZ0 + 0.14; // North post (-19.06)
+        setPart('STAIRS-GATE-FRAME', 'Mid-Landing — Self-Contained Wooden Gate Frame');
+        addBox(bWoodBeam, gx - 0.09, gy, gzS - 0.09, gx + 0.09, gy + 7.0, gzS + 0.09, 4, true); // South post
+        addBox(bWoodBeam, gx - 0.09, gy, gzN - 0.09, gx + 0.09, gy + 7.0, gzN + 0.09, 4, true); // North post
+        addBox(bWoodBeam, gx - 0.09, gy + 7.0, gzN - 0.85, gx + 0.09, gy + 7.22, gzS + 0.09, 4, true); // Top header beam (extends past North post)
+        // Short cedar shingle privacy panel on North side with verdigris copper mailbox
+        addBox(bShingleExt, gx - 0.12, gy, gzN - 0.85, gx + 0.12, gy + 5.8, gzN - 0.09, 5, true);
+        addBox(bBlueWall, gx + 0.12, gy + 3.4, gzN - 0.65, gx + 0.30, gy + 4.2, gzN - 0.25, 3, true);
+
+        setPart('STAIRS-GATE-DOOR', 'Mid-Landing — 5-Plank Wooden Gate Door');
+        beginDoorObject('STAIRS-GATE-DOOR', gx, gzS - 0.12, -90);
+        const plankW = 0.68, plankGap = 0.03;
+        const zStart = gzS - 0.14;
+        const dTop = gy + 6.0, dBot = gy + 0.12;
+        for (let p = 0; p < 5; p++) {
+          const pz1 = zStart - p * (plankW + plankGap);
+          const pz0 = pz1 - plankW;
+          const chamfer = 0.12;
+          // Main vertical plank body
+          addBox(bWoodBeam, gx - 0.05, dBot, pz0, gx + 0.05, dTop - chamfer, pz1, 4, true);
+          // Dog-ear chamfered top cap
+          addQuad(bWoodBeam, [gx + 0.05, dTop - chamfer, pz0], [gx + 0.05, dTop - chamfer, pz1], [gx + 0.05, dTop, pz1 - chamfer], [gx + 0.05, dTop, pz0 + chamfer], 4, false);
+          addQuad(bWoodBeam, [gx - 0.05, dTop - chamfer, pz1], [gx - 0.05, dTop - chamfer, pz0], [gx - 0.05, dTop, pz0 + chamfer], [gx - 0.05, dTop, pz1 - chamfer], 4, false);
+          addQuad(bWoodBeam, [gx - 0.05, dTop, pz0 + chamfer], [gx + 0.05, dTop, pz0 + chamfer], [gx + 0.05, dTop, pz1 - chamfer], [gx - 0.05, dTop, pz1 - chamfer], 4, true);
+        }
+        const zEnd = zStart - 5 * plankW - 4 * plankGap;
+        // Horizontal back rails
+        addBox(bWoodBeam, gx - 0.13, gy + 0.35, zEnd + 0.08, gx - 0.05, gy + 0.65, zStart - 0.08, 4, true);
+        addBox(bWoodBeam, gx - 0.13, gy + 4.95, zEnd + 0.08, gx - 0.05, gy + 5.25, zStart - 0.08, 4, true);
+        // Black strap hinges on South stile
+        addBox(bDarkRoof, gx - 0.08, gy + 0.42, zStart - 0.18, gx + 0.07, gy + 0.62, zStart + 0.04, 2, true);
+        addBox(bDarkRoof, gx - 0.08, gy + 5.00, zStart - 0.18, gx + 0.07, gy + 5.20, zStart + 0.04, 2, true);
+        endDoorObject();
+      }
       setPart('STAIRS-MID-FLIGHT', 'Exterior Stairs — Middle Flight (4 steps, 4\'-0" wide)');
       for (let i = 0; i < 4; i++) {
         const sx0 = 15.80 + i * 1.05;
