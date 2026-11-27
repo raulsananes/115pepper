@@ -2090,19 +2090,17 @@
         const sy = 5.6 - (i + 1) * ((5.6 - eY0) / 4);
         addBox(bDeck, sx0, sy - 0.55, nWalkZ0, sx1, sy, nWalkZ1, 4.5, true);
       }
-      setPart('STAIRS-BOARDWALK', 'Exterior Stairs — Lower Flat Stone Walkway (4\'-0" wide)');
-      addBox(bStone, 20.0, eY0 - 0.55, nWalkZ0, 33.5, eY0, nWalkZ1, 5.5, true);
       setPart('STAIRS-LOWER-FLIGHT', 'Exterior Stairs — Lower Brick Street Flight (7 steps)');
       for (let i = 0; i < 7; i++) {
-        const sx0 = 33.5 + i * 1.0;
+        const sx0 = 20.0 + i * 1.0;
         const sx1 = sx0 + 0.95;
         const sy = eY0 - (i + 1) * (4.6 / 7);
         addBox(bChimney, sx0, sy - 0.55, nWalkZ0, sx1, sy, nWalkZ1, 5.5, true);
       }
       // Black metal handrail along South side of lower street steps (matching street photos)
-      addBox(bBlack, 33.5, eY0, nWalkZ1 - 0.15, 33.62, eY0 + 2.8, nWalkZ1 - 0.03, 2, false);
-      addBox(bBlack, 40.3, eY0 - 4.6, nWalkZ1 - 0.15, 40.42, eY0 - 1.8, nWalkZ1 - 0.03, 2, false);
-      addQuad(bBlack, [33.56, eY0 + 2.75, nWalkZ1 - 0.13], [40.36, eY0 - 1.85, nWalkZ1 - 0.13], [40.36, eY0 - 1.73, nWalkZ1 - 0.13], [33.56, eY0 + 2.87, nWalkZ1 - 0.13], 2, false);
+      addBox(bBlack, 20.0, eY0, nWalkZ1 - 0.15, 20.12, eY0 + 2.8, nWalkZ1 - 0.03, 2, false);
+      addBox(bBlack, 26.8, eY0 - 4.6, nWalkZ1 - 0.15, 26.92, eY0 - 1.8, nWalkZ1 - 0.03, 2, false);
+      addQuad(bBlack, [20.06, eY0 + 2.75, nWalkZ1 - 0.13], [26.86, eY0 - 1.85, nWalkZ1 - 0.13], [26.86, eY0 - 1.73, nWalkZ1 - 0.13], [20.06, eY0 + 2.87, nWalkZ1 - 0.13], 2, false);
       // Weathered timber plank retaining wall along East front (x=21.6, z=-15..10.5)
       setPart('EAST-RETAINING-TIMBER', 'East Front — Weathered Timber Retaining Wall');
       const retY0 = groundY(21.6, -2.0) - 0.6;
