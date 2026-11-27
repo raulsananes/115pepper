@@ -1427,13 +1427,13 @@
       // Exact Sheet 3 East Wing N-S length: 25'-8" (z = -15.2..10.5), aligning flush with KITCHEN-WALL-NORTH NE corner (-15.6)
       setPart('EAST-WALL-NORTH', 'East Wing — North Wall');
       addWallWithOpenings(bShingleExt, bIntWall, 'Z', -15.2, 4, 20, eY0, eTop, 0.55, [
-        { u0: 14.8, u1: 19.4, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-UPPER-N', label: 'East Wing — Upper NE Corner Window (North)' }
+        { u0: 14.8, u1: 19.4, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-N', label: 'East Wing — Upper NE Corner Window (North)' }
       ]);
       setPart('EAST-WALL-SOUTH', 'East Wing — South Wall');
       addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 20, eY0, eTop, -0.55, []);
       setPart('EAST-WALL-EAST', 'East Wing — East Wall');
       addWallWithOpenings(bShingleExt, bIntWall, 'X', 20, -15.2, 10.5, eY0, eTop, -0.55, [
-        { u0: -14.6, u1: -10.6, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-UPPER-E', label: 'East Wing — Upper NE Corner Window (East)' },
+        { u0: -14.6, u1: -10.6, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-E', label: 'East Wing — Upper NE Corner Window (East)' },
         { u0: -14.6, u1: -10.6, v0: eY0 + 2.4, v1: eY0 + 7.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-LOWER-E', label: 'East Wing — Lower NE Corner Window (East)' },
         { u0: 2.2,   u1: 4.2,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
         { u0: 4.25,  u1: 6.25,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
@@ -1691,6 +1691,21 @@
       addBox(bDoor,   13.44, eY0, 0.24, 13.58, eY0 + 6.75, 2.96, 4.5, true);
       addBox(bHandle, 13.38, eY0 + 2.95, 2.65, 13.64, eY0 + 3.35, 2.85, 2, false);
       endDoorObject();
+
+      // Lower South Room (TV Room) South Wall: 3-row tennis/padel racket display + dark sofa (matching Photo 7)
+      setPart('LSOUTH-RACKET-WALL', 'Lower South Room (TV Room) — Racket Display Wall');
+      for (let r = 0; r < 3; r++) {
+        const ry = eY0 + 3.6 + r * 1.3;
+        for (let c = 0; c < 5; c++) {
+          const rx = 16.2 + c * 0.72 + (r % 2) * 0.20;
+          const rb = (c + r) % 3 === 0 ? bBlack : (c + r) % 3 === 1 ? bRoof : bWoodBeam;
+          addBox(rb, rx - 0.16, ry, 9.86, rx + 0.16, ry + 0.52, 9.93, 2, true); // Racket head
+          addBox(bBlack, rx - 0.04, ry - 0.36, 9.87, rx + 0.04, ry, 9.93, 2, false); // Grip
+        }
+      }
+      setPart('LSOUTH-SOFA', 'Lower South Room (TV Room) — Dark Sofa');
+      addBox(bMetal, 16.0, eY0, 7.3, 19.35, eY0 + 1.45, 9.80, 4, true);
+      addBox(bMetal, 16.0, eY0 + 1.45, 9.15, 19.35, eY0 + 2.65, 9.80, 4, true);
 
       // Bunk bed on the North wall of the Lower North Bedroom
       setPart('INT-LOWER-BED-N', 'Lower North Bedroom — Bunk Bed');
@@ -2126,8 +2141,8 @@
       // Living-Dining North Wall: 20'-6" (-37.17..-16.67) per Sheet 3
       setPart('LIVING-WALL-NORTH', 'Living-Dining — North Wall (20\'-6")');
       addWallWithOpenings(bShingleOld, bIntWall, 'Z', -14.5, -37.17, -16.67, 9.0, 16.2, 0.55, [
-        { u0: -31.2, u1: -27.4, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.25, code: 'LIVING-WIN-N-WEST', label: 'Living-Dining — North Paired Window (West)' },
-        { u0: -26.8, u1: -23.0, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.25, code: 'LIVING-WIN-N-EAST', label: 'Living-Dining — North Paired Window (East)' }
+        { u0: -31.2, u1: -27.4, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.30, code: 'LIVING-WIN-N-WEST', label: 'Living-Dining — North Paired Window (West)' },
+        { u0: -26.8, u1: -23.0, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.30, code: 'LIVING-WIN-N-EAST', label: 'Living-Dining — North Paired Window (East)' }
       ]);
       // Living-Dining South Wall: 12'-10" Fireplace Bay (-37.17..-24.33) + 7'-4" Alcove (-24.33..-17.00) + 11'-0" East Dining (-17.00..-6.0) = 31'-2"
       if (!isRemodel) {
@@ -2719,13 +2734,20 @@
         ]);
         setPart('GUEST-WALL-W', 'Guest House — West Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
-          { u0: 4.5, u1: 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
+          { u0: 3.4, u1: 5.8, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-W', label: 'Guest House — West Entry Door' },
+          { u0: 6.4, u1: 10.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
         ]);
         setPart('GUEST-WALL-E', 'Guest House — East Wall');
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
           { u0: -4.5, u1: 3.5, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
+        // Guest House roof skylight (West slope) & Slate Flagstone Patio (matching Photo 14)
+        setPart('LOT-GUEST-SKYLIGHT', 'Guest House — Roof Skylight', { isRoof: true });
+        addBox(bGlass, 66.0, ghPeak - 1.5, -4.5, 69.0, ghPeak - 1.1, -1.0, 2, true);
+        setPart('LOT-GUEST-PATIO', 'Guest House — Slate Flagstone Patio');
+        addBox(bStone, 32.0, cpY - 0.55, 3.0, 63.0, cpY - 0.05, 11.8, 6.0, true);
+        addBox(bStone, 27.5, cpY + 0.35, 3.5, 32.0, cpY + 0.95, 11.8, 6.0, true);
 
         // Additional Off-Street Parking ("New Pad", directly East of Guest House: x=81.5..93.5, z=-18.5..10, lowered 3 ft)
         setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad');
