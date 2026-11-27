@@ -2561,46 +2561,47 @@
           addQuad(bStone, [x0, y0, -33.5], [x1, y1, -33.5], [x1, y1, -18.5], [x0, y0, -18.5], 8.0, true);
         }
 
-        // Covered 2-Car Carport (540 SF = 24' x 22.5', directly East of Main House walkway: x=34..58, z=-15..7.5)
-        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (540 SF)');
-        const cpX0 = 34.0, cpX1 = 58.0, cpZ0 = -15.0, cpZ1 = 7.5;
-        const cpY = groundY(46.0, -3.75) + 0.1;
+        // Covered 2-Car Carport (19' x 19' = 361 SF, directly adjoining Guest House on East: x=44..63, z=-16..3)
+        setPart('LOT-CARPORT', 'Full Lot — Covered 2-Car Carport (361 SF)');
+        const cpX0 = 44.0, cpX1 = 63.0, cpZ0 = -16.0, cpZ1 = 3.0;
+        const cpY = groundY((cpX0 + cpX1) * 0.5, (cpZ0 + cpZ1) * 0.5) + 0.1;
+        const cpTop = cpY + 7.2, cpPeak = cpY + 10.2;
         addBox(bStone, cpX0, cpY - 0.55, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
-            addBox(bWoodBeam, px - 0.18, cpY, pz - 0.18, px + 0.18, cpY + 7.2, pz + 0.18, 4, true);
+            addBox(bWoodBeam, px - 0.18, cpY, pz - 0.18, px + 0.18, cpTop, pz + 0.18, 4, true);
           }
         }
-        addBox(bRoof, cpX0 - 0.5, cpY + 7.2, cpZ0 - 0.4, cpX1 + 0.5, cpY + 7.55, cpZ1 + 0.4, 6.0, true);
-        addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ0 - 0.45, cpX1 + 0.55, cpY + 7.60, cpZ0 - 0.25, 4, false);
-        addBox(bTrim, cpX0 - 0.55, cpY + 7.16, cpZ1 + 0.25, cpX1 + 0.55, cpY + 7.60, cpZ1 + 0.45, 4, false);
+        addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ0 + 0.22, cpX1 - 0.2, cpTop, cpZ0 + 0.58, 4, true);
+        addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
+        addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false);
 
-        // Guest House / East House / Cottage (425 SF = 13.5' x 31', directly East of Carport: x=58.5..72.0, z=-20.5..10.5)
-        const ghX0 = 58.5, ghX1 = 72.0, ghZ0 = -20.5, ghZ1 = 10.5;
-        const ghY0 = groundY(65.25, -5.0) + 0.35, ghTop = ghY0 + 8.2, ghPeak = ghY0 + 11.6;
-        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House / East House (425 SF)');
+        // Guest House / East House / Cottage (17' x 27' = 459 SF, joined seamlessly to East side of Carport: x=63..80, z=-16..11)
+        const ghX0 = 63.0, ghX1 = 80.0, ghZ0 = -16.0, ghZ1 = 11.0;
+        const ghY0 = groundY((ghX0 + ghX1) * 0.5, (ghZ0 + ghZ1) * 0.5) + 0.35, ghTop = ghY0 + 8.4, ghPeak = ghY0 + 12.0;
+        setPart('LOT-GUEST-HOUSE', 'Full Lot — Guest House / East House (459 SF)');
         addBox(bStone, ghX0 - 0.5, ghY0 - 0.8, ghZ0 - 0.5, ghX1 + 0.5, ghY0, ghZ1 + 0.5, 6, true);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ0, ghX0, ghX1, ghY0, ghTop, 0.5, [
-          { u0: ghX0 + 3.0, u1: ghX0 + 9.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
+          { u0: ghX0 + 4.5, u1: ghX0 + 12.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-N', label: 'Guest House — North Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', ghZ1, ghX0, ghX1, ghY0, ghTop, -0.5, [
-          { u0: ghX0 + 3.0, u1: ghX0 + 9.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
+          { u0: ghX0 + 4.5, u1: ghX0 + 12.5, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-S', label: 'Guest House — South Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX0, ghZ0, ghZ1, ghY0, ghTop, 0.5, [
-          { u0: -12.0, u1: -7.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
+          { u0: 4.5, u1: 9.0, v0: ghY0 + 2.4, v1: ghY0 + 6.4, type: 'window', mullionV: true, code: 'GUEST-WIN-W', label: 'Guest House — West Window' }
         ]);
         addWallWithOpenings(bShingleExt, bIntWall, 'X', ghX1, ghZ0, ghZ1, ghY0, ghTop, -0.5, [
-          { u0: -14.0, u1: -11.0, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-E', label: 'Guest House — East Entry Door' },
-          { u0: -6.0, u1: 1.0, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
+          { u0: -12.5, u1: -9.5, v0: ghY0, v1: ghY0 + 6.8, type: 'door', code: 'GUEST-DOOR-E', label: 'Guest House — East Entry Door' },
+          { u0: -4.5, u1: 3.5, v0: ghY0 + 2.2, v1: ghY0 + 6.6, type: 'window', mullionV: true, code: 'GUEST-WIN-E', label: 'Guest House — East Window' }
         ]);
         addGableZ(ghX0, ghX1, ghZ0, ghZ1, ghTop, ghPeak, bShingleExt, 0.8, 'LOT-GUEST-ROOF', 'Guest House — Gable Roof');
 
-        // Additional Off-Street Parking ("New Pad" 800 SF, directly East of Guest House: x=73.5..92.5, z=-19..10)
-        setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad (800 SF)');
-        const pkY = groundY(83.0, -4.5) - 0.05;
-        addBox(bStone, 73.5, pkY - 0.65, -19.0, 92.5, pkY, 10.0, 6.0, true);
+        // Additional Off-Street Parking ("New Pad", directly East of Guest House: x=81.5..93.5, z=-18.5..10)
+        setPart('LOT-ADDITIONAL-PARKING', 'Full Lot — Additional Parking Pad');
+        const pkY = groundY(87.5, -4.25) - 0.05;
+        addBox(bStone, 81.5, pkY - 0.65, -18.5, 93.5, pkY, 10.0, 6.0, true);
         for (const sz of [-11.5, -4.5, 2.5]) {
-          addBox(bWhiteDoor, 74.5, pkY + 0.02, sz - 0.12, 91.5, pkY + 0.06, sz + 0.12, 2, false);
+          addBox(bWhiteDoor, 82.2, pkY + 0.02, sz - 0.12, 92.8, pkY + 0.06, sz + 0.12, 2, false);
         }
       }
 
