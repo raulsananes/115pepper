@@ -121,6 +121,9 @@
     <div class="absolute top-2.5 right-3 z-40 pointer-events-auto flex items-center gap-3 text-xs font-semibold text-[var(--foreground)]">
       <button id="view-toggle" class="hud-text-btn hover:opacity-80 transition">Outside</button>
       <button id="btn-design-toggle" class="hud-text-btn hover:opacity-80 transition" title="Click to cycle Original / Remodel A-D">Original</button>
+      <button id="btn-reload" title="Reload Latest Version" class="hud-text-btn hover:opacity-80 transition flex items-center">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
       <button id="btn-fullscreen" title="Toggle Fullscreen" class="hud-text-btn hover:opacity-80 transition flex items-center">
         <svg id="fs-icon-expand" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
         <svg id="fs-icon-compress" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
@@ -238,7 +241,6 @@
 
         <div class="w95-sep"></div>
         <div class="w95-item" data-action="permit-table">Permit Options Table...</div>
-        <div class="w95-item" data-action="reload">Reload Latest Version</div>
       </div>
     </div>
 
@@ -3915,6 +3917,10 @@
           }
           closeWin95Menu();
         });
+      });
+
+      document.getElementById('btn-reload').addEventListener('click', () => {
+        window.location.replace(window.location.pathname + '?v=' + Date.now() + window.location.hash);
       });
 
       // Fullscreen toggle (keeps the exact same single-line top bar in fullscreen)
