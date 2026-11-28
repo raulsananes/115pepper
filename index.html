@@ -1451,8 +1451,9 @@
       addWallWithOpenings(bShingleExt, bIntWall, 'X', 20, -15.2, 7.0, eY0, eTop, -0.55, [
         { u0: -14.6, u1: -10.6, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-E', label: 'East Wing — Upper NE Corner Window (East)' },
         { u0: -14.6, u1: -10.6, v0: eY0 + 2.4, v1: eY0 + 7.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-LOWER-E', label: 'East Wing — Lower NE Corner Window (East)' },
-        { u0: 2.0,   u1: 4.0,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
-        { u0: 4.05,  u1: 6.05,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
+        { u0: 0.6,   u1: 2.3,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
+        { u0: 2.35,  u1: 4.05,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
+        { u0: 4.5,   u1: 6.4,   v0: eY1 + 2.4, v1: eY1 + 6.8, type: 'window', mullionV: false, code: 'EAST-WIN-SE-UPPER', label: 'Master Bedroom — Upper SE Balcony Window' },
         { u0: -1.1,  u1: 7.0,   v0: eY0,       v1: eY1 - 0.87, type: 'open' }
       ]);
       // Exterior portion of EAST-WALL-WEST (only where exposed to the outdoor North courtyard/breezeway)
@@ -1522,18 +1523,15 @@
       const bayDiagLen = Math.hypot(27.6 - 20, 3.8 - (-1.5));
       setPart('EAST-BAY-WALL-ANGLED', 'East Wing — Lower Angled Bay Wall (NE)');
       addAngledWallWithWindow(bShingleExt, bIntWall, 20, -1.5, 27.6, 3.8, eY0, eY1, 0.55, {
-        u0: bayDiagLen * 0.5 - 1.85,
-        u1: bayDiagLen * 0.5 + 1.85,
-        v0: eY0 + 2.4,
-        v1: eY0 + 7.4,
+        u0: bayDiagLen * 0.62,
+        u1: bayDiagLen * 0.84,
+        v0: eY0 + 1.5,
+        v1: eY0 + 6.4,
         code: 'EAST-WIN-BAY-ANGLED',
         label: 'East Wing — Lower Angled Bay Window (NE)'
       });
-      setPart('EAST-BAY-WALL-EAST', 'East Wing — Lower Bay East Wall (Double French Door)');
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 7.0, eY0, eY1, -0.55, [
-        { u0: 4.1,  u1: 5.4,  v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-N', label: 'Lower Bedroom — Bay East French Door (North Leaf)' },
-        { u0: 5.45, u1: 6.75, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-S', label: 'Lower Bedroom — Bay East French Door (South Leaf)' }
-      ]);
+      setPart('EAST-BAY-WALL-EAST', 'East Wing — Lower Bay East Wall');
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 7.0, eY0, eY1, -0.55, []);
       setPart('EAST-BAY-WALL-SOUTH', 'East Wing — Lower Bay South Wall');
       addQuad(bShingleExt, [27.6, eY0, 7.0], [20, eY0, 7.0], pM[3], pM[2], 5.5, true);
       addQuad(bIntWall,    [20, eY0, 6.45], [27.05, eY0, 6.45], [27.05, eY1, 6.45], [20, eY1, 6.45], 7.0, false);
@@ -1603,8 +1601,7 @@
       setPart('INT-MASTER-STAIR-WALL', 'Master Bedroom — Interior Stairwell Wall & Entry Doorway');
       addBox(bIntWall, 4.55, 9.0, 3.58, 13.50, eTop - 0.1, 4.00, 6, false);          // North stairwell wall
       addWallWithOpenings(bShingleExt, bIntWall, 'X', 13.51, 7.00, 10.50, eY0, eTop - 0.1, -0.42, [
-        { u0: 7.45, u1: 9.60, v0: eY1 + 0.6, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.48, code: 'STAIR-WIN-E-UPPER', label: 'Stairwell — Upper East Exterior Window' },
-        { u0: 7.45, u1: 9.60, v0: eY0 + 3.4, v1: eY1 - 0.1, type: 'window', mullionV: false, mullionH: 0.45, code: 'STAIR-WIN-E-LOWER', label: 'Stairwell — Lower East Exterior Window' }
+        { u0: 7.55, u1: 9.55, v0: eY0 + 1.2, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.53, code: 'STAIR-WIN-E', label: 'Stairwell — Full-Height East Exterior Window' }
       ]);
       addBox(bIntWall, 13.51, eY1, 6.82, 19.60, eTop - 0.1, 7.12, 6, false);       // Master Bedroom South wall along stairwell (z=7.0)
       addBox(bIntWall, 13.30, eY1 + 6.8, 3.58, 13.72, eTop - 0.1, 7.00, 6, false);   // Header over Master doorway
