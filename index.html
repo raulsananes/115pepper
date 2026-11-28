@@ -1444,9 +1444,14 @@
       addWallWithOpenings(bShingleExt, bIntWall, 'Z', -15.2, 4, 20, eY0, eTop, 0.55, [
         { u0: 14.8, u1: 19.4, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-N', label: 'East Wing — Upper NE Corner Window (North)' }
       ]);
-      setPart('EAST-WALL-SOUTH', 'East Wing — South Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 13.51, eY0, eTop, -0.55, []);
-      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 7.0, 13.51, 20, eY0, eTop, -0.55, []);
+      setPart('EAST-WALL-SOUTH-STAIR-LOWER', 'East Wing — South Stairwell Wall (Lower)');
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 13.51, eY0, eY1, -0.55, []);
+      setPart('EAST-WALL-SOUTH-STAIR-UPPER', 'East Wing — South Stairwell Wall (Upper)');
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 13.51, eY1, eTop, -0.55, []);
+      setPart('EAST-WALL-SOUTH-LOWER', 'East Wing — South Bedroom Wall (Lower)');
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 7.0, 13.51, 20, eY0, eY1, -0.55, []);
+      setPart('EAST-WALL-SOUTH-UPPER', 'East Wing — South Bedroom Wall (Upper)');
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 7.0, 13.51, 20, eY1, eTop, -0.55, []);
       setPart('EAST-WALL-EAST', 'East Wing — East Wall');
       addWallWithOpenings(bShingleExt, bIntWall, 'X', 20, -15.2, 7.0, eY0, eTop, -0.55, [
         { u0: -14.6, u1: -10.6, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-E', label: 'East Wing — Upper NE Corner Window (East)' },
@@ -1474,7 +1479,19 @@
       // Interior portion of East Wing West wall (inside Foyer/Half Bath/Stairwell — drywall on BOTH faces, open for stairwell!)
       setPart('EAST-WALL-WEST-INT', 'East Wing — West Interior Wall (Foyer & Stairwell)');
       addWallWithOpenings(bIntWall, bIntWall, 'X', 4, ewExtZEnd, 10.5, eY0, eTop, 0.55, ewIntHoles);
-      addGableZ(4, 20, -15.2, 10.5, eTop, ePeak, bShingleExt, 0.9, 'ROOF-EAST', 'East Wing — Gable Roof');
+      addGableZ(4, 20, -15.2, 7.0, eTop, ePeak, bShingleExt, 0.9, 'ROOF-EAST', 'East Wing — Gable Roof');
+      // Stairwell South projection shed roof (x = 4..13.51, z = 7.0..10.5) per 1977 & Tesla plans
+      setPart('ROOF-STAIR-SHED', 'Stairwell — South Shed Roof', { isRoof: true });
+      {
+        const sx0 = 4.0, sx1 = 13.51, sz0 = 7.0, sz1 = 10.5, ov = 0.9;
+        const yHi = eTop + 2.2, yLo = eTop;
+        const sSlope = (yHi - yLo) / (sz1 - sz0);
+        const yOver = yLo - sSlope * ov;
+        addQuad(bRoof,   [sx0 - ov, yHi, sz0], [sx1 + ov, yHi, sz0], [sx1 + ov, yOver, sz1 + ov], [sx0 - ov, yOver, sz1 + ov], 6.0, true);
+        addQuad(bSoffit, [sx0 - ov, yOver - 0.45, sz1 + ov], [sx1 + ov, yOver - 0.45, sz1 + ov], [sx1 + ov, yHi - 0.45, sz0], [sx0 - ov, yHi - 0.45, sz0], 6.0, false);
+        addTri(bShingleExt, [sx0, yLo, sz1], [sx0, yLo, sz0], [sx0, yHi, sz0], 5.5);
+        addTri(bShingleExt, [sx1, yLo, sz0], [sx1, yLo, sz1], [sx1, yHi, sz0], 5.5);
+      }
       // Master Bath Skylights on West slope of ROOF-EAST: one over tub/shower room, one over vanity/sink room
       const eRoofW = (x) => eTop + (ePeak - eTop) * ((x - 4) / 8);
       function addEastWestSkylight(x0, x1, z0, z1, code, label) {
@@ -1490,7 +1507,7 @@
       addEastWestSkylight(5.6, 8.4,  -7.6,  -5.5, 'MBATH-SKYLIGHT-SINK', 'Master Bath — Vanity/Sink Room Skylight');
 
       setPart('EAST-RIDGE-BEAM', 'Master Bedroom — Exposed Ridge Beam');
-      addBox(bWoodBeam, 11.7, ePeak - 1.2, -14.7, 12.3, ePeak - 0.6, 9.8, 4, false);
+      addBox(bWoodBeam, 11.7, ePeak - 1.2, -14.7, 12.3, ePeak - 0.6, 6.9, 4, false);
 
       // Solar Panel Arrays on East Wing West (MP2) & East (MP3) Roof Slopes (per Solar Roof Pitch & Azimuths plan)
       setPart('ROOF-SOLAR-PANELS', 'Main House — Roof Solar Panel Arrays', { isRoof: true });
@@ -1530,8 +1547,11 @@
         code: 'EAST-WIN-BAY-ANGLED',
         label: 'East Wing — Lower Angled Bay Window (NE)'
       });
-      setPart('EAST-BAY-WALL-EAST', 'East Wing — Lower Bay East Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 7.0, eY0, eY1, -0.55, []);
+      setPart('EAST-BAY-WALL-EAST', 'East Wing — Lower Bay East Wall (Double French Door)');
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 7.0, eY0, eY1, -0.55, [
+        { u0: 4.1,  u1: 5.4,  v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-N', label: 'Lower Bedroom — Bay East French Door (North Leaf)' },
+        { u0: 5.45, u1: 6.75, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-S', label: 'Lower Bedroom — Bay East French Door (South Leaf)' }
+      ]);
       setPart('EAST-BAY-WALL-SOUTH', 'East Wing — Lower Bay South Wall');
       addQuad(bShingleExt, [27.6, eY0, 7.0], [20, eY0, 7.0], pM[3], pM[2], 5.5, true);
       addQuad(bIntWall,    [20, eY0, 6.45], [27.05, eY0, 6.45], [27.05, eY1, 6.45], [20, eY1, 6.45], 7.0, false);
@@ -1603,7 +1623,6 @@
       addWallWithOpenings(bShingleExt, bIntWall, 'X', 13.51, 7.00, 10.50, eY0, eTop - 0.1, -0.42, [
         { u0: 7.55, u1: 9.55, v0: eY0 + 1.2, v1: eY1 + 6.8, type: 'window', mullionV: false, mullionH: 0.53, code: 'STAIR-WIN-E', label: 'Stairwell — Full-Height East Exterior Window' }
       ]);
-      addBox(bIntWall, 13.51, eY1, 6.82, 19.60, eTop - 0.1, 7.12, 6, false);       // Master Bedroom South wall along stairwell (z=7.0)
       addBox(bIntWall, 13.30, eY1 + 6.8, 3.58, 13.72, eTop - 0.1, 7.00, 6, false);   // Header over Master doorway
       // Flat stairwell ceiling + recessed lights over UP stairs & upper landing
       addQuad(bCeiling, [4.0, eTop - 0.1, 3.6], [13.72, eTop - 0.1, 3.6], [13.72, eTop - 0.1, 10.1], [4.0, eTop - 0.1, 10.1], 6, false);
