@@ -232,6 +232,16 @@
                 <div class="w95-item" data-action="open-plan" data-value="p25_solar">Solar Roof Pitch &amp; Azimuths</div>
               </div>
             </div>
+            <div class="w95-item w95-parent">
+              <span>Comparisons</span><span>▶</span>
+              <div class="w95-menu w95-sub">
+                <div class="w95-item" data-action="compare-plan" data-value="p77_floors_upper">1977 Upper Floor Plan</div>
+                <div class="w95-item" data-action="compare-plan" data-value="p77_floors_lower">1977 Lower Floor Plan</div>
+                <div class="w95-item" data-action="compare-plan" data-value="p77_site">1977 Site Footprint</div>
+                <div class="w95-item" data-action="compare-plan" data-value="p25_solar">2025 Tesla Roof Plan</div>
+                <div class="w95-item" data-action="compare-plan" data-value="p80_site">1980 Lot Coverage &amp; Guest</div>
+              </div>
+            </div>
             <div class="w95-sep"></div>
             <div class="w95-item" data-action="all-plans">Browse All Plans...</div>
           </div>
@@ -363,6 +373,21 @@
           <button id="plan-prev-btn" title="Previous Plan" class="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">‹</button>
           <button id="plan-next-btn" title="Next Plan" class="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">›</button>
           <div id="plan-single-caption" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 max-w-[92%] px-3 py-1.5 rounded-full bg-black/70 text-white text-[11px] backdrop-blur-sm pointer-events-none truncate"></div>
+        </div>
+        <!-- Plan Comparison Overlay Viewer -->
+        <div id="plan-compare-view" class="hidden flex-1 relative overflow-hidden bg-neutral-950 touch-none cursor-grab">
+          <canvas id="plan-compare-canvas" class="w-full h-full block"></canvas>
+          <div id="compare-legend" class="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-3 px-3 py-1.5 rounded-xl bg-black/75 text-white text-[11px] border border-white/15 backdrop-blur-sm">
+            <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-1 rounded bg-[#22c55e]"></span>Current Model Walls</span>
+            <span class="flex items-center gap-1.5"><span class="inline-block w-3.5 h-1 rounded bg-[#ef4444]"></span>Plan Border &amp; Walls</span>
+            <label class="flex items-center gap-1.5 cursor-pointer select-none border-l border-white/20 pl-2.5">
+              <input id="compare-show-scan" type="checkbox" checked class="accent-emerald-500" />
+              <span>Plan Scan</span>
+            </label>
+          </div>
+          <button id="compare-prev-btn" title="Previous Comparison" class="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">‹</button>
+          <button id="compare-next-btn" title="Next Comparison" class="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/65 hover:bg-black/85 text-white border border-white/20 flex items-center justify-center text-xl font-bold shadow-lg transition">›</button>
+          <div id="plan-compare-caption" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 max-w-[92%] px-3 py-1.5 rounded-full bg-black/75 text-white text-[11px] backdrop-blur-sm pointer-events-none truncate"></div>
         </div>
       </div>
     </div>
@@ -3973,6 +3998,9 @@
               showSinglePlan(p);
               plansModal.classList.remove('hidden');
             }
+          } else if (action === 'compare-plan') {
+            showComparePlan(val);
+            plansModal.classList.remove('hidden');
           } else if (action === 'all-plans') {
             showPlansList();
             plansModal.classList.remove('hidden');
@@ -4061,9 +4089,15 @@
         pZoom = 1; pPanX = 0; pPanY = 0;
         applyPlanTransform();
       }
+      const planCompareView = document.getElementById('plan-compare-view');
+      const planCompareCanvas = document.getElementById('plan-compare-canvas');
+      const planCompareCaption = document.getElementById('plan-compare-caption');
+      const compareShowScan = document.getElementById('compare-show-scan');
+
       function showPlansList() {
         plansListView.classList.remove('hidden');
         planSingleView.classList.add('hidden');
+        planCompareView.classList.add('hidden');
         planBackBtn.classList.add('hidden');
         planZoomControls.classList.add('hidden');
         planZoomControls.classList.remove('flex');
@@ -4077,6 +4111,7 @@
         if (idx >= 0) currentPlanIndex = idx;
         const activePlan = idx >= 0 ? orderedPlans[idx] : plan;
         plansListView.classList.add('hidden');
+        planCompareView.classList.add('hidden');
         planSingleView.classList.remove('hidden');
         planBackBtn.classList.remove('hidden');
         planZoomControls.classList.remove('hidden');
@@ -4182,6 +4217,305 @@
         });
       });
 
+      // Plan Comparison Overlay (Green = Current Model Walls, Red = Plan Border & Main Walls)
+      const westRad = 7 * Math.PI / 180;
+      const westCos = Math.cos(westRad), westSin = Math.sin(westRad);
+      function xWest(x, z) {
+        const dx = x - (-6.0), dz = z - 2.0;
+        return [-6.0 + dx * westCos - dz * westSin - 3.5, 2.0 + dx * westSin + dz * westCos];
+      }
+      function polyWest(pts) { return pts.map(([x, z]) => xWest(x, z)); }
+
+      function getModelWalls(mode, includeLot) {
+        const outer = [
+          // West Wing (Den + Living + Kitchen, 7 deg rotated)
+          polyWest([
+            [-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5],
+            [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]
+          ]),
+          polyWest([
+            [-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]
+          ]),
+          // Entry Bridge
+          [xWest(-2.2, -4.5), [4.0, -4.5]],
+          [xWest(-10.23, 8.0), [-10.23, 10.5], [4.0, 10.5]]
+        ];
+        const main = [
+          polyWest([[-37.17, -2.0], [-37.17, 8.0]]),
+          polyWest([[-16.67, -14.5], [-16.67, -8.2], [-12.35, -8.2]]),
+          polyWest([[-2.2, -16.2], [-2.2, -5.5]]),
+          [[4.0, -15.2], [4.0, 10.5]]
+        ];
+        const dashed = [];
+
+        if (mode === 'lower') {
+          outer.push([[4, -15.2], [20, -15.2], [20, -1.5], [27.6, 3.8], [27.6, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]);
+          main.push(
+            [[9.92, -14.65], [9.92, -5.5], [4.0, -5.5]],
+            [[9.92, -5.5], [20.0, -5.5]],
+            [[13.51, 3.8], [13.51, 7.0]],
+            [[4.55, 3.8], [13.51, 3.8]]
+          );
+        } else {
+          outer.push([[4, -15.2], [20, -15.2], [20, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]);
+          dashed.push([[20, -1.5], [27.6, 3.8], [27.6, 7.0], [20, 7.0]]);
+          main.push(
+            [[9.92, -14.65], [9.92, 3.58]],
+            [[4.55, -8.65], [9.50, -8.65]],
+            [[4.55, -3.10], [9.92, -3.10]],
+            [[4.55, 3.8], [13.51, 3.8], [13.51, 7.0]]
+          );
+        }
+        if (includeLot) {
+          outer.push(
+            [[44, -16], [63, -16], [63, 3], [44, 3], [44, -16]],
+            [[63, -16], [80, -16], [80, 11], [63, 11], [63, -16]]
+          );
+        }
+        return { outer, main, dashed };
+      }
+
+      const COMPARE_PLANS = [
+        {
+          id: 'p77_floors_upper',
+          planId: 'p77_floors',
+          title: 'Compare: 1977 Upper Floor Plan vs Model',
+          sub: 'Green = Current Model Outer & Main Walls · Red = 1977 Upper Floor Plan',
+          mode: 'upper',
+          includeLot: false,
+          bounds: [-52, 32, -22, 16],
+          scan: { crop: [0.06, 0.04, 0.90, 0.56], x0: -50.5, z0: -19.5, w: 80.5, h: 33.5 },
+          redOuter: [
+            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
+            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            [xWest(-2.2, -4.5), [4.0, -4.5]],
+            [xWest(-10.23, 8.0), [-10.23, 10.5], [4.0, 10.5]],
+            [[4, -15.2], [20, -15.2], [20, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]
+          ],
+          redDashed: [[[20, -1.5], [27.6, 3.8], [27.6, 7.0], [20, 7.0]]],
+          redMain: [
+            polyWest([[-37.17, -2.0], [-37.17, 8.0]]),
+            polyWest([[-16.67, -14.5], [-16.67, -8.2], [-12.35, -8.2]]),
+            [[9.92, -14.65], [9.92, 3.58]],
+            [[4.55, -8.65], [9.50, -8.65]],
+            [[4.55, -3.10], [9.92, -3.10]],
+            [[4.55, 3.8], [13.51, 3.8], [13.51, 7.0]]
+          ],
+          caption: '1977 Upper Floor: West Wing (7° rotation), Kitchen, Entry, Master & SE stairwell align with Current Model.'
+        },
+        {
+          id: 'p77_floors_lower',
+          planId: 'p77_floors',
+          title: 'Compare: 1977 Lower Floor Plan vs Model',
+          sub: 'Green = Current Model Outer & Main Walls · Red = 1977 Lower Floor Plan',
+          mode: 'lower',
+          includeLot: false,
+          bounds: [-2, 32, -20, 15],
+          scan: { crop: [0.56, 0.50, 0.36, 0.44], x0: 1.5, z0: -17.5, w: 28.5, h: 30.5 },
+          redOuter: [
+            [[4, -15.2], [20, -15.2], [20, -1.5], [27.6, 3.8], [27.6, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]
+          ],
+          redDashed: [],
+          redMain: [
+            [[9.92, -14.65], [9.92, -5.5], [4.0, -5.5]],
+            [[9.92, -5.5], [20.0, -5.5]],
+            [[13.51, 3.8], [13.51, 7.0]],
+            [[4.55, 3.8], [13.51, 3.8]],
+            [[25.1, 3.8], [25.1, 7.0]]
+          ],
+          caption: '1977 Lower Floor: East bay & stairwell align; 1977 plan shows a 2\'-6" closet wall at x=25.1..27.6 where model has French doors.'
+        },
+        {
+          id: 'p77_site',
+          planId: 'p77_site',
+          title: 'Compare: 1977 Site Footprint vs Model',
+          sub: 'Green = Current Model Outer & Main Walls · Red = 1977 Site Plan Footprint',
+          mode: 'upper',
+          includeLot: false,
+          bounds: [-66, 48, -26, 16],
+          scan: { crop: [0.02, 0.02, 0.84, 0.92], x0: -64.5, z0: -24.5, w: 112.0, h: 38.5 },
+          redOuter: [
+            [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [45.5, -22.0], [45.5, 12.2], [-64.0, 12.2]],
+            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
+            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            [[4, -15.2], [20, -15.2], [20, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]
+          ],
+          redDashed: [[[20, -1.5], [27.6, 3.8], [27.6, 7.0], [20, 7.0]]],
+          redMain: [],
+          caption: '1977 Site Plan: Property setbacks (7.5\' S, 5\' N, 4\' East Wing N) and main house footprint align.'
+        },
+        {
+          id: 'p25_solar',
+          planId: 'p25_solar',
+          title: 'Compare: 2025 Tesla Roof Plan vs Model',
+          sub: 'Green = Current Model Outer & Main Walls · Red = 2025 Tesla Roof & House Border',
+          mode: 'upper',
+          includeLot: false,
+          bounds: [-54, 34, -22, 16],
+          scan: { crop: [0.01, 0.34, 0.43, 0.42], x0: -52.0, z0: -21.0, w: 84.0, h: 36.0 },
+          redOuter: [
+            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
+            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            [[4, -15.2], [20, -15.2], [20, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]]
+          ],
+          redDashed: [
+            [[12.0, -15.2], [12.0, 7.0]],
+            [[20, -1.5], [27.6, 3.8], [27.6, 7.0], [20, 7.0]]
+          ],
+          redMain: [],
+          caption: '2025 Tesla Roof Plan: East Wing main gable ends at z=7.0 with stairwell projection to z=10.5 (now matched in model).'
+        },
+        {
+          id: 'p80_site',
+          planId: 'p80_site',
+          title: 'Compare: 1980 Lot Coverage & Guest vs Model',
+          sub: 'Green = Current Model Outer & Main Walls · Red = 1980 Lot Coverage Plan',
+          mode: 'upper',
+          includeLot: true,
+          bounds: [-66, 98, -36, 18],
+          scan: { crop: [0.04, 0.34, 0.94, 0.36], x0: -64.0, z0: -28.0, w: 162.0, h: 44.0 },
+          redOuter: [
+            [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [22.0, -34.0], [94.0, -34.0], [94.0, 12.2], [-64.0, 12.2]],
+            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
+            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            [[4, -15.2], [20, -15.2], [20, 7.0], [13.51, 7.0], [13.51, 10.5], [4, 10.5], [4, -15.2]],
+            [[44, -16], [63, -16], [63, 3], [44, 3], [44, -16]],
+            [[63, -16], [80, -16], [80, 11], [63, 11], [63, -16]]
+          ],
+          redDashed: [[[20, -1.5], [27.6, 3.8], [27.6, 7.0], [20, 7.0]]],
+          redMain: [],
+          caption: '1980 Lot Coverage: Main House, 19\'×19\' Carport (x=44..63), and 17\'×27\' Guest House (x=63..80) align.'
+        }
+      ];
+
+      let currentCompareIdx = 0;
+      let cZoom = 1, cPanX = 0, cPanY = 0;
+      const compareImgCache = new Map();
+
+      function getCompareImage(planId) {
+        if (compareImgCache.has(planId)) return compareImgCache.get(planId);
+        const p = REF_PLANS.find((pl) => pl.id === planId);
+        if (!p) return null;
+        const im = new Image();
+        im.onload = () => { if (!planCompareView.classList.contains('hidden')) drawCompareCanvas(); };
+        im.src = p.src;
+        compareImgCache.set(planId, im);
+        return im;
+      }
+
+      function fitCompareView() {
+        cZoom = 1; cPanX = 0; cPanY = 0;
+        drawCompareCanvas();
+      }
+
+      function drawCompareCanvas() {
+        const cmp = COMPARE_PLANS[currentCompareIdx];
+        if (!cmp) return;
+        const rect = planCompareView.getBoundingClientRect();
+        const w = Math.max(300, rect.width || 800);
+        const h = Math.max(240, rect.height || 500);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        planCompareCanvas.width = Math.round(w * dpr);
+        planCompareCanvas.height = Math.round(h * dpr);
+        const ctx = planCompareCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#0b1016';
+        ctx.fillRect(0, 0, w, h);
+
+        const [bx0, bx1, bz0, bz1] = cmp.bounds;
+        const bw = bx1 - bx0, bh = bz1 - bz0;
+        const baseScale = Math.min((w - 64) / bw, (h - 90) / bh);
+        const scale = baseScale * cZoom;
+        const cx = (bx0 + bx1) * 0.5, cz = (bz0 + bz1) * 0.5;
+        const toX = (x) => w * 0.5 + (x - cx) * scale + cPanX;
+        const toY = (z) => h * 0.5 + (z - cz) * scale + cPanY;
+
+        // 5-ft reference grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        const gx0 = Math.floor(bx0 / 5) * 5 - 20, gx1 = Math.ceil(bx1 / 5) * 5 + 20;
+        const gz0 = Math.floor(bz0 / 5) * 5 - 20, gz1 = Math.ceil(bz1 / 5) * 5 + 20;
+        for (let gx = gx0; gx <= gx1; gx += 5) {
+          ctx.beginPath(); ctx.moveTo(toX(gx), 0); ctx.lineTo(toX(gx), h); ctx.stroke();
+        }
+        for (let gz = gz0; gz <= gz1; gz += 5) {
+          ctx.beginPath(); ctx.moveTo(0, toY(gz)); ctx.lineTo(w, toY(gz)); ctx.stroke();
+        }
+
+        // Faded aligned plan scan
+        if (compareShowScan.checked && cmp.scan) {
+          const im = getCompareImage(cmp.planId);
+          if (im && im.complete && im.naturalWidth) {
+            const [cx0, cy0, cw, ch] = cmp.scan.crop;
+            ctx.save();
+            ctx.globalAlpha = 0.28;
+            ctx.drawImage(
+              im,
+              cx0 * im.naturalWidth, cy0 * im.naturalHeight, cw * im.naturalWidth, ch * im.naturalHeight,
+              toX(cmp.scan.x0), toY(cmp.scan.z0), cmp.scan.w * scale, cmp.scan.h * scale
+            );
+            ctx.restore();
+          }
+        }
+
+        const drawPolys = (polys, color, width, dash = []) => {
+          ctx.save();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = width;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.setLineDash(dash);
+          for (const poly of polys) {
+            if (!poly.length) continue;
+            ctx.beginPath();
+            ctx.moveTo(toX(poly[0][0]), toY(poly[0][1]));
+            for (let i = 1; i < poly.length; i++) ctx.lineTo(toX(poly[i][0]), toY(poly[i][1]));
+            ctx.stroke();
+          }
+          ctx.restore();
+        };
+
+        // RED: Plan border & main walls
+        drawPolys(cmp.redOuter, '#ef4444', 3.5);
+        drawPolys(cmp.redMain, '#ef4444', 2.0);
+        drawPolys(cmp.redDashed, '#ef4444', 1.8, [6, 5]);
+
+        // GREEN: Current 3D model outer & main walls
+        const model = getModelWalls(cmp.mode, cmp.includeLot);
+        drawPolys(model.outer, '#22c55e', 2.4);
+        drawPolys(model.main, '#22c55e', 1.6);
+        drawPolys(model.dashed, '#22c55e', 1.5, [5, 4]);
+      }
+
+      function showComparePlan(compareId) {
+        const idx = COMPARE_PLANS.findIndex((c) => c.id === compareId);
+        currentCompareIdx = idx >= 0 ? idx : 0;
+        const cmp = COMPARE_PLANS[currentCompareIdx];
+        plansListView.classList.add('hidden');
+        planSingleView.classList.add('hidden');
+        planCompareView.classList.remove('hidden');
+        planBackBtn.classList.remove('hidden');
+        planZoomControls.classList.remove('hidden');
+        planZoomControls.classList.add('flex');
+        planTitleEl.textContent = cmp.title;
+        planSubEl.textContent = `${cmp.sub} (${currentCompareIdx + 1}/${COMPARE_PLANS.length})`;
+        planCompareCaption.textContent = cmp.caption;
+        getCompareImage(cmp.planId);
+        requestAnimationFrame(fitCompareView);
+      }
+
+      function stepComparePlan(delta) {
+        currentCompareIdx = (currentCompareIdx + delta + COMPARE_PLANS.length) % COMPARE_PLANS.length;
+        showComparePlan(COMPARE_PLANS[currentCompareIdx].id);
+      }
+      compareShowScan.addEventListener('change', drawCompareCanvas);
+      const comparePrevBtn = document.getElementById('compare-prev-btn');
+      const compareNextBtn = document.getElementById('compare-next-btn');
+      comparePrevBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      compareNextBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+      comparePrevBtn.addEventListener('click', (e) => { e.stopPropagation(); stepComparePlan(-1); });
+      compareNextBtn.addEventListener('click', (e) => { e.stopPropagation(); stepComparePlan(1); });
+
       function stepPlan(delta) {
         if (!orderedPlans.length) return;
         currentPlanIndex = (currentPlanIndex + delta + orderedPlans.length) % orderedPlans.length;
@@ -4197,9 +4531,57 @@
       planBackBtn.addEventListener('click', showPlansList);
       document.getElementById('plan-close-btn').addEventListener('click', () => plansModal.classList.add('hidden'));
       plansModal.addEventListener('click', (e) => { if (e.target === plansModal) plansModal.classList.add('hidden'); });
-      document.getElementById('plan-zoom-in').addEventListener('click', () => { pZoom = Math.min(6, pZoom * 1.35); applyPlanTransform(); });
-      document.getElementById('plan-zoom-out').addEventListener('click', () => { pZoom = Math.max(0.6, pZoom / 1.35); applyPlanTransform(); });
-      document.getElementById('plan-zoom-fit').addEventListener('click', fitPlanImage);
+      document.getElementById('plan-zoom-in').addEventListener('click', () => {
+        if (!planCompareView.classList.contains('hidden')) { cZoom = Math.min(8, cZoom * 1.35); drawCompareCanvas(); }
+        else { pZoom = Math.min(6, pZoom * 1.35); applyPlanTransform(); }
+      });
+      document.getElementById('plan-zoom-out').addEventListener('click', () => {
+        if (!planCompareView.classList.contains('hidden')) { cZoom = Math.max(0.4, cZoom / 1.35); drawCompareCanvas(); }
+        else { pZoom = Math.max(0.6, pZoom / 1.35); applyPlanTransform(); }
+      });
+      document.getElementById('plan-zoom-fit').addEventListener('click', () => {
+        if (!planCompareView.classList.contains('hidden')) fitCompareView();
+        else fitPlanImage();
+      });
+
+      // Drag pan + wheel zoom + pinch zoom on compare viewer
+      const cPtrs = new Map();
+      let cPinchDist = 0;
+      planCompareView.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('#compare-legend')) return;
+        planCompareView.setPointerCapture(e.pointerId);
+        cPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (cPtrs.size === 2) {
+          const pts = [...cPtrs.values()];
+          cPinchDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+        }
+      });
+      planCompareView.addEventListener('pointermove', (e) => {
+        if (!cPtrs.has(e.pointerId)) return;
+        const prev = cPtrs.get(e.pointerId);
+        cPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (cPtrs.size === 1) {
+          cPanX += e.clientX - prev.x;
+          cPanY += e.clientY - prev.y;
+          drawCompareCanvas();
+        } else if (cPtrs.size === 2) {
+          const pts = [...cPtrs.values()];
+          const d = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+          if (cPinchDist > 0) {
+            cZoom = Math.max(0.4, Math.min(8, cZoom * (d / cPinchDist)));
+            drawCompareCanvas();
+          }
+          cPinchDist = d;
+        }
+      });
+      function endCmpPtr(e) { cPtrs.delete(e.pointerId); if (cPtrs.size < 2) cPinchDist = 0; }
+      planCompareView.addEventListener('pointerup', endCmpPtr);
+      planCompareView.addEventListener('pointercancel', endCmpPtr);
+      planCompareView.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        cZoom = Math.max(0.4, Math.min(8, cZoom * (e.deltaY < 0 ? 1.18 : 0.85)));
+        drawCompareCanvas();
+      }, { passive: false });
 
       // Drag pan + wheel zoom + pinch zoom on single plan viewer
       const pPtrs = new Map();
