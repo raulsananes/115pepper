@@ -1123,6 +1123,18 @@
               addQuad(bGlass, [h.u1 - st, h.v0 + botR, mid], [h.u0 + st, h.v0 + botR, mid], [h.u0 + st, h.v1 - topR, mid], [h.u1 - st, h.v1 - topR, mid], 4, false);
               addBox(bHandle, h.u0 + 0.22, h.v0 + 2.7, mid - 0.28, h.u0 + 0.36, h.v0 + 3.6, mid + 0.28, 2, false);
               endDoorObject();
+            } else {
+              const outSign = thick > 0 ? -1 : 1;
+              beginDoorObject(h.code, mid, h.u0, 85 * outSign, 0);
+              const st = 0.45, botR = 1.15, topR = 0.52;
+              addBox(bTrim, z0 - 0.06, h.v0, h.u0, z1 + 0.06, h.v1, h.u0 + st, 4.5, true);
+              addBox(bTrim, z0 - 0.06, h.v0, h.u1 - st, z1 + 0.06, h.v1, h.u1, 4.5, true);
+              addBox(bTrim, z0 - 0.06, h.v0, h.u0 + st, z1 + 0.06, h.v0 + botR, h.u1 - st, 4.5, true);
+              addBox(bTrim, z0 - 0.06, h.v1 - topR, h.u0 + st, z1 + 0.06, h.v1, h.u1 - st, 4.5, true);
+              addQuad(bGlass, [mid, h.v0 + botR, h.u0 + st], [mid, h.v0 + botR, h.u1 - st], [mid, h.v1 - topR, h.u1 - st], [mid, h.v1 - topR, h.u0 + st], 4, false);
+              addQuad(bGlass, [mid, h.v0 + botR, h.u1 - st], [mid, h.v0 + botR, h.u0 + st], [mid, h.v1 - topR, h.u0 + st], [mid, h.v1 - topR, h.u1 - st], 4, false);
+              addBox(bHandle, mid - 0.28, h.v0 + 2.7, h.u1 - 0.36, mid + 0.28, h.v0 + 3.6, h.u1 - 0.22, 2, false);
+              endDoorObject();
             }
           } else if (h.type === 'french_door') {
             const st = 0.42, botR = 1.15, topR = 0.52;
