@@ -1428,32 +1428,32 @@
       const ePeak = 26.2; // East Wing gable ridge
 
       setPart('EAST-FLOOR-LOWER', 'East Wing — Lower Floor');
-      addBox(bIntFloor, 4.4, eY0 - 0.4, -14.8, 20.0, eY0, 10.1, 5.0, false);
+      addBox(bIntFloor,  4.4, eY0 - 0.4, -14.8, 13.5, eY0, 10.1, 5.0, false); // West & stairwell lower floor
+      addBox(bIntFloor, 13.5, eY0 - 0.4, -14.8, 20.0, eY0,  7.0, 5.0, false); // East lower bedroom floor (stops at z=7.0)
       setPart('EAST-FLOOR-UPPER', 'East Wing — Master Bedroom Floor');
       // Split around the stairwell opening (x = 4.0..10.6, z = 3.8..10.1 & lower flight x = 10.6..13.5, z = 7.0..10.1)
       addBox(bIntFloor,  4.4, eY1 - 0.85, -14.8, 19.6, eY1,  3.8, 5.0, false); // North & center Master floor
       addBox(bIntFloor, 10.6, eY1 - 0.85,   3.8, 13.5, eY1,  7.0, 5.0, false); // Upper stair landing at top of UP flight
-      addBox(bIntFloor, 13.5, eY1 - 0.85,   3.8, 19.6, eY1, 10.1, 5.0, false); // Master Bedroom SE floor (covers lower floor completely)
+      addBox(bIntFloor, 13.5, eY1 - 0.85,   3.8, 19.6, eY1,  7.0, 5.0, false); // Master Bedroom SE floor (directly above lower floor)
       // Crisp white Downstairs ceiling underside right below EAST-FLOOR-UPPER
       addQuad(bCeilingFixed, [4.4, eY1 - 0.87, -14.8], [4.4, eY1 - 0.87, 3.8], [19.6, eY1 - 0.87, 3.8], [19.6, eY1 - 0.87, -14.8], 6.0, false);
-      addQuad(bCeilingFixed, [10.6, eY1 - 0.87, 3.8], [10.6, eY1 - 0.87, 7.0], [13.5, eY1 - 0.87, 7.0], [13.5, eY1 - 0.87, 3.8], 6.0, false);
-      addQuad(bCeilingFixed, [13.5, eY1 - 0.87, 3.8], [13.5, eY1 - 0.87, 10.1], [19.6, eY1 - 0.87, 10.1], [19.6, eY1 - 0.87, 3.8], 6.0, false);
+      addQuad(bCeilingFixed, [10.6, eY1 - 0.87, 3.8], [10.6, eY1 - 0.87, 7.0], [19.6, eY1 - 0.87, 7.0], [19.6, eY1 - 0.87, 3.8], 6.0, false);
 
-      // Exact Sheet 3 East Wing N-S length: 25'-8" (z = -15.2..10.5), aligning flush with KITCHEN-WALL-NORTH NE corner (-15.6)
+      // Exact Sheet 3 East Wing N-S length: 25'-8" (z = -15.2..10.5 at stairwell, stepping to z = 7.0 east of x=13.51)
       setPart('EAST-WALL-NORTH', 'East Wing — North Wall');
       addWallWithOpenings(bShingleExt, bIntWall, 'Z', -15.2, 4, 20, eY0, eTop, 0.55, [
         { u0: 14.8, u1: 19.4, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-N', label: 'East Wing — Upper NE Corner Window (North)' }
       ]);
       setPart('EAST-WALL-SOUTH', 'East Wing — South Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 20, eY0, eTop, -0.55, []);
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, 4, 13.51, eY0, eTop, -0.55, []);
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 7.0, 13.51, 20, eY0, eTop, -0.55, []);
       setPart('EAST-WALL-EAST', 'East Wing — East Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', 20, -15.2, 10.5, eY0, eTop, -0.55, [
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 20, -15.2, 7.0, eY0, eTop, -0.55, [
         { u0: -14.6, u1: -10.6, v0: eY1 + 2.4, v1: eY1 + 7.0, type: 'window', mullionV: true, mullionH: 0.32, code: 'EAST-WIN-NE-UPPER-E', label: 'East Wing — Upper NE Corner Window (East)' },
         { u0: -14.6, u1: -10.6, v0: eY0 + 2.4, v1: eY0 + 7.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-NE-LOWER-E', label: 'East Wing — Lower NE Corner Window (East)' },
-        { u0: 2.2,   u1: 4.2,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
-        { u0: 4.25,  u1: 6.25,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
-        { u0: 7.2,   u1: 9.8,   v0: eY1 + 2.4, v1: eY1 + 6.8, type: 'window', mullionV: true, mullionH: 0.25, code: 'EAST-WIN-SE-TALL', label: 'East Wing — Wide SE Corner Window' },
-        { u0: -1.1,  u1: 9.8,   v0: eY0,       v1: eY1 - 0.87, type: 'open' }
+        { u0: 2.0,   u1: 4.0,   v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-N', label: 'Master Bedroom — East Balcony French Door (North Leaf)' },
+        { u0: 4.05,  u1: 6.05,  v0: eY1,       v1: eY1 + 6.8, type: 'french_door', code: 'EAST-BALCONY-DOOR-S', label: 'Master Bedroom — East Balcony French Door (South Leaf)' },
+        { u0: -1.1,  u1: 7.0,   v0: eY0,       v1: eY1 - 0.87, type: 'open' }
       ]);
       // Exterior portion of EAST-WALL-WEST (only where exposed to the outdoor North courtyard/breezeway)
       const ewExtZEnd = isRemodelD ? -14.68 : isRemodelC ? -12.66 : isRemodelB ? -8.05 : isRemodel ? -4.50 : 2.0;
@@ -1514,10 +1514,10 @@
         addQuad(bBlack, [px0, py0, pz0], [px1, py1, pz0], [px1, py1, pz1], [px0, py0, pz1], 2, true);
       }
 
-      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck (fully covers lower bay floor)
-      const pB = [[20, eY0, -1.5], [27.6, eY0, 3.8], [27.6, eY0, 10.5], [20, eY0, 10.5]];
-      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 10.5], [20, eY1, 10.5]];
-      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 10.5], [20, eY1 + 3.4, 10.5]];
+      // East Wing — Lower Angled Bay & Upper Angled Balcony Deck (both stop at z=7.0, 100% aligned)
+      const pB = [[20, eY0, -1.5], [27.6, eY0, 3.8], [27.6, eY0, 7.0], [20, eY0, 7.0]];
+      const pM = [[20, eY1, -1.5], [27.6, eY1, 3.8], [27.6, eY1, 7.0], [20, eY1, 7.0]];
+      const pR = [[20, eY1 + 3.4, -1.5], [27.6, eY1 + 3.4, 3.8], [27.6, eY1 + 3.4, 7.0], [20, eY1 + 3.4, 7.0]];
 
       const bayDiagLen = Math.hypot(27.6 - 20, 3.8 - (-1.5));
       setPart('EAST-BAY-WALL-ANGLED', 'East Wing — Lower Angled Bay Wall (NE)');
@@ -1530,13 +1530,13 @@
         label: 'East Wing — Lower Angled Bay Window (NE)'
       });
       setPart('EAST-BAY-WALL-EAST', 'East Wing — Lower Bay East Wall (Double French Door)');
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 10.5, eY0, eY1, -0.55, [
-        { u0: 5.05, u1: 7.05, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-N', label: 'Lower Bedroom — Bay East French Door (North Leaf)' },
-        { u0: 7.10, u1: 9.10, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-S', label: 'Lower Bedroom — Bay East French Door (South Leaf)' }
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', 27.6, 3.8, 7.0, eY0, eY1, -0.55, [
+        { u0: 4.1,  u1: 5.4,  v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-N', label: 'Lower Bedroom — Bay East French Door (North Leaf)' },
+        { u0: 5.45, u1: 6.75, v0: eY0, v1: eY0 + 6.8, type: 'french_door', code: 'EAST-BAY-DOOR-S', label: 'Lower Bedroom — Bay East French Door (South Leaf)' }
       ]);
       setPart('EAST-BAY-WALL-SOUTH', 'East Wing — Lower Bay South Wall');
-      addQuad(bShingleExt, [27.6, eY0, 10.5], [20, eY0, 10.5], [20, eY1, 10.5], [27.6, eY1, 10.5], 5.5, true);
-      addQuad(bIntWall,    [20, eY0, 9.95], [27.05, eY0, 9.95], [27.05, eY1, 9.95], [20, eY1, 9.95], 7.0, false);
+      addQuad(bShingleExt, [27.6, eY0, 7.0], [20, eY0, 7.0], pM[3], pM[2], 5.5, true);
+      addQuad(bIntWall,    [20, eY0, 6.45], [27.05, eY0, 6.45], [27.05, eY1, 6.45], [20, eY1, 6.45], 7.0, false);
       setPart('EAST-BAY-FLOOR-LOWER', 'Lower Bedroom — Bay Floor');
       addTri(bIntFloor, pB[0], pB[1], pB[2], 5.0);
       addTri(bIntFloor, pB[0], pB[2], pB[3], 5.0);
@@ -1701,13 +1701,13 @@
       addBox(bHandle, 9.58, eY0 + 2.75, 5.80, 9.84, eY0 + 3.10, 5.96, 2, false);
       endDoorObject();
 
-      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.02..9.93, solid wall at X=13.1, Y=3.6, Z=6.2)
+      // Lower Mechanical / Utility Closet (x = 13.30..15.80, z = 3.02..6.50, solid wall at X=13.1, Y=3.6, Z=6.2)
       setPart('INT-LOWER-MECH', 'Lower Level — Mechanical Closet (Water Heater & Furnace)');
-      addBox(bIntWall, 15.38, eY0, 3.02, 15.80, eY1 - 0.88, 9.93, 6, false);       // East wall separating from South Bdrm
+      addBox(bIntWall, 15.38, eY0, 3.02, 15.80, eY1 - 0.88, 6.50, 6, false);       // East wall separating from South Bdrm
       addBox(bIntWall, 13.72, eY0, 3.02, 15.38, eY1 - 0.88, 3.42, 6, false);       // North wall of mech closet
-      addBox(bIntWall, 13.30, eY0, 3.02, 13.72, eY1 - 0.88, 9.93, 6, false);       // Solid West wall along lower hallway (X=13.1, Z=6.2)
-      addBox(bMetal, 13.90, eY0, 3.90, 15.25, eY0 + 5.2, 5.25, 4, true);           // Water heater tank
-      addBox(bMetal, 13.90, eY0, 6.40, 15.25, eY0 + 5.6, 8.60, 4, true);           // Furnace cabinet
+      addBox(bIntWall, 13.30, eY0, 3.02, 13.72, eY1 - 0.88, 6.50, 6, false);       // Solid West wall along lower hallway
+      addBox(bMetal, 13.90, eY0, 3.60, 15.25, eY0 + 5.2, 4.80, 4, true);           // Water heater tank
+      addBox(bMetal, 13.90, eY0, 5.05, 15.25, eY0 + 5.6, 6.30, 4, true);           // Furnace cabinet
 
       // Lower North Bedroom South Closet Bank (x = 12.60..19.45, z = -2.20..0.00, opening NORTH into North Bdrm) + South Bdrm Entry Wall
       setPart('INT-LOWER-WALL', 'Lower Level — Bedroom Partition & North Bedroom Closet');
@@ -1740,20 +1740,20 @@
       addBox(bHandle, 13.38, eY0 + 2.95, 2.65, 13.64, eY0 + 3.35, 2.85, 2, false);
       endDoorObject();
 
-      // Lower South Room (TV Room) South Wall: 3-row tennis/padel racket display + dark sofa (matching Photo 7)
+      // Lower South Room (TV Room) South Wall (z = 7.0): 3-row tennis/padel racket display + dark sofa (matching Photo 7)
       setPart('LSOUTH-RACKET-WALL', 'Lower South Room (TV Room) — Racket Display Wall');
       for (let r = 0; r < 3; r++) {
         const ry = eY0 + 3.6 + r * 1.3;
         for (let c = 0; c < 5; c++) {
           const rx = 16.2 + c * 0.72 + (r % 2) * 0.20;
           const rb = (c + r) % 3 === 0 ? bBlack : (c + r) % 3 === 1 ? bRoof : bWoodBeam;
-          addBox(rb, rx - 0.16, ry, 9.86, rx + 0.16, ry + 0.52, 9.93, 2, true); // Racket head
-          addBox(bBlack, rx - 0.04, ry - 0.36, 9.87, rx + 0.04, ry, 9.93, 2, false); // Grip
+          addBox(rb, rx - 0.16, ry, 6.38, rx + 0.16, ry + 0.52, 6.45, 2, true); // Racket head
+          addBox(bBlack, rx - 0.04, ry - 0.36, 6.39, rx + 0.04, ry, 6.45, 2, false); // Grip
         }
       }
       setPart('LSOUTH-SOFA', 'Lower South Room (TV Room) — Dark Sofa');
-      addBox(bMetal, 16.0, eY0, 7.3, 19.35, eY0 + 1.45, 9.80, 4, true);
-      addBox(bMetal, 16.0, eY0 + 1.45, 9.15, 19.35, eY0 + 2.65, 9.80, 4, true);
+      addBox(bMetal, 16.0, eY0, 4.2, 19.35, eY0 + 1.45, 6.35, 4, true);
+      addBox(bMetal, 16.0, eY0 + 1.45, 5.75, 19.35, eY0 + 2.65, 6.35, 4, true);
 
       // Bunk bed on the North wall of the Lower North Bedroom
       setPart('INT-LOWER-BED-N', 'Lower North Bedroom — Bunk Bed');
