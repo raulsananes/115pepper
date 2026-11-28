@@ -1260,7 +1260,7 @@
         currentPart = prevPart;
       }
 
-      function addGableX(x0, x1, z0, z1, yEave, yPeak, wallBatch, overhang = 0.8, roofCode, roofLabel, skipEastGable = false, eastSoffit = !skipEastGable, ceilingBatch = bCeiling, intGableBatch = bIntWall) {
+      function addGableX(x0, x1, z0, z1, yEave, yPeak, wallBatch, overhang = 0.8, roofCode, roofLabel, skipEastGable = false, eastSoffit = !skipEastGable, ceilingBatch = bCeiling, intGableBatch = bIntWall, skipWestGable = false) {
         const zm = (z0 + z1) / 2;
         const ox0 = x0 - overhang, ox1 = x1 + overhang;
         const oz0 = z0 - overhang, oz1 = z1 + overhang;
@@ -1268,11 +1268,13 @@
         const yOver = yEave - slope * overhang;
 
         const prevPart = currentPart;
-        if (roofCode) setPart(roofCode + '-GABLE', (roofLabel || roofCode) + ' Gable Wall');
-        addTri(wallBatch, [x0, yEave, z1], [x0, yEave, z0], [x0, yPeak, zm], 5.5);
-        addTri(intGableBatch, [x0 + 0.5, yEave, z0], [x0 + 0.5, yEave, z1], [x0 + 0.5, yPeak - 0.3, zm], 7.0);
-        addEdge([x0, yEave, z0], [x0, yPeak, zm], true);
-        addEdge([x0, yEave, z1], [x0, yPeak, zm], true);
+        if (!skipWestGable) {
+          if (roofCode) setPart(roofCode + '-GABLE', (roofLabel || roofCode) + ' Gable Wall');
+          addTri(wallBatch, [x0, yEave, z1], [x0, yEave, z0], [x0, yPeak, zm], 5.5);
+          addTri(intGableBatch, [x0 + 0.5, yEave, z0], [x0 + 0.5, yEave, z1], [x0 + 0.5, yPeak - 0.3, zm], 7.0);
+          addEdge([x0, yEave, z0], [x0, yPeak, zm], true);
+          addEdge([x0, yEave, z1], [x0, yPeak, zm], true);
+        }
         if (!skipEastGable) {
           addTri(wallBatch, [x1, yEave, z0], [x1, yEave, z1], [x1, yPeak, zm], 5.5);
           addTri(intGableBatch, [x1 - 0.5, yEave, z1], [x1 - 0.5, yEave, z0], [x1 - 0.5, yPeak - 0.3, zm], 7.0);
@@ -2787,7 +2789,45 @@
         setPart('CARPORT-BEAMS', 'Carport — Roof Header Beams');
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ0 + 0.22, cpX1 - 0.2, cpTop, cpZ0 + 0.58, 4, true);
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
-        addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false, bWoodBeam, bWoodBeam);
+        addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false, bWoodBeam, bWoodBeam, true);
+
+        // Carport South & West Enclosure: 5-ft wood lower wall + glass to roof
+        // South wall set 2.5 ft North (z=0.50) leaving ~3-ft open walkway next to Guest House (x=59.5..63.0)
+        // West wall at x=44.0 running from South corner (z=0.50) North to z=-12.50 (3.5 ft short of cpZ0=-16.0)
+        const cpZm = (cpZ0 + cpZ1) * 0.5;
+        const cpRoofBot = (z) => cpPeak - (cpPeak - cpTop) * (Math.abs(z - cpZm) / ((cpZ1 - cpZ0) * 0.5)) - 0.45;
+        const cwZ = 0.50, cwX1 = 59.50, cwWoodH = cpY + 5.0;
+        const cwTopS = cpRoofBot(cwZ);
+
+        setPart('CARPORT-WALL-SOUTH', 'Carport — South 5-ft Wood Wall & Upper Clerestory Glass');
+        addBox(bDeck,     cpX0, cpY,          cwZ - 0.12, cwX1, cwWoodH,        cwZ + 0.12, 4.5, true);
+        addBox(bWoodBeam, cpX0, cwWoodH,      cwZ - 0.16, cwX1, cwWoodH + 0.16, cwZ + 0.16, 4.0, true); // 5-ft sill cap
+        addBox(bWoodBeam, cpX0, cwTopS - 0.16,cwZ - 0.14, cwX1, cwTopS,         cwZ + 0.14, 4.0, true); // Top header under roof
+        for (const px of [cpX0 + 0.12, cpX0 + 5.2, cpX0 + 10.4, cwX1 - 0.12]) {
+          addBox(bWoodBeam, px - 0.12, cpY, cwZ - 0.14, px + 0.12, cwTopS, cwZ + 0.14, 4.0, true);
+        }
+        addQuad(bGlass, [cpX0 + 0.24, cwWoodH + 0.16, cwZ], [cwX1 - 0.24, cwWoodH + 0.16, cwZ], [cwX1 - 0.24, cwTopS - 0.16, cwZ], [cpX0 + 0.24, cwTopS - 0.16, cwZ], 4.0, false);
+        addQuad(bGlass, [cwX1 - 0.24, cwWoodH + 0.16, cwZ], [cpX0 + 0.24, cwWoodH + 0.16, cwZ], [cpX0 + 0.24, cwTopS - 0.16, cwZ], [cwX1 - 0.24, cwTopS - 0.16, cwZ], 4.0, false);
+
+        const wZ0 = cpZ0 + 3.50, wZ1 = cwZ; // -12.50..0.50 (3.5 ft short of North edge)
+        const wX = cpX0 + 0.12;
+        setPart('CARPORT-WALL-WEST', 'Carport — West 5-ft Wood Wall & Sloped Upper Glass (Short on North)');
+        addBox(bDeck,     wX - 0.12, cpY,     wZ0, wX + 0.12, cwWoodH,        wZ1, 4.5, true);
+        addBox(bWoodBeam, wX - 0.16, cwWoodH, wZ0, wX + 0.16, cwWoodH + 0.16, wZ1, 4.0, true); // 5-ft sill cap
+        for (const pz of [wZ0 + 0.12, -8.30, cpZm, -3.00, wZ1 - 0.12]) {
+          addBox(bWoodBeam, wX - 0.14, cpY, pz - 0.12, wX + 0.14, cpRoofBot(pz), pz + 0.12, 4.0, true);
+        }
+        // Sloped top header beam + glass all the way up to gable roof (North & South halves meeting at ridge cpZm)
+        const yN0 = cpRoofBot(wZ0), yMid = cpRoofBot(cpZm), yS1 = cpRoofBot(wZ1);
+        addQuad(bWoodBeam, [wX - 0.14, yN0 - 0.18, wZ0], [wX - 0.14, yMid - 0.18, cpZm], [wX - 0.14, yMid, cpZm], [wX - 0.14, yN0, wZ0], 4.0, true);
+        addQuad(bWoodBeam, [wX + 0.14, yMid - 0.18, cpZm], [wX + 0.14, yN0 - 0.18, wZ0], [wX + 0.14, yN0, wZ0], [wX + 0.14, yMid, cpZm], 4.0, false);
+        addQuad(bWoodBeam, [wX - 0.14, yMid - 0.18, cpZm], [wX - 0.14, yS1 - 0.18, wZ1], [wX - 0.14, yS1, wZ1], [wX - 0.14, yMid, cpZm], 4.0, true);
+        addQuad(bWoodBeam, [wX + 0.14, yS1 - 0.18, wZ1], [wX + 0.14, yMid - 0.18, cpZm], [wX + 0.14, yMid, cpZm], [wX + 0.14, yS1, wZ1], 4.0, false);
+        // Glass panes (N half & S half)
+        addQuad(bGlass, [wX, cwWoodH + 0.16, wZ0 + 0.24], [wX, cwWoodH + 0.16, cpZm], [wX, yMid - 0.18, cpZm], [wX, yN0 - 0.18, wZ0 + 0.24], 4.0, false);
+        addQuad(bGlass, [wX, cwWoodH + 0.16, cpZm], [wX, cwWoodH + 0.16, wZ0 + 0.24], [wX, yN0 - 0.18, wZ0 + 0.24], [wX, yMid - 0.18, cpZm], 4.0, false);
+        addQuad(bGlass, [wX, cwWoodH + 0.16, cpZm], [wX, cwWoodH + 0.16, wZ1 - 0.24], [wX, yS1 - 0.18, wZ1 - 0.24], [wX, yMid - 0.18, cpZm], 4.0, false);
+        addQuad(bGlass, [wX, cwWoodH + 0.16, wZ1 - 0.24], [wX, cwWoodH + 0.16, cpZm], [wX, yMid - 0.18, cpZm], [wX, yS1 - 0.18, wZ1 - 0.24], 4.0, false);
 
         // Guest House / East House / Cottage (17' x 27' = 459 SF, same floor level as Carport: x=63..80, z=-16..11)
         const ghX0 = 63.0, ghX1 = 80.0, ghZ0 = -16.0, ghZ1 = 11.0;
