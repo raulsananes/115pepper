@@ -787,6 +787,7 @@
       const bCeilingFixed = createBatch('ceilingFixed', [0.99, 0.99, 0.99], null, { minLight: 0.78 });
       const bDeck       = createBatch('deck',    [0.95, 0.90, 0.85], texDeck);
       const bStone      = createBatch('stone',   [0.78, 0.79, 0.80], texRoof);
+      const bConcrete   = createBatch('concrete',[0.64, 0.66, 0.68], null);
       const bTrim       = createBatch('trim',    [0.56, 0.34, 0.19], null);
       const bBlack      = createBatch('black',   [0.08, 0.09, 0.10], null);
       const bBorder     = createBatch('border',  [0.08, 0.09, 0.10], null);
@@ -1513,7 +1514,7 @@
       ];
       const ewExtHoles = ewAllWins.filter(w => w.u1 <= ewExtZEnd + 0.05);
       const ewIntHoles = [
-        { u0: 3.5, u1: 9.53, v0: 9.0, v1: 17.2, type: 'open' }, // Wide open stairwell entry from Foyer
+        { u0: 3.5, u1: 10.05, v0: 9.0, v1: 17.2, type: 'open' }, // Wide open stairwell entry from Foyer
         { u0: 7.47, u1: 10.0, v0: eY0, v1: 9.0,  type: 'open' }, // Open lower stair run down to Lower Level
         ...ewAllWins.filter(w => w.u0 >= ewExtZEnd - 0.05)
       ];
@@ -1838,56 +1839,56 @@
         addBox(bWoodBeam, 12.76, eY0 + ry, -10.18, 13.45, eY0 + ry + 0.14, -10.04, 4, true);
       }
 
-      // --- 4C. CONNECTING BRIDGE & RECESSED ENTRY COURTYARD (x = -8.84 to 4.0, z = 2.56 to 9.53 per Sheet 3) ---
+      // --- 4C. CONNECTING BRIDGE & RECESSED ENTRY COURTYARD (x = -8.84 to 4.0, z = 2.56 to 10.05 per Sheet 3) ---
       setPart('FOYER-FLOOR', 'Entry Foyer — Floor');
       // Main Entry Foyer at y = 9.0; 1-step down (y = 8.45) South of z = 7.10 in front of Lower Stairs (X=1.3..1.4, Z=6.7->7.5)
       addBox(bIntFloor, -8.84, 8.5, 2.56, 4.0,  9.0, 7.10, 5.0, false);
-      addBox(bIntFloor, -8.84, 8.5, 7.10, -0.20, 9.0, 9.53, 5.0, false);
-      addBox(bIntFloor, -0.20, 7.95, 7.10, 4.0,  8.45, 9.53, 5.0, false); // Lower step landing at South stair corridor
+      addBox(bIntFloor, -8.84, 8.5, 7.10, -0.20, 9.0, 9.65, 5.0, false);
+      addBox(bIntFloor, -0.20, 7.95, 7.10, 4.0,  8.45, 9.65, 5.0, false); // Lower step landing at South stair corridor
       addBox(bIntFloor, -0.26, 8.45, 7.04, 4.0,  9.0, 7.14, 5.0, true);   // Step riser at z = 7.10
 
       // Foyer Coat Closet along ENTRY-WALL-SOUTH (Original: 2'-10" wide alcove x=-2.95..-0.15; Remodel: expanded West)
       if (!isRemodel) {
         setPart('FOYER-COAT-CLOSET', 'Entry Foyer — Coat Closet');
         addBox(bIntWall, -2.95, 9.0, 6.66, -0.15, 16.2, 7.08, 6, false);
-        addBox(bIntWall, -2.95, 9.0, 6.66, -2.53, 16.2, 9.10, 6, false);
-        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.10, 6, false);
-        addBox(bIntWall, -2.95, 16.05, 6.66, -0.15, 16.2, 9.10, 6, false); // Closet top lid
+        addBox(bIntWall, -2.95, 9.0, 6.66, -2.53, 16.2, 9.55, 6, false);
+        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.55, 6, false);
+        addBox(bIntWall, -2.95, 16.05, 6.66, -0.15, 16.2, 9.55, 6, false); // Closet top lid
         addBox(bWoodBeam, -3.01, 16.20, 6.60, -0.09, 16.36, 7.14, 4, true);
-        addBox(bWoodBeam, -3.01, 16.20, 6.60, -2.47, 16.36, 9.12, 4, true);
-        addBox(bWoodBeam, -0.63, 16.20, 6.60, -0.09, 16.36, 9.12, 4, true);
+        addBox(bWoodBeam, -3.01, 16.20, 6.60, -2.47, 16.36, 9.55, 4, true);
+        addBox(bWoodBeam, -0.63, 16.20, 6.60, -0.09, 16.36, 9.55, 4, true);
         addBox(bTrim, -3.03, 9.0, 6.80, -2.91, 15.98, 6.98, 4, true);
-        addBox(bTrim, -3.03, 9.0, 8.82, -2.91, 15.98, 9.00, 4, true);
-        addBox(bTrim, -3.03, 15.80, 6.80, -2.91, 16.00, 9.00, 4, true);
+        addBox(bTrim, -3.03, 9.0, 9.32, -2.91, 15.98, 9.50, 4, true);
+        addBox(bTrim, -3.03, 15.80, 6.80, -2.91, 16.00, 9.50, 4, true);
         setPart('FOYER-CLOSET-DOOR-W', 'Entry Foyer — Coat Closet Door (West)');
-        beginDoorObject('FOYER-CLOSET-DOOR-W', -2.93, 8.82, -85, 0);
-        addBox(bTrim, -2.99, 9.0, 6.98, -2.87, 15.80, 8.82, 4.5, true);
-        const cZm = 7.90;
+        beginDoorObject('FOYER-CLOSET-DOOR-W', -2.93, 9.32, -85, 0);
+        addBox(bTrim, -2.99, 9.0, 6.98, -2.87, 15.80, 9.32, 4.5, true);
+        const cZm = 8.15;
         for (const [cy0, cy1] of [[9.35, 11.15], [11.45, 13.55], [13.85, 15.40]]) {
           addBox(bWoodBeam, -3.02, cy0, 7.16, -2.86, cy1, cZm - 0.10, 4, true);
-          addBox(bWoodBeam, -3.02, cy0, cZm + 0.10, -2.86, cy1, 8.64, 4, true);
+          addBox(bWoodBeam, -3.02, cy0, cZm + 0.10, -2.86, cy1, 9.14, 4, true);
         }
         addBox(bHandle, -3.11, 12.02, 7.10, -2.97, 12.22, 7.30, 2, false);
         endDoorObject();
         setPart('FOYER-CLOSET-DOOR-E-N', 'Entry Foyer — Coat Closet Doors (East North)');
         beginDoorObject('FOYER-CLOSET-DOOR-E-N', -0.21, 6.90, -85, 0);
-        addBox(bTrim,   -0.31, 9.0,  6.90, -0.11, 13.55, 7.88, 4.5, true);
-        addBox(bHandle, -0.13, 12.1, 7.70, -0.03, 12.6,  7.80, 2, false);
-        addBox(bTrim,   -0.31, 13.70, 6.90, -0.11, 15.85, 7.88, 4.5, true);
-        addBox(bHandle, -0.13, 14.0,  7.70, -0.03, 14.4,  7.80, 2, false);
+        addBox(bTrim,   -0.31, 9.0,  6.90, -0.11, 13.55, 8.12, 4.5, true);
+        addBox(bHandle, -0.13, 12.1, 7.94, -0.03, 12.6,  8.04, 2, false);
+        addBox(bTrim,   -0.31, 13.70, 6.90, -0.11, 15.85, 8.12, 4.5, true);
+        addBox(bHandle, -0.13, 14.0,  7.94, -0.03, 14.4,  8.04, 2, false);
         endDoorObject();
         setPart('FOYER-CLOSET-DOOR-E-S', 'Entry Foyer — Coat Closet Doors (East South)');
-        beginDoorObject('FOYER-CLOSET-DOOR-E-S', -0.21, 8.92, 85, 0);
-        addBox(bTrim,   -0.31, 9.0,  7.96, -0.11, 13.55, 8.92, 4.5, true);
-        addBox(bHandle, -0.13, 12.1, 8.04, -0.03, 12.6,  8.14, 2, false);
-        addBox(bTrim,   -0.31, 13.70, 7.96, -0.11, 15.85, 8.92, 4.5, true);
-        addBox(bHandle, -0.13, 14.0,  8.04, -0.03, 14.4,  8.14, 2, false);
+        beginDoorObject('FOYER-CLOSET-DOOR-E-S', -0.21, 9.42, 85, 0);
+        addBox(bTrim,   -0.31, 9.0,  8.20, -0.11, 13.55, 9.42, 4.5, true);
+        addBox(bHandle, -0.13, 12.1, 8.28, -0.03, 12.6,  8.38, 2, false);
+        addBox(bTrim,   -0.31, 13.70, 8.20, -0.11, 15.85, 9.42, 4.5, true);
+        addBox(bHandle, -0.13, 14.0,  8.28, -0.03, 14.4,  8.38, 2, false);
         endDoorObject();
       } else {
         setPart('FOYER-COAT-CLOSET', 'Remodel — Expanded Full-Width Foyer Coat Closet');
         addBox(bIntWall, -8.30, 9.0, 6.66, -0.15, 16.2, 7.08, 6, false);
-        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.10, 6, false);
-        addBox(bIntWall, -5.85, 9.0, 6.66, -5.55, 16.2, 9.10, 6, false);
+        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.55, 6, false);
+        addBox(bIntWall, -5.85, 9.0, 6.66, -5.55, 16.2, 9.55, 6, false);
         setPart('REMODEL-CLOSET-DOOR-W', 'Remodel — Coat Closet Door (West)');
         beginDoorObject('REMODEL-CLOSET-DOOR-W', -8.00, 6.72, -85, 0);
         addBox(bTrim, -8.00, 9.0, 6.62, -6.00, 15.85, 6.82, 4.5, true);
@@ -1944,10 +1945,10 @@
         setPart('ENTRY-WALL-NORTH', 'Entry Bridge — North Wall (Main Entry)');
         addWallWithOpenings(bShingleExt, bIntWall, 'Z', 2.56, -8.84, 4.0, 9.0, 17.2, 0.55, [
           { u0: -8.3, u1: -5.1, v0: 9.0, v1: 15.9, type: 'door',   code: 'MAIN-DOOR', label: 'Main Front Entry Door' },
-          { u0: -4.2, u1: -0.4, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-1-UPPER', label: 'Entry Courtyard — Tall Window 1 (Left of Door)' },
-          { u0: -4.2, u1: -0.4, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-1-LOWER', label: 'Entry Courtyard — Lower Pane 1 (Left of Door)' },
-          { u0:  0.2, u1:  3.4, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-2-UPPER', label: 'Entry Courtyard — Tall Window 2 (East)' },
-          { u0:  0.2, u1:  3.4, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-2-LOWER', label: 'Entry Courtyard — Lower Pane 2 (East)' }
+          { u0: -4.15, u1: -0.60, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-1-UPPER', label: 'Entry Courtyard — Tall Window 1 (Left of Door)' },
+          { u0: -4.15, u1: -0.60, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-1-LOWER', label: 'Entry Courtyard — Lower Pane 1 (Left of Door)' },
+          { u0:  0.15, u1:  3.70, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-2-UPPER', label: 'Entry Courtyard — Tall Window 2 (East)' },
+          { u0:  0.15, u1:  3.70, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-2-LOWER', label: 'Entry Courtyard — Lower Pane 2 (East)' }
         ]);
       } else {
         const wx0 = isRemodelD ? -3.72 : isRemodelC ? -3.90 : isRemodelB ? -4.30 : -4.42;
@@ -2058,34 +2059,34 @@
       }
 
       setPart('ENTRY-WALL-SOUTH', 'Entry Bridge — South Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 9.53, -8.84, 4.0, 8.45, 17.2, -0.55, []);
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.05, -8.84, 4.0, 8.45, 17.2, -0.55, []);
       setPart('ENTRY-WALL-WEST-RETURN', 'Entry Foyer — West Return Wall (Between Living & Entry South)');
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', -8.84, 8.35, 9.53, 9.0, 17.2, 0.55, [
-        { u0: 8.55, u1: 9.35, v0: 9.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-WEST-NARROW', label: 'Entry Foyer — Vertical Narrow Window (West Return)' }
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', -8.84, 8.35, 10.05, 9.0, 17.2, 0.55, [
+        { u0: 8.40, u1: 9.45, v0: 9.4, v1: 15.8, type: 'window', code: 'ENTRY-WIN-WEST-NARROW', label: 'Entry Foyer — Vertical Narrow Window (West Return)' }
       ]);
       addBox(bIntWall, -8.84, 9.0, isRemodel ? 7.60 : 7.80, -8.29, 17.2, 8.35, 7.0, false);
-      addTri(bShingleExt, [-8.84, 17.2, 9.53], [-8.84, 17.2, 8.35], [-8.84, 19.2, 8.35], 5.5);
-      addTri(bIntWall,    [-8.29, 17.2, 7.80], [-8.29, 17.2, 9.53], [-8.29, 19.6, 7.80], 7.0);
+      addTri(bShingleExt, [-8.84, 17.2, 10.05], [-8.84, 17.2, 8.35], [-8.84, 19.2, 8.35], 5.5);
+      addTri(bIntWall,    [-8.29, 17.2, 7.80],  [-8.29, 17.2, 10.05], [-8.29, 19.6, 7.80], 7.0);
       if (!isRemodel) {
-        addGableX(-8.84, 4.6, 2.56, 9.53, 17.2, 21.8, bIntWall, 0.7, 'ROOF-BRIDGE', 'Entry Bridge — Gable Roof', true);
+        addGableX(-8.84, 4.6, 2.56, 10.05, 17.2, 21.8, bIntWall, 0.7, 'ROOF-BRIDGE', 'Entry Bridge — Gable Roof', true);
       } else {
-        const bThick = 0.5, bZm = 6.04, bPeak = 21.8, bOver = 0.7;
+        const bThick = 0.5, bZm = 6.30, bPeak = 21.8, bOver = 0.7;
         const bOx0 = -8.84 - bOver, bOx1 = 4.6 + bOver;
-        const bSlope = (bPeak - 17.2) / (9.53 - bZm);
-        const bYOver = 17.2 - bSlope * bOver, bOz1 = 9.53 + bOver;
+        const bSlope = (bPeak - 17.2) / (10.05 - bZm);
+        const bYOver = 17.2 - bSlope * bOver, bOz1 = 10.05 + bOver;
         setPart('ROOF-BRIDGE-GABLE', 'Entry Bridge — Gable Roof Gable Wall');
-        addTri(bIntWall, [-8.84, 17.2, 9.53], [-8.84, 18.65, 3.34], [-8.84, bPeak, bZm], 7.0);
-        addTri(bIntWall, [-8.34, 18.65, 3.34], [-8.34, 17.2, 9.53], [-8.34, bPeak - 0.3, bZm], 7.0);
+        addTri(bIntWall, [-8.84, 17.2, 10.05], [-8.84, 18.65, 3.34], [-8.84, bPeak, bZm], 7.0);
+        addTri(bIntWall, [-8.34, 18.65, 3.34], [-8.34, 17.2, 10.05], [-8.34, bPeak - 0.3, bZm], 7.0);
         addEdge([-8.84, 18.65, 3.34], [-8.84, bPeak, bZm], true);
-        addEdge([-8.84, 17.2, 9.53], [-8.84, bPeak, bZm], true);
+        addEdge([-8.84, 17.2, 10.05], [-8.84, bPeak, bZm], true);
         setPart('ROOF-BRIDGE-N', 'Entry Bridge — Gable Roof (North Slope, Valley-Trimmed)', { isRoof: true });
         addQuad(bRoof,    [bOx0, 18.615, 3.308], [bOx1, 19.293, 3.934], [bOx1, bPeak, bZm], [bOx0, bPeak, bZm], 6.0, true);
         addQuad(bCeiling, [bOx1, 19.293 - bThick, 3.934], [bOx0, 18.615 - bThick, 3.308], [bOx0, bPeak - bThick, bZm], [bOx1, bPeak - bThick, bZm], 6.0, false);
         setPart('ROOF-BRIDGE-S', 'Entry Bridge — Gable Roof (South Slope)', { isRoof: true });
         addQuad(bRoof,    [bOx1, bYOver, bOz1], [bOx0, bYOver, bOz1], [bOx0, bPeak, bZm], [bOx1, bPeak, bZm], 6.0, true);
-        addQuad(bCeiling, [-8.84, 17.2 - bThick, 9.53], [4.6, 17.2 - bThick, 9.53], [4.6, bPeak - bThick, bZm], [-8.84, bPeak - bThick, bZm], 6.0, false);
-        addQuad(bSoffit,  [bOx0, bYOver - bThick, bOz1], [bOx1, bYOver - bThick, bOz1], [bOx1, 17.2 - bThick, 9.53], [bOx0, 17.2 - bThick, 9.53], 6.0, false);
-        addQuad(bSoffit,  [bOx0, 17.2 - bThick, 9.53], [-8.84, 17.2 - bThick, 9.53], [-8.84, bPeak - bThick, bZm], [bOx0, bPeak - bThick, bZm], 6.0, false);
+        addQuad(bCeiling, [-8.84, 17.2 - bThick, 10.05], [4.6, 17.2 - bThick, 10.05], [4.6, bPeak - bThick, bZm], [-8.84, bPeak - bThick, bZm], 6.0, false);
+        addQuad(bSoffit,  [bOx0, bYOver - bThick, bOz1], [bOx1, bYOver - bThick, bOz1], [bOx1, 17.2 - bThick, 10.05], [bOx0, 17.2 - bThick, 10.05], 6.0, false);
+        addQuad(bSoffit,  [bOx0, 17.2 - bThick, 10.05], [-8.84, 17.2 - bThick, 10.05], [-8.84, bPeak - bThick, bZm], [bOx0, bPeak - bThick, bZm], 6.0, false);
       }
 
       // Helper for a flat deck/stoop quad prism between West edge (x0N,zN)-(x0S,zS) and East edge (x1,zN)-(x1,zS)
@@ -2775,8 +2776,8 @@
         const sharedLotLevelY = groundY((cpX0 + cpX1) * 0.5, (cpZ0 + cpZ1) * 0.5) - 1.9;
         const cpY = sharedLotLevelY;
         const cpTop = cpY + 7.6, cpPeak = cpY + 10.6;
-        setPart('CARPORT-FLOOR', 'Carport — Stone/Concrete Floor Slab (361 SF)');
-        addBox(bStone, cpX0, cpY - 1.5, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
+        setPart('CARPORT-FLOOR', 'Carport — Concrete Grey Floor Slab (361 SF)');
+        addBox(bConcrete, cpX0, cpY - 1.5, cpZ0, cpX1, cpY, cpZ1, 6.0, true);
         setPart('CARPORT-POSTS', 'Carport — Timber Support Posts');
         for (const px of [cpX0 + 0.4, (cpX0 + cpX1) * 0.5, cpX1 - 0.4]) {
           for (const pz of [cpZ0 + 0.4, cpZ1 - 0.4]) {
@@ -4180,13 +4181,13 @@
           ]),
           // Entry Bridge & Living East Courtyard (orthogonal 0 deg)
           [[-8.84, -7.35], [-8.84, 2.56], [4.0, 2.56]],
-          [[-8.84, 8.35], [-8.84, 9.53], [4.0, 9.53]]
+          [[-8.84, 8.35], [-8.84, 10.05], [4.0, 10.05]]
         ];
         const main = [
           polyWest([[-37.17, -1.60], [-37.17, 8.0]]),
           polyWest([[-16.83, -13.15], [-16.83, -7.64], [-12.35, -7.64]]),
           [[-8.84, 2.56], [-8.84, 8.35]],
-          [[-2.95, 9.53], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 9.53]],
+          [[-2.95, 10.05], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 10.05]],
           [[4.0, -15.2], [4.0, 10.47]]
         ];
         const dashed = [];
@@ -4237,7 +4238,7 @@
             polyWest([[-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15], [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]]),
             polyWest([[-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]]),
             [[-8.84, -7.35], [-8.84, 2.56], [4.0, 2.56]],
-            [[-8.84, 8.35], [-8.84, 9.53], [4.0, 9.53]],
+            [[-8.84, 8.35], [-8.84, 10.05], [4.0, 10.05]],
             [[4, -15.2], [22, -15.2], [22, 7.47], [13.83, 7.47], [13.83, 10.47], [4, 10.47], [4, -15.2]]
           ],
           redDashed: [[[22, -5.03], [30.5, 0.64], [30.5, 7.47], [22, 7.47]]],
@@ -4245,13 +4246,13 @@
             polyWest([[-37.17, -1.60], [-37.17, 8.0]]),
             polyWest([[-16.83, -13.15], [-16.83, -7.64], [-12.35, -7.64]]),
             [[-8.84, 2.56], [-8.84, 8.35]],
-            [[-2.95, 9.53], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 9.53]],
+            [[-2.95, 10.05], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 10.05]],
             [[9.60, -15.2], [9.60, 3.68]],
             [[4.0, -9.00], [9.60, -9.00]],
             [[4.0, -3.66], [9.60, -3.66]],
             [[4.0, 3.68], [13.83, 3.68], [13.83, 7.47]]
           ],
-          caption: '1977 Upper Floor: Den, Living (5.15°), Kitchen, Entry (z=2.56..9.53), and 18\'-0" East Wing align 1:1 with Current Model.'
+          caption: '1977 Upper Floor: Den, Living (5.15°), Kitchen, Entry (z=2.56..10.05), and 18\'-0" East Wing align 1:1 with Current Model.'
         },
         {
           id: 'p77_floors_lower',
