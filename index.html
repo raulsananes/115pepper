@@ -864,10 +864,10 @@
         doorAnims.set(code, { val: cur, from: cur, to, start: now, dur });
       }
 
-      function setRotY(px, pz, deg, tx = 0) {
-        if (!deg && !tx) { activeRot = null; return; }
+      function setRotY(px, pz, deg, tx = 0, tz = 0) {
+        if (!deg && !tx && !tz) { activeRot = null; return; }
         const rad = deg * Math.PI / 180;
-        activeRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad), tx };
+        activeRot = { px, pz, cos: Math.cos(rad), sin: Math.sin(rad), tx, tz };
       }
 
       function xformPt(p) {
@@ -877,7 +877,7 @@
         return [
           activeRot.px + dx * activeRot.cos - dz * activeRot.sin + activeRot.tx,
           p[1],
-          activeRot.pz + dx * activeRot.sin + dz * activeRot.cos
+          activeRot.pz + dx * activeRot.sin + dz * activeRot.cos + activeRot.tz
         ];
       }
 
@@ -1499,16 +1499,16 @@
         { u0: -5.03, u1: 7.47,  v0: eY0,       v1: eY1 - 0.87, type: 'open' }
       ]);
       // Exterior portion of EAST-WALL-WEST (only where exposed to the outdoor North courtyard/breezeway)
-      const ewExtZEnd = isRemodelD ? -14.68 : isRemodelC ? -12.66 : isRemodelB ? -8.05 : isRemodel ? -4.50 : 2.0;
+      const ewExtZEnd = isRemodelD ? -14.82 : isRemodelC ? -12.82 : isRemodelB ? -8.20 : isRemodel ? -4.50 : 2.56;
       const ewAllWins = [
-        { u0: -13.8, u1: -11.8, v0: eY1 + 4.4, v1: eY1 + 6.6, type: 'window', mullionV: false, code: 'EAST-WEST-WIN-MBATH-L', label: 'Upper Bathroom — Small Left Window (Courtyard)' },
-        { u0: -6.8,  u1: -5.2,  v0: eY1 + 2.6, v1: eY1 + 6.8, type: 'window',                  code: 'EAST-WEST-WIN-MBATH-R', label: 'Upper Bathroom — Tall Right Vertical Window (Courtyard)' },
-        { u0: -11.5, u1: -9.3,  v0: 9.3,       v1: 11.1,      type: 'window', mullionV: true,  code: 'EAST-WEST-WIN-LBATH',   label: 'Lower Bathroom — Small Window Above Entry Deck' }
+        { u0: -12.0, u1: -9.5, v0: eY1 + 5.0, v1: eY1 + 7.0, type: 'window', mullionV: false, code: 'EAST-WEST-WIN-MBATH-L', label: 'Upper Bathroom — Left Casement Window (Courtyard)' },
+        { u0: -8.3,  u1: -5.7, v0: eY1 + 2.3, v1: eY1 + 7.0, type: 'window', mullionV: false, code: 'EAST-WEST-WIN-MBATH-R', label: 'Upper Bathroom — Tall Right Vertical Window (Courtyard)' },
+        { u0: -9.4,  u1: -5.8, v0: 9.15,      v1: 11.0,      type: 'window', mullionV: true,  code: 'EAST-WEST-WIN-LBATH',   label: 'Lower Bathroom — Horizontal Slider Window Above Entry Deck' }
       ];
       const ewExtHoles = ewAllWins.filter(w => w.u1 <= ewExtZEnd + 0.05);
       const ewIntHoles = [
-        { u0: 3.9, u1: 10.0, v0: 9.0, v1: 17.2, type: 'open' }, // Wide open stairwell entry from Foyer
-        { u0: 7.0, u1: 10.0, v0: eY0, v1: 9.0,  type: 'open' }, // Open lower stair run down to Lower Level
+        { u0: 3.5, u1: 9.53, v0: 9.0, v1: 17.2, type: 'open' }, // Wide open stairwell entry from Foyer
+        { u0: 7.47, u1: 10.0, v0: eY0, v1: 9.0,  type: 'open' }, // Open lower stair run down to Lower Level
         ...ewAllWins.filter(w => w.u0 >= ewExtZEnd - 0.05)
       ];
       setPart('EAST-WALL-WEST', 'East Wing — West Wall (Courtyard Side)');
@@ -1832,82 +1832,78 @@
         addBox(bWoodBeam, 12.76, eY0 + ry, -10.18, 13.45, eY0 + ry + 0.14, -10.04, 4, true);
       }
 
-      // --- 4C. CONNECTING BRIDGE & RECESSED ENTRY COURTYARD (x = -9.5 to 4, true ~8'-6" breezeway width per Sheet 3) ---
+      // --- 4C. CONNECTING BRIDGE & RECESSED ENTRY COURTYARD (x = -8.84 to 4.0, z = 2.56 to 9.53 per Sheet 3) ---
       setPart('FOYER-FLOOR', 'Entry Foyer — Floor');
-      // Entry Foyer at y = 9.0 (split-level mid-landing between Lower y = 3.6 and Master y = 12.6), extending cleanly to the stairs at x = 4.0
-      addBox(bIntFloor, -10.25, 8.5, 2.0, 4.0, 9.0, 10.0, 5.0, false);
+      // Main Entry Foyer at y = 9.0; 1-step down (y = 8.45) South of z = 7.10 in front of Lower Stairs (X=1.3..1.4, Z=6.7->7.5)
+      addBox(bIntFloor, -8.84, 8.5, 2.56, 4.0,  9.0, 7.10, 5.0, false);
+      addBox(bIntFloor, -8.84, 8.5, 7.10, -0.20, 9.0, 9.53, 5.0, false);
+      addBox(bIntFloor, -0.20, 7.95, 7.10, 4.0,  8.45, 9.53, 5.0, false); // Lower step landing at South stair corridor
+      addBox(bIntFloor, -0.26, 8.45, 7.04, 4.0,  9.0, 7.14, 5.0, true);   // Step riser at z = 7.10
 
-      // Foyer Coat Closet along ENTRY-WALL-SOUTH (Original: 3'-0" wide; Remodel: expanded all the way West to ENTRY-WALL-WEST-RETURN)
+      // Foyer Coat Closet along ENTRY-WALL-SOUTH (Original: 2'-10" wide alcove x=-2.95..-0.15; Remodel: expanded West)
       if (!isRemodel) {
         setPart('FOYER-COAT-CLOSET', 'Entry Foyer — Coat Closet');
-        // Plain solid white walls + top lid
-        addBox(bIntWall, -3.8, 9.0, 7.2, -0.8, 16.2, 7.62, 6, false);
-        addBox(bIntWall, -3.8, 9.0, 7.2, -3.38, 16.2, 9.95, 6, false);
-        addBox(bIntWall, -1.22, 9.0, 7.2, -0.8, 16.2, 9.95, 6, false);
-        addBox(bIntWall, -3.8, 16.05, 7.2, -0.8, 16.2, 9.95, 6, false); // Closet top lid
-        // Warm oak top cap trim around closet rim (matching photo)
-        addBox(bWoodBeam, -3.86, 16.20, 7.14, -0.74, 16.36, 7.68, 4, true);
-        addBox(bWoodBeam, -3.86, 16.20, 7.14, -3.32, 16.36, 9.98, 4, true);
-        addBox(bWoodBeam, -1.28, 16.20, 7.14, -0.74, 16.36, 9.98, 4, true);
-        // Right side (West face, x = -3.8): proud wood casing + animated 3D 6-panel wood door + doorknob
-        addBox(bTrim, -3.88, 9.0, 7.36, -3.76, 15.98, 7.54, 4, true);
-        addBox(bTrim, -3.88, 9.0, 9.66, -3.76, 15.98, 9.84, 4, true);
-        addBox(bTrim, -3.88, 15.80, 7.36, -3.76, 16.00, 9.84, 4, true);
+        addBox(bIntWall, -2.95, 9.0, 6.66, -0.15, 16.2, 7.08, 6, false);
+        addBox(bIntWall, -2.95, 9.0, 6.66, -2.53, 16.2, 9.10, 6, false);
+        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.10, 6, false);
+        addBox(bIntWall, -2.95, 16.05, 6.66, -0.15, 16.2, 9.10, 6, false); // Closet top lid
+        addBox(bWoodBeam, -3.01, 16.20, 6.60, -0.09, 16.36, 7.14, 4, true);
+        addBox(bWoodBeam, -3.01, 16.20, 6.60, -2.47, 16.36, 9.12, 4, true);
+        addBox(bWoodBeam, -0.63, 16.20, 6.60, -0.09, 16.36, 9.12, 4, true);
+        addBox(bTrim, -3.03, 9.0, 6.80, -2.91, 15.98, 6.98, 4, true);
+        addBox(bTrim, -3.03, 9.0, 8.82, -2.91, 15.98, 9.00, 4, true);
+        addBox(bTrim, -3.03, 15.80, 6.80, -2.91, 16.00, 9.00, 4, true);
         setPart('FOYER-CLOSET-DOOR-W', 'Entry Foyer — Coat Closet Door (West)');
-        beginDoorObject('FOYER-CLOSET-DOOR-W', -3.78, 9.66, -85, 0);
-        addBox(bTrim, -3.84, 9.0, 7.54, -3.72, 15.80, 9.66, 4.5, true); // Door core
-        const cZm = 8.60;
+        beginDoorObject('FOYER-CLOSET-DOOR-W', -2.93, 8.82, -85, 0);
+        addBox(bTrim, -2.99, 9.0, 6.98, -2.87, 15.80, 8.82, 4.5, true);
+        const cZm = 7.90;
         for (const [cy0, cy1] of [[9.35, 11.15], [11.45, 13.55], [13.85, 15.40]]) {
-          addBox(bWoodBeam, -3.87, cy0, 7.76, -3.71, cy1, cZm - 0.12, 4, true);
-          addBox(bWoodBeam, -3.87, cy0, cZm + 0.12, -3.71, cy1, 9.44, 4, true);
+          addBox(bWoodBeam, -3.02, cy0, 7.16, -2.86, cy1, cZm - 0.10, 4, true);
+          addBox(bWoodBeam, -3.02, cy0, cZm + 0.10, -2.86, cy1, 8.64, 4, true);
         }
-        addBox(bHandle, -3.96, 12.02, 7.66, -3.82, 12.22, 7.86, 2, false);
+        addBox(bHandle, -3.11, 12.02, 7.10, -2.97, 12.22, 7.30, 2, false);
         endDoorObject();
-        // Left side (East face, x = -0.8): two sets of two doors, one above the other ("2 above 2")
         setPart('FOYER-CLOSET-DOOR-E-N', 'Entry Foyer — Coat Closet Doors (East North)');
-        beginDoorObject('FOYER-CLOSET-DOOR-E-N', -0.86, 7.48, -85, 0);
-        addBox(bTrim,   -0.96, 9.0,  7.48, -0.76, 13.55, 8.56, 4.5, true);
-        addBox(bHandle, -0.78, 12.1, 8.38, -0.68, 12.6,  8.48, 2, false);
-        addBox(bTrim,   -0.96, 13.70, 7.48, -0.76, 15.85, 8.56, 4.5, true);
-        addBox(bHandle, -0.78, 14.0,  8.38, -0.68, 14.4,  8.48, 2, false);
+        beginDoorObject('FOYER-CLOSET-DOOR-E-N', -0.21, 6.90, -85, 0);
+        addBox(bTrim,   -0.31, 9.0,  6.90, -0.11, 13.55, 7.88, 4.5, true);
+        addBox(bHandle, -0.13, 12.1, 7.70, -0.03, 12.6,  7.80, 2, false);
+        addBox(bTrim,   -0.31, 13.70, 6.90, -0.11, 15.85, 7.88, 4.5, true);
+        addBox(bHandle, -0.13, 14.0,  7.70, -0.03, 14.4,  7.80, 2, false);
         endDoorObject();
         setPart('FOYER-CLOSET-DOOR-E-S', 'Entry Foyer — Coat Closet Doors (East South)');
-        beginDoorObject('FOYER-CLOSET-DOOR-E-S', -0.86, 9.72, 85, 0);
-        addBox(bTrim,   -0.96, 9.0,  8.64, -0.76, 13.55, 9.72, 4.5, true);
-        addBox(bHandle, -0.78, 12.1, 8.72, -0.68, 12.6,  8.82, 2, false);
-        addBox(bTrim,   -0.96, 13.70, 8.64, -0.76, 15.85, 9.72, 4.5, true);
-        addBox(bHandle, -0.78, 14.0,  8.72, -0.68, 14.4,  8.82, 2, false);
+        beginDoorObject('FOYER-CLOSET-DOOR-E-S', -0.21, 8.92, 85, 0);
+        addBox(bTrim,   -0.31, 9.0,  7.96, -0.11, 13.55, 8.92, 4.5, true);
+        addBox(bHandle, -0.13, 12.1, 8.04, -0.03, 12.6,  8.14, 2, false);
+        addBox(bTrim,   -0.31, 13.70, 7.96, -0.11, 15.85, 8.92, 4.5, true);
+        addBox(bHandle, -0.13, 14.0,  8.04, -0.03, 14.4,  8.14, 2, false);
         endDoorObject();
       } else {
         setPart('FOYER-COAT-CLOSET', 'Remodel — Expanded Full-Width Foyer Coat Closet');
-        addBox(bIntWall, -9.68, 9.0, 7.2, -0.8, 16.2, 7.62, 6, false);   // Full-width North closet face
-        addBox(bIntWall, -1.22, 9.0, 7.2, -0.8, 16.2, 9.95, 6, false);   // East closet end wall
-        addBox(bIntWall, -6.95, 9.0, 7.2, -6.65, 16.2, 9.95, 6, false);  // Divider between right door & left double doors
-        // Right side (West when facing South): single full-height coat closet door
+        addBox(bIntWall, -8.30, 9.0, 6.66, -0.15, 16.2, 7.08, 6, false);
+        addBox(bIntWall, -0.57, 9.0, 6.66, -0.15, 16.2, 9.10, 6, false);
+        addBox(bIntWall, -5.85, 9.0, 6.66, -5.55, 16.2, 9.10, 6, false);
         setPart('REMODEL-CLOSET-DOOR-W', 'Remodel — Coat Closet Door (West)');
-        beginDoorObject('REMODEL-CLOSET-DOOR-W', -9.38, 7.26, -85, 0);
-        addBox(bTrim, -9.38, 9.0, 7.16, -7.12, 15.85, 7.36, 4.5, true);
-        addBox(bHandle, -7.36, 12.1, 7.08, -7.26, 12.6, 7.18, 2, false);
+        beginDoorObject('REMODEL-CLOSET-DOOR-W', -8.00, 6.72, -85, 0);
+        addBox(bTrim, -8.00, 9.0, 6.62, -6.00, 15.85, 6.82, 4.5, true);
+        addBox(bHandle, -6.22, 12.1, 6.54, -6.12, 12.6, 6.64, 2, false);
         endDoorObject();
-        // Left side (East when facing South): double doors, 2 lower + 2 upper ("2 above 2")
         setPart('REMODEL-CLOSET-DOOR-E-W', 'Remodel — Coat Closet Doors (East-West)');
-        beginDoorObject('REMODEL-CLOSET-DOOR-E-W', -6.50, 7.26, -85, 0);
-        addBox(bTrim, -6.50, 9.0, 7.16, -3.94, 13.55, 7.36, 4.5, true);
-        addBox(bHandle, -4.12, 12.1, 7.08, -4.02, 12.6, 7.18, 2, false);
-        addBox(bTrim, -6.50, 13.70, 7.16, -3.94, 15.85, 7.36, 4.5, true);
-        addBox(bHandle, -4.12, 14.0, 7.08, -4.02, 14.4, 7.18, 2, false);
+        beginDoorObject('REMODEL-CLOSET-DOOR-E-W', -5.40, 6.72, -85, 0);
+        addBox(bTrim, -5.40, 9.0, 6.62, -3.05, 13.55, 6.82, 4.5, true);
+        addBox(bHandle, -3.22, 12.1, 6.54, -3.12, 12.6, 6.64, 2, false);
+        addBox(bTrim, -5.40, 13.70, 6.62, -3.05, 15.85, 6.82, 4.5, true);
+        addBox(bHandle, -3.22, 14.0, 6.54, -3.12, 14.4, 6.64, 2, false);
         endDoorObject();
         setPart('REMODEL-CLOSET-DOOR-E-E', 'Remodel — Coat Closet Doors (East-East)');
-        beginDoorObject('REMODEL-CLOSET-DOOR-E-E', -1.28, 7.26, 85, 0);
-        addBox(bTrim, -3.84, 9.0, 7.16, -1.28, 13.55, 7.36, 4.5, true);
-        addBox(bHandle, -3.76, 12.1, 7.08, -3.66, 12.6, 7.18, 2, false);
-        addBox(bTrim, -3.84, 13.70, 7.16, -1.28, 15.85, 7.36, 4.5, true);
-        addBox(bHandle, -3.76, 14.0, 7.08, -3.66, 14.4, 7.18, 2, false);
+        beginDoorObject('REMODEL-CLOSET-DOOR-E-E', -0.63, 6.72, 85, 0);
+        addBox(bTrim, -2.95, 9.0, 6.62, -0.63, 13.55, 6.82, 4.5, true);
+        addBox(bHandle, -2.87, 12.1, 6.54, -2.77, 12.6, 6.64, 2, false);
+        addBox(bTrim, -2.95, 13.70, 6.62, -0.63, 15.85, 6.82, 4.5, true);
+        addBox(bHandle, -2.87, 14.0, 6.54, -2.77, 14.4, 6.64, 2, false);
         endDoorObject();
       }
 
       setPart('INT-STAIRS-UP', 'Interior Stairs — Upper Flight (Up to Master Bedroom)');
-      // Upper split-level flight inside East Wing stairwell: 6 steps West->East (x = 4.0 -> 10.6, y = 9.0 -> 12.6)
       for (let st = 0; st < 6; st++) {
         const sx0 = 4.0 + st * 1.10;
         const sx1 = sx0 + 1.10;
@@ -1917,58 +1913,51 @@
         addBox(bIntFloor, sx0 - 0.06, sy - 0.14, 3.92, sx1, sy, 7.35, 5, true);             // Oak bullnose tread
       }
       setPart('INT-STAIRS-DOWN', 'Interior Stairs — Lower Flight (Down to Lower Level)');
-      // Lower split-level flight inside East Wing stairwell: 8 steps West->East (x = 4.0 -> 11.2, y = 9.0 -> 3.6)
-      for (let st = 0; st < 8; st++) {
-        const sx0 = 4.0 + st * 0.90;
-        const sx1 = sx0 + 0.90;
-        const stepH = 5.4 / 8;
-        const sy = 9.0 - (st + 1) * stepH;
-        addBox(bIntWall, sx0, sy - stepH, 7.45, sx1 - 0.06, sy - 0.14, 9.93, 6, false); // Closed riser
-        addBox(bDeck, sx0, sy - 0.14, 7.45, sx1 + 0.06, sy, 9.93, 4, true);             // Bullnose wood tread
+      // Lower split-level flight from lower landing (y = 8.45) to eY0 (y = 3.6): 7 steps West->East
+      for (let st = 0; st < 7; st++) {
+        const sx0 = 4.0 + st * 1.00;
+        const sx1 = sx0 + 1.00;
+        const stepH = (8.45 - 3.6) / 7;
+        const sy = 8.45 - (st + 1) * stepH;
+        addBox(bIntWall, sx0, sy - stepH, 7.45, sx1 - 0.06, sy - 0.14, 9.93, 6, false);
+        addBox(bDeck, sx0, sy - 0.14, 7.45, sx1 + 0.06, sy, 9.93, 4, true);
       }
       setPart('INT-STAIRS-RAIL', 'Interior Stairs — White Plaster Knee Wall & Oak Handrail Cap');
-      // Solid white plaster knee wall along UP flight (z = 7.35) & Upper Landing (x = 10.6..13.62) with warm oak cap
       addQuad(bIntWall, [4.05, 9.00, 7.26], [10.60, 12.60, 7.26], [10.60, 15.50, 7.26], [4.05, 11.95, 7.26], 6, false);
       addQuad(bIntWall, [10.60, 12.60, 7.44], [4.05, 9.00, 7.44], [4.05, 11.95, 7.44], [10.60, 15.50, 7.44], 6, false);
       addBox(bIntWall, 10.60, 12.60, 7.26, 13.62, 15.50, 7.44, 6, false);
       addQuad(bWoodBeam, [4.05, 11.95, 7.24], [10.60, 15.50, 7.24], [10.60, 15.72, 7.24], [4.05, 12.17, 7.24], 4, true);
       addQuad(bWoodBeam, [10.60, 15.50, 7.46], [4.05, 11.95, 7.46], [4.05, 12.17, 7.46], [10.60, 15.72, 7.46], 4, false);
       addQuad(bWoodBeam, [4.05, 12.17, 7.24], [10.60, 15.72, 7.24], [10.60, 15.72, 7.46], [4.05, 12.17, 7.46], 4, true);
-      addBox(bWoodBeam, 10.60, 15.50, 7.24, 13.62, 15.72, 7.46, 4, true); // Upper landing oak cap
-      // Handrail along South wall for DOWN flight (z = 9.80)
-      addBox(bWoodBeam,  3.95, 9.0, 9.72,  4.15, 11.9, 9.92, 4, true);
-      addBox(bWoodBeam, 11.10, 3.6, 9.72, 11.30,  6.6, 9.92, 4, true);
-      addQuad(bWoodBeam, [4.05, 11.75, 9.76], [11.20, 6.45, 9.76], [11.20, 6.65, 9.76], [4.05, 11.95, 9.76], 4, true);
+      addBox(bWoodBeam, 10.60, 15.50, 7.24, 13.62, 15.72, 7.46, 4, true);
+      addBox(bWoodBeam,  3.95, 8.45, 9.72,  4.15, 11.35, 9.92, 4, true);
+      addBox(bWoodBeam, 10.90, 3.6,  9.72, 11.10,  6.50, 9.92, 4, true);
+      addQuad(bWoodBeam, [4.05, 11.20, 9.76], [11.00, 6.35, 9.76], [11.00, 6.55, 9.76], [4.05, 11.40, 9.76], 4, true);
 
       if (!isRemodel) {
         setPart('ENTRY-WALL-NORTH', 'Entry Bridge — North Wall (Main Entry)');
-        addWallWithOpenings(bShingleExt, bIntWall, 'Z', 2.0, -9.5, 4.0, 9.0, 17.2, 0.55, [
-          { u0: -8.9, u1: -5.7, v0: 9.0, v1: 15.9, type: 'door',   code: 'MAIN-DOOR', label: 'Main Front Entry Door' },
-          { u0: -4.8, u1: -1.1, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-1-UPPER', label: 'Entry Courtyard — Tall Window 1 (Left of Door)' },
-          { u0: -4.8, u1: -1.1, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-1-LOWER', label: 'Entry Courtyard — Lower Pane 1 (Left of Door)' },
-          { u0: -0.5, u1: 3.3,  v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-2-UPPER', label: 'Entry Courtyard — Tall Window 2 (East)' },
-          { u0: -0.5, u1: 3.3,  v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-2-LOWER', label: 'Entry Courtyard — Lower Pane 2 (East)' }
+        addWallWithOpenings(bShingleExt, bIntWall, 'Z', 2.56, -8.84, 4.0, 9.0, 17.2, 0.55, [
+          { u0: -8.3, u1: -5.1, v0: 9.0, v1: 15.9, type: 'door',   code: 'MAIN-DOOR', label: 'Main Front Entry Door' },
+          { u0: -4.2, u1: -0.4, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-1-UPPER', label: 'Entry Courtyard — Tall Window 1 (Left of Door)' },
+          { u0: -4.2, u1: -0.4, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-1-LOWER', label: 'Entry Courtyard — Lower Pane 1 (Left of Door)' },
+          { u0:  0.2, u1:  3.4, v0: 10.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-2-UPPER', label: 'Entry Courtyard — Tall Window 2 (East)' },
+          { u0:  0.2, u1:  3.4, v0: 9.1,  v1: 10.4, type: 'window', code: 'ENTRY-WIN-2-LOWER', label: 'Entry Courtyard — Lower Pane 2 (East)' }
         ]);
       } else {
-        // ZONE 1 REMODEL:
-        // Option A: Angled entry wall from Kitchen East midpoint (-4.51,-7.46) to EAST-WALL-WEST (4.00,-4.50)
-        // Option B: Parallel 7° entry wall from (-4.31,-9.07) to (4.00,-8.05) [between lower & upper bath windows]
-        // Option C: Parallel 7° entry wall 2 ft in from Kitchen North wall (-3.75,-13.62) to (4.00,-12.66)
-        // Option D: Parallel 7° entry wall flush with Kitchen North wall (-3.51,-15.60) to (4.00,-14.68)
-        const wx0 = isRemodelD ? -3.51 : isRemodelC ? -3.75 : isRemodelB ? -4.31 : -4.51;
-        const wz0 = isRemodelD ? -15.60 : isRemodelC ? -13.62 : isRemodelB ? -9.07 : -7.46;
+        const wx0 = isRemodelD ? -3.72 : isRemodelC ? -3.90 : isRemodelB ? -4.30 : -4.42;
+        const wz0 = isRemodelD ? -14.82 : isRemodelC ? -12.82 : isRemodelB ? -8.20 : -6.96;
         const wx1 = 4.00;
-        const wz1 = isRemodelD ? -14.68 : isRemodelC ? -12.66 : isRemodelB ? -8.05 : -4.50;
+        const wz1 = isRemodelD ? -14.12 : isRemodelC ? -12.11 : isRemodelB ? -7.49 : -4.50;
         const wdx = wx1 - wx0, wdz = wz1 - wz0, wLen = Math.hypot(wdx, wdz);
         const wtx = wdx / wLen, wtz = wdz / wLen;
-        const wnx = wdz / wLen, wnz = -wdx / wLen; // Outward normal (pointing NE/N into breezeway)
+        const wnx = wdz / wLen, wnz = -wdx / wLen;
         const wThick = 0.55;
         const wTop = isRemodelD ? 14.80 : isRemodelC ? 15.86 : isRemodelB ? 18.35 : 19.15;
         const wPt = (u, y, inward = 0) => [wx0 + wtx * u - wnx * inward, y, wz0 + wtz * u - wnz * inward];
 
         const entryWallLabel = isRemodelD ? 'Remodel D — Flush North Main Entry Wall (Aligned with Kitchen North)'
           : isRemodelC ? 'Remodel C — Parallel North Main Entry Wall (2 ft In from Kitchen North)'
-          : isRemodelB ? 'Remodel B — Parallel North Main Entry Wall (7° Aligned)'
+          : isRemodelB ? 'Remodel B — Parallel North Main Entry Wall (5.15° Aligned)'
           : 'Remodel A — Angled North Main Entry Wall';
         setPart('REMODEL-ENTRY-WALL-NORTH', entryWallLabel);
         const doorTop = isRemodelD ? 14.62 : isRemodelC ? 15.50 : 15.90;
@@ -1976,7 +1965,6 @@
         const clrTop  = isRemodelD ? 14.55 : isRemodelC ? 15.40 : 15.80;
         const angHoles = [
           { u0: 0.40, u1: 3.50, v0: 9.0, v1: doorTop, type: 'door', code: 'REMODEL-MAIN-DOOR', label: 'Remodel — Relocated Main Front Entry Door' },
-          // Solid privacy wall in front of Half Bath, with high clerestory window above
           { u0: isParallelRemodel ? 4.45 : 4.90, u1: wLen - 0.45, v0: clrBot, v1: clrTop, type: 'window', code: 'REMODEL-ENTRY-WIN-BATH-CLERESTORY', label: 'Remodel Entry — Half Bath Privacy Clerestory Window' }
         ];
         if (!isRemodelC && !isRemodelD) {
@@ -1993,7 +1981,6 @@
             addQuad(bIntWall,    wPt(ub, va, wThick), wPt(ua, va, wThick), wPt(ua, vb, wThick), wPt(ub, vb, wThick), 7.0, false);
           }
         }
-        // Sloped top spandrel triangle (only needed in Remodel A where wall cuts across roof slope; B/C/D are dead-level!)
         if (!isParallelRemodel) {
           addTri(bShingleExt, wPt(0, 19.15), wPt(wLen, 19.15), wPt(wLen, 20.15), 5.5);
           addTri(bIntWall,    wPt(wLen, 19.15, wThick), wPt(0, 19.15, wThick), wPt(wLen, 20.15, wThick), 7.0);
@@ -2001,7 +1988,6 @@
         addEdge(wPt(0, 9.0), wPt(wLen, 9.0));
         addEdge(wPt(0, wTop), wPt(wLen, isParallelRemodel ? wTop : 20.15));
 
-        // Framed door & windows along entry wall
         const angMid = wThick * 0.5;
         function addAngledFrameBar(ua, ub, va, vb, dOut = -0.06, dIn = wThick + 0.06) {
           addQuad(bTrim, wPt(ua, va, dOut), wPt(ub, va, dOut), wPt(ub, vb, dOut), wPt(ua, vb, dOut), 4, true);
@@ -2032,25 +2018,20 @@
           }
         }
 
-        // Open cased transition beam where old ENTRY-WALL-NORTH (z = 2.0) was removed
         setPart('REMODEL-FOYER-BEAM', 'Remodel — Interior Foyer to Stair Hallway Cased Beam');
-        addBox(bWoodBeam, -9.5, 16.1, 1.75, 4.0, 17.2, 2.25, 4.5, false);
+        addBox(bWoodBeam, -8.84, 16.1, 2.30, 4.0, 17.2, 2.80, 4.5, false);
 
-        // New Half Bathroom immediately on the left upon entering, backed against shared East wet wall (x = 4.0)
-        // In Options B, C, and D, shift the entire Half Bath North against the entry wall to open up generous foyer space near the stairs!
         setPart('REMODEL-HALFBATH-WALLS', 'Remodel — New Half Bath (5" Framed Walls)');
-        const hbShift    = isRemodelD ? -9.6 : isRemodelC ? -7.6 : isRemodelB ? -3.2 : 0;
-        const hbNorthZ   = isRemodelD ? -15.10 : isRemodelC ? -13.10 : isRemodelB ? -8.55 : -5.65;
+        const hbShift    = isRemodelD ? -9.4 : isRemodelC ? -7.4 : isRemodelB ? -3.0 : 0;
+        const hbNorthZ   = isRemodelD ? -14.5 : isRemodelC ? -12.5 : isRemodelB ? -8.00 : -5.65;
         const hbDoor0    = -2.80 + hbShift, hbDoor1  = -0.30 + hbShift;
         const hbSouth0   =  0.91 + hbShift, hbSouth1 =  1.33 + hbShift;
         const hbTop      = isRemodelD ? 16.0 : isRemodelC ? 16.2 : 16.6;
         const hbNorthTop = isRemodelD ? 14.70 : isRemodelC ? 15.75 : 16.6;
         const hbDoorTop  = (isRemodelC || isRemodelD) ? 15.65 : 15.80;
-        addBox(bIntWall, -0.17, 9.0, hbSouth0, 4.0, hbTop, hbSouth1, 7.0, false); // South partition (5")
-        // West wall facing interior foyer with 2'-6" doorway, sealing flush into REMODEL-ENTRY-WALL-NORTH
+        addBox(bIntWall, -0.17, 9.0, hbSouth0, 4.0, hbTop, hbSouth1, 7.0, false);
         addBox(bIntWall, -0.17, 9.0, hbNorthZ, 0.25, hbNorthTop, hbDoor0, 7.0, false);
         if (hbNorthTop < hbTop) {
-          // Tapered top spandrel on North segment so West wall stays cleanly under sloped roof in Options C & D
           addTri(bIntWall, [-0.17, hbNorthTop, hbNorthZ], [-0.17, hbNorthTop, hbDoor0], [-0.17, hbTop, hbDoor0], 7.0);
           addTri(bIntWall, [ 0.25, hbNorthTop, hbDoor0],  [ 0.25, hbNorthTop, hbNorthZ], [ 0.25, hbTop, hbDoor0], 7.0);
           addQuad(bIntWall, [-0.17, hbNorthTop, hbNorthZ], [-0.17, hbTop, hbDoor0], [0.25, hbTop, hbDoor0], [0.25, hbNorthTop, hbNorthZ], 7.0, false);
@@ -2068,104 +2049,90 @@
         setPart('REMODEL-HALFBATH-TOILET', 'Remodel — Half Bath Porcelain Toilet (East Wet Wall)');
         addBox(bFixture, 3.15, 9.0, -0.75 + hbShift, 3.92, 11.55, 0.45 + hbShift, 4, true);
         addBox(bFixture, 2.10, 9.0, -0.60 + hbShift, 3.25, 10.42, 0.30 + hbShift, 4, true);
-        // (REMODEL-FOYER-ROOF-N/S & REMODEL-FOYER-RIDGE-BEAM are built inside Section 4D at the exact 7° Living-Dining angle)
       }
 
       setPart('ENTRY-WALL-SOUTH', 'Entry Bridge — South Wall');
-      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 10.5, -10.23, 4, 9.0, 17.2, -0.55, []);
+      addWallWithOpenings(bShingleExt, bIntWall, 'Z', 9.53, -8.84, 4.0, 8.45, 17.2, -0.55, []);
       setPart('ENTRY-WALL-WEST-RETURN', 'Entry Foyer — West Return Wall (Between Living & Entry South)');
-      // Exterior shingled return starts at z = 7.96 (flush with LIVING-WALL-SOUTH outer face)
-      addWallWithOpenings(bShingleExt, bIntWall, 'X', -10.23, 7.96, 10.5, 9.0, 17.2, 0.55, [
-        { u0: 8.6, u1: 9.9, v0: 9.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-WEST-NARROW', label: 'Entry Foyer — Vertical Narrow Window (West Return)' }
+      addWallWithOpenings(bShingleExt, bIntWall, 'X', -8.84, 8.35, 9.53, 9.0, 17.2, 0.55, [
+        { u0: 8.55, u1: 9.35, v0: 9.6, v1: 15.8, type: 'window', code: 'ENTRY-WIN-WEST-NARROW', label: 'Entry Foyer — Vertical Narrow Window (West Return)' }
       ]);
-      // Solid 6-sided interior drywall corner column sealing ENTRY-WALL-WEST-RETURN, LIVING-WALL-SOUTH, and FOYER-COAT-CLOSET at (-9.9, 9.0, 7.4)
-      addBox(bIntWall, -10.23, 9.0, isRemodel ? 7.20 : 7.38, -9.68, 17.2, 7.98, 7.0, false);
-      // Extend ENTRY-WALL-WEST-RETURN seamlessly up to meet ROOF-BRIDGE-GABLE (slope from y=17.2 at z=10.5 to y=20.55 at z=7.40)
-      addTri(bShingleExt, [-10.23, 17.2, 10.5], [-10.23, 17.2, 7.96], [-10.23, 19.95, 7.96], 5.5);
-      addTri(bIntWall,    [-9.68,  17.2, 7.40], [-9.68,  17.2, 10.5], [-9.68,  20.55, 7.40], 7.0);
+      addBox(bIntWall, -8.84, 9.0, isRemodel ? 7.60 : 7.80, -8.29, 17.2, 8.35, 7.0, false);
+      addTri(bShingleExt, [-8.84, 17.2, 9.53], [-8.84, 17.2, 8.35], [-8.84, 19.2, 8.35], 5.5);
+      addTri(bIntWall,    [-8.29, 17.2, 7.80], [-8.29, 17.2, 9.53], [-8.29, 19.6, 7.80], 7.0);
       if (!isRemodel) {
-        addGableX(-10.23, 4.6, 2, 10.5, 17.2, 21.8, bIntWall, 0.7, 'ROOF-BRIDGE', 'Entry Bridge — Gable Roof', true);
+        addGableX(-8.84, 4.6, 2.56, 9.53, 17.2, 21.8, bIntWall, 0.7, 'ROOF-BRIDGE', 'Entry Bridge — Gable Roof', true);
       } else {
-        // Remodel: trim ROOF-BRIDGE-N & ROOF-BRIDGE-GABLE cleanly along the exact 3D valley intersection with REMODEL-FOYER-ROOF-S
-        const bThick = 0.5, bZm = 6.25, bPeak = 21.8, bOver = 0.7;
-        const bOx0 = -10.23 - bOver, bOx1 = 4.6 + bOver;
-        const bSlope = (bPeak - 17.2) / (10.5 - bZm);
-        const bYOver = 17.2 - bSlope * bOver, bOz1 = 10.5 + bOver;
+        const bThick = 0.5, bZm = 6.04, bPeak = 21.8, bOver = 0.7;
+        const bOx0 = -8.84 - bOver, bOx1 = 4.6 + bOver;
+        const bSlope = (bPeak - 17.2) / (9.53 - bZm);
+        const bYOver = 17.2 - bSlope * bOver, bOz1 = 9.53 + bOver;
         setPart('ROOF-BRIDGE-GABLE', 'Entry Bridge — Gable Roof Gable Wall');
-        // South half of West interior gable (z = 6.25..10.5) + trimmed North valley triangle (z = 3.336..6.25)
-        addTri(bIntWall, [-10.23, 17.2, 10.5], [-10.23, 18.646, 3.336], [-10.23, bPeak, bZm], 7.0);
-        addTri(bIntWall, [-9.73, 18.646, 3.336], [-9.73, 17.2, 10.5], [-9.73, bPeak - 0.3, bZm], 7.0);
-        addEdge([-10.23, 18.646, 3.336], [-10.23, bPeak, bZm], true);
-        addEdge([-10.23, 17.2, 10.5], [-10.23, bPeak, bZm], true);
+        addTri(bIntWall, [-8.84, 17.2, 9.53], [-8.84, 18.65, 3.34], [-8.84, bPeak, bZm], 7.0);
+        addTri(bIntWall, [-8.34, 18.65, 3.34], [-8.34, 17.2, 9.53], [-8.34, bPeak - 0.3, bZm], 7.0);
+        addEdge([-8.84, 18.65, 3.34], [-8.84, bPeak, bZm], true);
+        addEdge([-8.84, 17.2, 9.53], [-8.84, bPeak, bZm], true);
         setPart('ROOF-BRIDGE-N', 'Entry Bridge — Gable Roof (North Slope, Valley-Trimmed)', { isRoof: true });
         addQuad(bRoof,    [bOx0, 18.615, 3.308], [bOx1, 19.293, 3.934], [bOx1, bPeak, bZm], [bOx0, bPeak, bZm], 6.0, true);
         addQuad(bCeiling, [bOx1, 19.293 - bThick, 3.934], [bOx0, 18.615 - bThick, 3.308], [bOx0, bPeak - bThick, bZm], [bOx1, bPeak - bThick, bZm], 6.0, false);
         setPart('ROOF-BRIDGE-S', 'Entry Bridge — Gable Roof (South Slope)', { isRoof: true });
         addQuad(bRoof,    [bOx1, bYOver, bOz1], [bOx0, bYOver, bOz1], [bOx0, bPeak, bZm], [bOx1, bPeak, bZm], 6.0, true);
-        addQuad(bCeiling, [-10.23, 17.2 - bThick, 10.5], [4.6, 17.2 - bThick, 10.5], [4.6, bPeak - bThick, bZm], [-10.23, bPeak - bThick, bZm], 6.0, false);
-        addQuad(bSoffit,  [bOx0, bYOver - bThick, bOz1], [bOx1, bYOver - bThick, bOz1], [bOx1, 17.2 - bThick, 10.5], [bOx0, 17.2 - bThick, 10.5], 6.0, false);
-        addQuad(bSoffit,  [bOx0, 17.2 - bThick, 10.5], [-10.23, 17.2 - bThick, 10.5], [-10.23, bPeak - bThick, bZm], [bOx0, bPeak - bThick, bZm], 6.0, false);
+        addQuad(bCeiling, [-8.84, 17.2 - bThick, 9.53], [4.6, 17.2 - bThick, 9.53], [4.6, bPeak - bThick, bZm], [-8.84, bPeak - bThick, bZm], 6.0, false);
+        addQuad(bSoffit,  [bOx0, bYOver - bThick, bOz1], [bOx1, bYOver - bThick, bOz1], [bOx1, 17.2 - bThick, 9.53], [bOx0, 17.2 - bThick, 9.53], 6.0, false);
+        addQuad(bSoffit,  [bOx0, 17.2 - bThick, 9.53], [-8.84, 17.2 - bThick, 9.53], [-8.84, bPeak - bThick, bZm], [bOx0, bPeak - bThick, bZm], 6.0, false);
       }
 
       // Helper for a flat deck/stoop quad prism between West edge (x0N,zN)-(x0S,zS) and East edge (x1,zN)-(x1,zS)
       function addDeckPrism(batch, x0N, zN, x0S, zS, x1, yBot, yTop) {
         addQuad(batch, [x0N, yTop, zN], [x0S, yTop, zS], [x1, yTop, zS], [x1, yTop, zN], 4.5, true);
         addQuad(batch, [x0N, yBot, zN], [x1, yBot, zN], [x1, yBot, zS], [x0S, yBot, zS], 4.5, false);
-        addQuad(batch, [x0N, yBot, zN], [x0N, yTop, zN], [x1, yTop, zN], [x1, yBot, zN], 4.5, true); // North rim joist
-        addQuad(batch, [x1, yBot, zS], [x1, yTop, zS], [x0S, yTop, zS], [x0S, yBot, zS], 4.5, true); // South rim joist
-        addQuad(batch, [x0S, yBot, zS], [x0S, yTop, zS], [x0N, yTop, zN], [x0N, yBot, zN], 4.5, true); // West rim
-        addQuad(batch, [x1, yBot, zN], [x1, yTop, zN], [x1, yTop, zS], [x1, yBot, zS], 4.5, true); // East rim
+        addQuad(batch, [x0N, yBot, zN], [x0N, yTop, zN], [x1, yTop, zN], [x1, yBot, zN], 4.5, true);
+        addQuad(batch, [x1, yBot, zS], [x1, yTop, zS], [x0S, yTop, zS], [x0S, yBot, zS], 4.5, true);
+        addQuad(batch, [x0S, yBot, zS], [x0S, yTop, zS], [x0N, yTop, zN], [x0N, yBot, zN], 4.5, true);
+        addQuad(batch, [x1, yBot, zN], [x1, yTop, zN], [x1, yTop, zS], [x1, yBot, zS], 4.5, true);
       }
 
       if (!isRemodel) {
         setPart('ENTRY-DECK', 'Recessed Entry Courtyard & North Breezeway Deck');
-        // Wide sheltered courtyard pocket between 7°-skewed LIVING-WALL-EAST and EAST-WALL-WEST (x=4)
-        addBox(bDeck, -9.5, 8.2, -5.0, 4.0, 9.0, 2.0, 4.5, true);
-        // True ~8'-6" breezeway deck hugging 7°-skewed KITCHEN-WALL-EAST (-3.51,-15.6 -> -4.81,-5.0) up to EAST-WALL-NORTH (z = -15.2)
-        addDeckPrism(bDeck, -3.51, -15.6, -4.81, -5.0, 4.0, 8.2, 9.0);
+        addBox(bDeck, -8.84, 8.2, -7.0, 4.0, 9.0, 2.56, 4.5, true);
+        addDeckPrism(bDeck, -3.72, -14.82, -4.42, -6.96, 4.0, 8.2, 9.0);
+        addTri(bDeck, [-3.72, 9.0, -14.82], [4.0, 9.0, -15.2], [4.0, 9.0, -14.82], 4.5);
       } else {
         setPart('REMODEL-FOYER-FLOOR', 'Remodel — Enclosed Interior Foyer Floor');
-        const flWx = isRemodelD ? -3.51 : isRemodelC ? -3.75 : isRemodelB ? -4.31 : -4.51;
-        const flWz = isRemodelD ? -15.60 : isRemodelC ? -13.62 : isRemodelB ? -9.07 : -7.46;
-        const flEz = isRemodelD ? -14.68 : isRemodelC ? -12.66 : isRemodelB ? -8.05 : -4.50;
-        addBox(bIntFloor, -9.8, 8.5, -6.40, -4.51, 9.0, 2.0, 5.0, false); // Seals cleanly into Kitchen/Dining around (-6.0, -5.5)
-        addBox(bIntFloor, -4.8, 8.5, flEz,   4.00, 9.0, 2.0, 5.0, false);
-        // North floor wedge inside REMODEL-ENTRY-WALL-NORTH (Option A diagonal or Options B/C/D parallel 7°)
-        addTri(bIntFloor, [flWx, 9.01, flWz], [-4.81, 9.01, flEz], [4.00, 9.01, flEz], 5.0);
-        if (isParallelRemodel) addTri(bIntFloor, [-4.81, 9.01, -4.50], [-4.51, 9.01, -7.46], [flWx, 9.01, flWz], 5.0);
+        const flWx = isRemodelD ? -3.72 : isRemodelC ? -3.90 : isRemodelB ? -4.30 : -4.42;
+        const flWz = isRemodelD ? -14.82 : isRemodelC ? -12.82 : isRemodelB ? -8.20 : -6.96;
+        const flEz = isRemodelD ? -14.12 : isRemodelC ? -12.11 : isRemodelB ? -7.49 : -4.50;
+        addBox(bIntFloor, -8.84, 8.5, -7.00, -4.42, 9.0, 2.56, 5.0, false);
+        addBox(bIntFloor, -4.45, 8.5, flEz,   4.00, 9.0, 2.56, 5.0, false);
+        addTri(bIntFloor, [flWx, 9.01, flWz], [-4.42, 9.01, flEz], [4.00, 9.01, flEz], 5.0);
+        if (isParallelRemodel) addTri(bIntFloor, [-4.42, 9.01, -4.50], [-4.30, 9.01, -7.49], [flWx, 9.01, flWz], 5.0);
         setPart('REMODEL-ENTRY-STOOP', 'Remodel — Exterior North Entry Deck');
         if (!isRemodelD) {
-          // Exterior breezeway deck hugging 7°-skewed KITCHEN-WALL-EAST and REMODEL-ENTRY-WALL-NORTH
-          addQuad(bDeck, [-3.51, 8.95, -15.6], [flWx, 8.95, flWz], [4.0, 8.95, flEz], [4.0, 8.95, -15.2], 4.5, true);
-          addQuad(bDeck, [-3.51, 8.20, -15.6], [4.0, 8.20, -15.2], [4.0, 8.20, flEz], [flWx, 8.20, flWz], 4.5, false);
-          addQuad(bDeck, [-3.51, 8.20, -15.6], [-3.51, 8.95, -15.6], [4.0, 8.95, -15.2], [4.0, 8.20, -15.2], 4.5, true);
+          addQuad(bDeck, [-3.72, 8.95, -14.82], [flWx, 8.95, flWz], [4.0, 8.95, flEz], [4.0, 8.95, -15.2], 4.5, true);
+          addQuad(bDeck, [-3.72, 8.20, -14.82], [4.0, 8.20, -15.2], [4.0, 8.20, flEz], [flWx, 8.20, flWz], 4.5, false);
+          addQuad(bDeck, [-3.72, 8.20, -14.82], [-3.72, 8.95, -14.82], [4.0, 8.95, -15.2], [4.0, 8.20, -15.2], 4.5, true);
         } else {
-          // Option D: narrow triangular deck wedge between ENTRY-DECK-NORTH (z=-15.2) and 7° flush entry wall (-3.51,-15.60 -> 4.0,-14.68)
-          addTri(bDeck, [-3.51, 8.95, -15.60], [4.0, 8.95, flEz], [4.0, 8.95, -15.2], 4.5);
-          addTri(bDeck, [-3.51, 8.20, -15.60], [4.0, 8.20, -15.2], [4.0, 8.20, flEz], 4.5);
+          addTri(bDeck, [-3.72, 8.95, -14.82], [4.0, 8.95, flEz], [4.0, 8.95, -15.2], 4.5);
+          addTri(bDeck, [-3.72, 8.20, -14.82], [4.0, 8.20, -15.2], [4.0, 8.20, flEz], 4.5);
         }
       }
       // Exact Sheet 1/2/3 Straight 4'-0" North Exterior Stair & Deck Line (z = -19.2..-15.2):
-      // Hugs EAST-WALL-NORTH (z = -15.2) with ZERO gap; top landing continues West past KITCHEN-WIN-NORTH (-12.74) to x = -14.20, then steps down West!
       const nWalkZ0 = -19.2, nWalkZ1 = -15.2;
       const deckY = isRemodel ? 8.95 : 9.0;
       setPart('ENTRY-DECK-NORTH', 'Exterior North Deck Landing & Hallway (Past Kitchen North Window)');
-      // East section (x = -3.51..4.0): full 4'-0" landing flush with STAIRS-UPPER-FLIGHT (x = 4.0) & EAST-WALL-NORTH (z = -15.2)
-      addBox(bDeck, -3.51, 8.2, nWalkZ0, 4.0, deckY, nWalkZ1, 4.5, true);
-      // West section (x = -14.20..-3.51): North edge dead-straight at z = -19.2, South edge hugging 7°-skewed KITCHEN-WALL-NORTH (-3.51,-15.60 -> -14.20,-16.91)
-      addQuad(bDeck, [-14.20, deckY, nWalkZ0], [-14.20, deckY, -16.91], [-3.51, deckY, -15.60], [-3.51, deckY, nWalkZ0], 4.5, true);
-      addQuad(bDeck, [-14.20, 8.2, nWalkZ0], [-3.51, 8.2, nWalkZ0], [-3.51, 8.2, -15.60], [-14.20, 8.2, -16.91], 4.5, false);
-      addQuad(bDeck, [-14.20, 8.2, nWalkZ0], [-14.20, deckY, nWalkZ0], [-3.51, deckY, nWalkZ0], [-3.51, 8.2, nWalkZ0], 4.5, true); // North rim
-      addQuad(bDeck, [-14.20, 8.2, -16.91], [-14.20, deckY, -16.91], [-14.20, deckY, nWalkZ0], [-14.20, 8.2, nWalkZ0], 4.5, true); // West rim
-      // Fill tiny triangular seam between breezeway (z = -15.2) and Kitchen NE corner (-3.51, -15.60)
-      addTri(bDeck, [-3.51, deckY, -15.60], [4.0, deckY, -15.2], [-3.51, deckY, -15.2], 4.5);
+      addBox(bDeck, -3.72, 8.2, nWalkZ0, 4.0, deckY, nWalkZ1, 4.5, true);
+      addQuad(bDeck, [-14.20, deckY, nWalkZ0], [-14.20, deckY, -15.77], [-3.72, deckY, -14.82], [-3.72, deckY, nWalkZ0], 4.5, true);
+      addQuad(bDeck, [-14.20, 8.2, nWalkZ0], [-3.72, 8.2, nWalkZ0], [-3.72, 8.2, -14.82], [-14.20, 8.2, -15.77], 4.5, false);
+      addQuad(bDeck, [-14.20, 8.2, nWalkZ0], [-14.20, deckY, nWalkZ0], [-3.72, deckY, nWalkZ0], [-3.72, 8.2, nWalkZ0], 4.5, true);
+      addQuad(bDeck, [-14.20, 8.2, -15.77], [-14.20, deckY, -15.77], [-14.20, deckY, nWalkZ0], [-14.20, 8.2, nWalkZ0], 4.5, true);
+      addTri(bDeck, [-3.72, deckY, -14.82], [4.0, deckY, -15.2], [-3.72, deckY, -15.2], 4.5);
 
       setPart('STAIRS-NORTH-WEST', 'Exterior North Deck — West Side Yard Steps (2 steps down)');
       for (let i = 0; i < 2; i++) {
         const sx1 = -14.20 - i * 1.0;
         const sx0 = sx1 - 1.0;
         const sy = deckY - (i + 1) * 0.55;
-        addBox(bDeck, sx0, sy - 0.50, nWalkZ0, sx1, sy, -16.91, 4.5, true);
+        addBox(bDeck, sx0, sy - 0.50, nWalkZ0, sx1, sy, -15.77, 4.5, true);
       }
 
       // Sheet 1 / Sheet 2 / Sheet 3 Exterior Stairs hugging EAST-WALL-NORTH (z = -15.2) directly to NE corner (x = 20.0):
@@ -2248,313 +2215,228 @@
       addBox(bStone, 42.2, eY0 - 5.7, -21.0, 44.3, eY0 - 5.1, -13.4, 5.5, true);
       addBox(bStone, 42.2, eY0 - 6.2, -21.8, 45.2, eY0 - 5.6, -12.6, 5.5, true);
 
-      // --- 4D. EXISTING WEST WING (1920s Living-Dining, Kitchen, Den — rotated 7° CCW & shifted -3.5 ft for true 8'-6" breezeway per Sheet 3) ---
-      setRotY(-6.0, 2.0, 7, -3.5);
+      // --- 4D. EXISTING WEST WING (1920s Living-Dining, Kitchen, Den — rotated 5.15° CW per Sheet 3) ---
+      setRotY(0, 0, 5.15, -2.42, 0.89);
       setPart('WEST-FLOOR', 'West Wing — Main Living/Kitchen/Den Floor');
-      // Exact Sheet 3 footprint: Living-Dining 31'-2" E-W (-37.17..-6.0) × 22'-6" N-S (-14.5..8.0)
-      addBox(bIntFloor, -37.17, 8.4, -14.1, -6.0,   9.0,  7.6, 5.0, false); // Living-Dining main floor
-      addBox(bIntFloor, -46.42, 8.4,  -1.8, -37.17, 9.0,  7.6, 5.0, false); // Den floor (9'-3" × 10'-0")
-      addBox(bIntFloor, -16.67, 8.4, -15.8, -2.5,   9.0, -5.5, 5.0, false); // Kitchen bump-out floor
+      addBox(bIntFloor, -37.17, 8.4, -12.8, -5.65,  9.0,  7.6, 5.0, false); // Living-Dining main floor
+      addBox(bIntFloor, -46.42, 8.4,  -1.3, -37.17, 9.0,  7.6, 5.0, false); // Den floor
+      addBox(bIntFloor, -16.83, 8.4, -15.2, -3.0,   9.0, -7.6, 5.0, false); // Kitchen bump-out floor
 
-      // Living-Dining North Wall: 20'-6" (-37.17..-16.67) per Sheet 3
-      setPart('LIVING-WALL-NORTH', 'Living-Dining — North Wall (20\'-6")');
-      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -14.5, -37.17, -16.67, 9.0, 16.2, 0.55, [
+      // Living-Dining North Wall: 20'-4" (-37.17..-16.83) per Sheet 3
+      setPart('LIVING-WALL-NORTH', 'Living-Dining — North Wall (20\'-4")');
+      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -13.15, -37.17, -16.83, 9.0, 16.2, 0.55, [
         { u0: -31.2, u1: -27.4, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.30, code: 'LIVING-WIN-N-WEST', label: 'Living-Dining — North Paired Window (West)' },
         { u0: -26.8, u1: -23.0, v0: 9.5, v1: 15.4, type: 'window', mullionV: true, mullionH: 0.30, code: 'LIVING-WIN-N-EAST', label: 'Living-Dining — North Paired Window (East)' }
       ]);
-      // Living-Dining South Wall: 12'-10" Fireplace Bay (-37.17..-24.33) + 7'-4" Alcove (-24.33..-17.00) + 11'-0" East Dining (-17.00..-6.0) = 31'-2"
+      // Living-Dining South Wall: Fireplace Bay (-37.17..-21.62) + 7'-4" Alcove (-21.62..-14.29) + East Dining (-14.29..-5.65)
       if (!isRemodel) {
-        setPart('LIVING-WALL-SOUTH', 'Living-Dining — South Wall (31\'-2")');
-        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 8.0, -37.17, -6.0, 9.0, 16.2, -0.55, [
-          { u0: -24.33, u1: -17.00, v0: 9.0, v1: 16.2, type: 'open' }
+        setPart('LIVING-WALL-SOUTH', 'Living-Dining — South Wall (31\'-6")');
+        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 8.0, -37.17, -5.65, 9.0, 16.2, -0.55, [
+          { u0: -21.62, u1: -14.29, v0: 9.0, v1: 16.2, type: 'open' }
         ]);
-        // Recessed South French Door Porch Alcove (7'-4" wide × 4'-8" deep per Sheet 3)
-        setPart('LIVING-SOUTH-ALCOVE', 'Living-Dining — South Recessed French Door Alcove (7\'-4" × 4\'-8")');
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -24.33, 3.33, 8.0, 9.0, 16.2, -0.55, []);
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -17.00, 3.33, 8.0, 9.0, 16.2,  0.55, []);
-        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 3.33, -24.33, -17.00, 9.0, 16.2, -0.55, [
-          { u0: -23.30, u1: -20.80, v0: 9.0, v1: 15.6, type: 'french_door', code: 'LIVING-FRENCH-DOOR-W', label: 'Living-Dining — South French Door (West)' },
-          { u0: -20.55, u1: -18.05, v0: 9.0, v1: 15.6, type: 'french_door', code: 'LIVING-FRENCH-DOOR-E', label: 'Living-Dining — South French Door (East)' }
+        // Recessed South French Door Porch Alcove (7'-4" wide × 5'-8" deep per Sheet 3)
+        setPart('LIVING-SOUTH-ALCOVE', 'Living-Dining — South Recessed French Door Alcove (7\'-4" × 5\'-8")');
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -21.62, 2.35, 8.0, 9.0, 16.2, -0.55, []);
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -14.29, 2.35, 8.0, 9.0, 16.2,  0.55, []);
+        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 2.35, -21.62, -14.29, 9.0, 16.2, -0.55, [
+          { u0: -20.60, u1: -18.10, v0: 9.0, v1: 15.6, type: 'french_door', code: 'LIVING-FRENCH-DOOR-W', label: 'Living-Dining — South French Door (West)' },
+          { u0: -17.85, u1: -15.35, v0: 9.0, v1: 15.6, type: 'french_door', code: 'LIVING-FRENCH-DOOR-E', label: 'Living-Dining — South French Door (East)' }
         ]);
       } else {
-        // ZONE 2 REMODEL: Push 7'-4" recessed French-door wall outward 4'-8" flush at z = 8.0 under South hood
         setPart('LIVING-WALL-SOUTH', 'Living-Dining — South Wall (Remodeled Flush French Doors)');
-        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 8.0, -37.17, -6.0, 9.0, 16.2, -0.55, [
-          { u0: -23.30, u1: -20.80, v0: 9.0, v1: 15.6, type: 'french_door', code: 'REMODEL-FRENCH-DOOR-W', label: 'Remodel — Flush South French Door (West)' },
-          { u0: -20.55, u1: -18.05, v0: 9.0, v1: 15.6, type: 'french_door', code: 'REMODEL-FRENCH-DOOR-E', label: 'Remodel — Flush South French Door (East)' }
+        addWallWithOpenings(bShingleOld, bIntWall, 'Z', 8.0, -37.17, -5.65, 9.0, 16.2, -0.55, [
+          { u0: -20.60, u1: -18.10, v0: 9.0, v1: 15.6, type: 'french_door', code: 'REMODEL-FRENCH-DOOR-W', label: 'Remodel — Flush South French Door (West)' },
+          { u0: -17.85, u1: -15.35, v0: 9.0, v1: 15.6, type: 'french_door', code: 'REMODEL-FRENCH-DOOR-E', label: 'Remodel — Flush South French Door (East)' }
         ]);
         setPart('REMODEL-LIVING-FLOOR-EXT', 'Remodel — Expanded Living Room Floor (Infilled South Alcove)');
-        addBox(bIntFloor, -24.6, 8.4, 3.2, -16.8, 9.0, 7.9, 5.0, false);
+        addBox(bIntFloor, -21.9, 8.4, 2.2, -14.1, 9.0, 7.9, 5.0, false);
       }
-      // Raised South flat-roof hood/dormer sitting above ROOF-LIVING-S from the French Door bay (-24.7) all the way to ROOF-BRIDGE-GABLE (-6.0)
       setPart('LIVING-SOUTH-HOOD', 'Living-Dining — South Hood & Flat Roof (To Bridge Gable)');
-      addBox(bShingleOld, -24.7, 16.0, 3.10, -16.6, 17.6, 8.35, 5.5, true);  // Alcove ceiling & South fascia
-      addBox(bShingleOld, -16.6, 16.0, 7.45,  -6.0, 17.6, 8.35, 5.5, true);  // South parapet extending to ROOF-BRIDGE-GABLE
-      addBox(bRoof,       -24.7, 17.55, 4.90, -6.0, 17.95, 8.35, 6.0, true); // Grey roof shingles on top matching the rest of the house roof
-      addBox(bTrim,       -24.85, 17.55, 8.35, -5.9, 17.95, 8.50, 4.0, true); // South fascia trim only
-      addBox(bTrim,       -24.85, 17.55, 4.85, -24.70, 17.95, 8.35, 4.0, true); // West fascia trim only
+      addBox(bShingleOld, -22.0, 16.0, 2.20, -14.0, 17.6, 8.35, 5.5, true);
+      addBox(bShingleOld, -14.0, 16.0, 7.45, -5.65, 17.6, 8.35, 5.5, true);
+      addBox(bRoof,       -22.0, 17.55, 4.90, -5.65, 17.95, 8.35, 6.0, true);
+      addBox(bTrim,       -22.15, 17.55, 8.35, -5.55, 17.95, 8.50, 4.0, true);
+      addBox(bTrim,       -22.15, 17.55, 4.85, -22.00, 17.95, 8.35, 4.0, true);
       setPart('LIVING-SOUTH-STOOP', 'Living-Dining — South Patio Step');
-      addBox(bDeck, -24.9, 8.2, isRemodel ? 8.0 : 3.33, -16.4, 8.95, 9.5, 4.5, true);
+      addBox(bDeck, -22.2, 8.2, isRemodel ? 8.0 : 2.35, -13.7, 8.95, 9.5, 4.5, true);
 
-      if (!isRemodel) {
-        setPart('LIVING-WALL-EAST', 'Living-Dining — East Courtyard Wall');
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -6.0, -5.5, 8.0, 9.0, 16.2, -0.55, [
-          { u0: -4.8,  u1: -1.15, v0: 10.6, v1: 16.2, type: 'open' },
-          { u0: -4.8,  u1: -1.15, v0: 9.1,  v1: 10.4, type: 'window', mullionV: true, code: 'LIVING-WIN-COURTYARD-N-LO', label: 'Living-Dining — Courtyard Window North (Lower)' },
-          { u0: -0.85, u1: 1.8,   v0: 10.6, v1: 16.2, type: 'open' },
-          { u0: -0.85, u1: 1.8,   v0: 9.1,  v1: 10.4, type: 'window', mullionV: true, code: 'LIVING-WIN-COURTYARD-S-LO', label: 'Living-Dining — Courtyard Window South (Lower)' },
-          { u0: 2.4,   u1: 7.4,   v0: 9.0,  v1: 16.0, type: 'open' }
-        ]);
-      }
-      // Living-Dining West Wall: 12'-6" Exterior Patio (-14.5..-2.0) + 10'-0" Interior Den Partition (-2.0..8.0, drywall on BOTH faces!)
+      // Living-Dining West Wall: Exterior Patio (-13.15..-1.60) + Interior Den Partition (-1.60..8.0)
       setPart('LIVING-WALL-WEST', 'Living-Dining — West Wall (Exterior Patio)');
-      addWallWithOpenings(bShingleOld, bIntWall, 'X', -37.17, -14.5, -2.0, 9.0, 16.2, 0.55, [
-        { u0: -8.0,  u1: -5.8, v0: 9.0, v1: 15.4, type: 'french_door', code: 'LIVING-WEST-DOOR-N', label: 'Living-Dining — West Patio Double Door (North Leaf)' },
-        { u0: -5.7,  u1: -3.5, v0: 9.0, v1: 15.4, type: 'french_door', code: 'LIVING-WEST-DOOR-S', label: 'Living-Dining — West Patio Double Door (South Leaf)' }
+      addWallWithOpenings(bShingleOld, bIntWall, 'X', -37.17, -13.15, -1.60, 9.0, 16.2, 0.55, [
+        { u0: -8.6,  u1: -6.4, v0: 9.0, v1: 15.4, type: 'french_door', code: 'LIVING-WEST-DOOR-N', label: 'Living-Dining — West Patio Double Door (North Leaf)' },
+        { u0: -6.3,  u1: -4.1, v0: 9.0, v1: 15.4, type: 'french_door', code: 'LIVING-WEST-DOOR-S', label: 'Living-Dining — West Patio Double Door (South Leaf)' }
       ]);
       setPart('LIVING-WALL-WEST-DEN', 'Living-Dining — Interior Partition to Den');
-      addWallWithOpenings(bIntWall, bIntWall, 'X', -37.17, -2.0, 8.0, 9.0, 16.2, 0.55, [
-        { u0: -1.35, u1:  1.45, v0: 9.0, v1: 15.6, type: 'open' } // Right (North) half doorway; left (South) half is solid wall
+      addWallWithOpenings(bIntWall, bIntWall, 'X', -37.17, -1.60, 8.0, 9.0, 16.2, 0.55, [
+        { u0: -1.10, u1: 1.70, v0: 9.0, v1: 15.6, type: 'open' }
       ]);
-      // Sliding Barn Door on the Living Room side of the Den doorway (slid partway open onto the solid South wall)
       setPart('INT-DEN-BARN-DOOR', 'Den — Sliding Wood Barn Door & Steel Track');
-      addBox(bMetal, -36.58, 15.85, -1.60, -36.44, 16.02, 4.50, 2, true); // Overhead dark steel sliding track
-      beginDoorObject('INT-DEN-BARN-DOOR', -36.5, 0.45, 0, 1.05);
-      // Barn door wood slab + perimeter frame + diagonal Z-brace (slid partway open at z = 0.45..3.45)
-      addBox(bTrim,  -36.58,  9.05,  0.45, -36.42, 15.70, 3.45, 4.5, true); // Door panel
-      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36, 15.70, 0.72, 4, true); // North stile
-      addBox(bWoodBeam, -36.42,  9.05,  3.18, -36.36, 15.70, 3.45, 4, true); // South stile
-      addBox(bWoodBeam, -36.42,  9.05,  0.45, -36.36,  9.45, 3.45, 4, true); // Bottom rail
-      addBox(bWoodBeam, -36.42, 12.15,  0.45, -36.36, 12.48, 3.45, 4, true); // Mid rail
-      addBox(bWoodBeam, -36.42, 15.30,  0.45, -36.36, 15.70, 3.45, 4, true); // Top rail
-      // Steel roller hanger straps & vertical pull handle
-      addBox(bMetal, -36.44, 15.10,  0.85, -36.34, 16.12, 1.05, 2, true); // North roller strap
-      addBox(bMetal, -36.44, 15.10,  2.85, -36.34, 16.12, 3.05, 2, true); // South roller strap
-      addBox(bMetal, -36.36, 11.70,  0.76, -36.24, 12.90, 0.88, 2, true); // Barn door pull handle
+      addBox(bMetal, -36.58, 15.85, -1.35, -36.44, 16.02, 4.75, 2, true);
+      beginDoorObject('INT-DEN-BARN-DOOR', -36.5, 0.65, 0, 1.05);
+      addBox(bTrim,  -36.58,  9.05,  0.65, -36.42, 15.70, 3.65, 4.5, true);
+      addBox(bWoodBeam, -36.42,  9.05,  0.65, -36.36, 15.70, 0.92, 4, true);
+      addBox(bWoodBeam, -36.42,  9.05,  3.38, -36.36, 15.70, 3.65, 4, true);
+      addBox(bWoodBeam, -36.42,  9.05,  0.65, -36.36,  9.45, 3.65, 4, true);
+      addBox(bWoodBeam, -36.42, 12.15,  0.65, -36.36, 12.48, 3.65, 4, true);
+      addBox(bWoodBeam, -36.42, 15.30,  0.65, -36.36, 15.70, 3.65, 4, true);
+      addBox(bMetal, -36.44, 15.10,  1.05, -36.34, 16.12, 1.25, 2, true);
+      addBox(bMetal, -36.44, 15.10,  3.05, -36.34, 16.12, 3.25, 2, true);
+      addBox(bMetal, -36.36, 11.70,  0.96, -36.24, 12.90, 1.08, 2, true);
       endDoorObject();
-      // Built-in L-shaped bookshelves in the NW corner of Living-Dining (West wall + continuing onto North wall to LIVING-WIN-N-WEST)
+
+      // Built-in L-shaped bookshelves in the NW corner of Living-Dining
       setPart('INT-LIVING-BOOKSHELVES', 'Living Room — NW Corner L-Shaped Built-In Bookshelves');
-      // West wall run (x = -36.62..-35.52, z = -13.95..-8.55)
-      addBox(bWoodBeam, -36.62, 9.0, -13.95, -35.52, 15.6, -13.78, 4, true); // NW corner upright
-      addBox(bWoodBeam, -36.62, 9.0,  -8.72, -35.52, 15.6,  -8.55, 4, true); // South upright
-      addBox(bWoodBeam, -36.62, 9.0, -11.33, -35.52, 15.6, -11.17, 4, true); // West mid upright
-      // North wall return (x = -35.52..-31.45, z = -13.95..-12.85, right side when viewed from inside)
-      addBox(bWoodBeam, -33.55, 9.0, -13.95, -33.39, 15.6, -12.85, 4, true); // North mid upright
-      addBox(bWoodBeam, -31.62, 9.0, -13.95, -31.45, 15.6, -12.85, 4, true); // East end upright (beside LIVING-WIN-N-WEST)
+      addBox(bWoodBeam, -36.62, 9.0, -12.60, -35.52, 15.6, -12.43, 4, true);
+      addBox(bWoodBeam, -36.62, 9.0,  -7.52, -35.52, 15.6,  -7.35, 4, true);
+      addBox(bWoodBeam, -36.62, 9.0,  -9.98, -35.52, 15.6,  -9.82, 4, true);
+      addBox(bWoodBeam, -33.55, 9.0, -12.60, -33.39, 15.6, -11.50, 4, true);
+      addBox(bWoodBeam, -31.62, 9.0, -12.60, -31.45, 15.6, -11.50, 4, true);
       for (let sy = 9.3; sy <= 15.5; sy += 1.2) {
-        addBox(bWoodBeam, -36.62, sy, -13.95, -35.52, sy + 0.14,  -8.55, 4, true); // West shelves
-        addBox(bWoodBeam, -35.52, sy, -13.95, -31.45, sy + 0.14, -12.85, 4, true); // North return shelves
+        addBox(bWoodBeam, -36.62, sy, -12.60, -35.52, sy + 0.14,  -7.35, 4, true);
+        addBox(bWoodBeam, -35.52, sy, -12.60, -31.45, sy + 0.14, -11.50, 4, true);
       }
 
-      addGableX(-37.17, -6.0, -14.5, 8.0, 16.2, 22.2, bShingleOld, 0.8, 'ROOF-LIVING', 'Living-Dining — Main Gable Roof', true, !isRemodel);
+      addGableX(-37.17, -6.2, -13.15, 8.0, 16.2, 22.2, bShingleOld, 0.8, 'ROOF-LIVING', 'Living-Dining — Main Gable Roof', true, !isRemodel);
       setPart('ROOF-SOLAR-PANELS', 'Main House — Roof Solar Panel Arrays', { isRoof: true });
-      const livSlopeS = (22.2 - 16.2) / 11.25;
+      const livSlopeS = (22.2 - 16.2) / 10.575;
       const livRoofS = (z) => 16.2 + (8.0 - z) * livSlopeS;
-      for (const [pz0, pz1] of [[-2.0, 1.0], [1.3, 4.3]]) {
+      for (const [pz0, pz1] of [[-1.5, 1.5], [1.8, 4.8]]) {
         for (const [px0, px1] of [[-34.5, -29.8], [-29.4, -24.7], [-24.3, -19.6]]) {
           const py0 = livRoofS(pz0) + 0.14, py1 = livRoofS(pz1) + 0.14;
           addQuad(bBlack, [px0, py0, pz0], [px1, py0, pz0], [px1, py1, pz1], [px0, py1, pz1], 2, true);
         }
       }
-      const yLivSlope = (z) => 22.2 - (6.0 / 11.25) * Math.abs(z + 3.25);
-      if (!isRemodel) {
-        // Custom East Gable Wall (ROOF-LIVING-GABLE) framed around the two cathedral trapezoidal courtyard windows
-        const yLivWinTop = (z) => yLivSlope(z) - 0.72;
-        setPart('ROOF-LIVING-GABLE', 'Living-Dining — East Gable Wall');
-        // North solid gable triangle (z = -14.5..-4.8)
-        addTri(bShingleOld, [-6.0, 16.2, -14.5], [-6.0, 16.2, -4.8], [-6.0, yLivSlope(-4.8), -4.8], 5.5);
-        addTri(bIntWall,    [-6.55, 16.2, -4.8], [-6.55, 16.2, -14.5], [-6.55, yLivSlope(-4.8) - 0.2, -4.8], 7.0);
-        addEdge([-6.0, 16.2, -14.5], [-6.0, 22.2, -3.25], true);
-        // Center vertical gable post between cathedral windows (z = -1.15..-0.85)
-        addQuad(bShingleOld, [-6.0, 16.2, -1.15], [-6.0, 16.2, -0.85], [-6.0, yLivSlope(-0.85), -0.85], [-6.0, yLivSlope(-1.15), -1.15], 5.5, false);
-        addQuad(bIntWall,    [-6.55, 16.2, -0.85], [-6.55, 16.2, -1.15], [-6.55, yLivSlope(-1.15) - 0.15, -1.15], [-6.55, yLivSlope(-0.85) - 0.15, -0.85], 7.0, false);
-        // Top rake spandrel strips above the two trapezoidal windows
-        addQuad(bShingleOld, [-6.0, yLivWinTop(-4.8), -4.8], [-6.0, yLivWinTop(-3.25), -3.25], [-6.0, yLivSlope(-3.25), -3.25], [-6.0, yLivSlope(-4.8), -4.8], 5.5, false);
-        addQuad(bShingleOld, [-6.0, yLivWinTop(-3.25), -3.25], [-6.0, yLivWinTop(-1.15), -1.15], [-6.0, yLivSlope(-1.15), -1.15], [-6.0, yLivSlope(-3.25), -3.25], 5.5, false);
-        addQuad(bIntWall,    [-6.55, yLivWinTop(-1.15), -1.15], [-6.55, yLivWinTop(-4.8), -4.8], [-6.55, yLivSlope(-4.8) - 0.15, -4.8], [-6.55, yLivSlope(-1.15) - 0.15, -1.15], 7.0, false);
-        addQuad(bShingleOld, [-6.0, yLivWinTop(-0.85), -0.85], [-6.0, yLivWinTop(1.8), 1.8], [-6.0, yLivSlope(1.8), 1.8], [-6.0, yLivSlope(-0.85), -0.85], 5.5, false);
-        addQuad(bIntWall,    [-6.55, yLivWinTop(1.8), 1.8], [-6.55, yLivWinTop(-0.85), -0.85], [-6.55, yLivSlope(-0.85) - 0.15, -0.85], [-6.55, yLivSlope(1.8) - 0.15, 1.8], 7.0, false);
-        // South gable spandrel above Entry Foyer archway (z = 1.8..8.0): interior drywall on both faces
-        addTri(bIntWall, [-6.0, 16.2, 1.8], [-6.0, 16.2, 8.0], [-6.0, yLivSlope(1.8), 1.8], 7.0);
-        addTri(bIntWall, [-6.55, 16.2, 8.0], [-6.55, 16.2, 1.8], [-6.55, yLivSlope(1.8) - 0.2, 1.8], 7.0);
-        addEdge([-6.0, 22.2, -3.25], [-6.0, 16.2, 8.0], true);
-
-        // Helper to build a cathedral trapezoidal window on x = -6.0..-6.55 following the gable roof slope
-        function addCathedralWindowX(u0, u1, v0, code, label) {
-          setPart(code, label);
-          const ft = 0.22;
-          const x0 = -6.61, x1 = -5.94, mid = -6.275;
-          const yt0 = yLivWinTop(u0), yt1 = yLivWinTop(u1);
-          addBox(bTrim, x0, v0, u0, x1, v0 + ft, u1, 4, true);
-          addBox(bTrim, x0, v0, u0, x1, yt0, u0 + ft, 4, true);
-          addBox(bTrim, x0, v0, u1 - ft, x1, yt1, u1, 4, true);
-          addQuad(bTrim, [x1, yt0 - ft, u0], [x1, yt1 - ft, u1], [x1, yt1, u1], [x1, yt0, u0], 4, true);
-          addQuad(bTrim, [x0, yt1 - ft, u1], [x0, yt0 - ft, u0], [x0, yt0, u0], [x0, yt1, u1], 4, true);
-          addQuad(bTrim, [x0, yt0 - ft, u0], [x1, yt0 - ft, u0], [x1, yt1 - ft, u1], [x0, yt1 - ft, u1], 4, false);
-          addQuad(bTrim, [x0, yt0, u0], [x0, yt1, u1], [x1, yt1, u1], [x1, yt0, u0], 4, false);
-          const g0 = [mid, v0 + ft, u0 + ft], g1 = [mid, v0 + ft, u1 - ft];
-          const g2 = [mid, yLivWinTop(u1 - ft) - ft, u1 - ft], g3 = [mid, yLivWinTop(u0 + ft) - ft, u0 + ft];
-          addQuad(bGlass, g0, g1, g2, g3, 4, false);
-          addQuad(bGlass, g1, g0, g3, g2, 4, false);
-        }
-        addCathedralWindowX(-4.8, -1.15, 10.6, 'LIVING-WIN-COURTYARD-N-UP', 'Living-Dining — Courtyard Cathedral Window North (Upper)');
-        addCathedralWindowX(-0.85, 1.8,  10.6, 'LIVING-WIN-COURTYARD-S-UP', 'Living-Dining — Courtyard Cathedral Window South (Upper)');
-      } else {
-        // Remodel Foyer A-frame roof built at the EXACT same 7° angle, ridge (z = -3.25, y = 22.2), and pitch (6.0/11.25)
-        // as ROOF-LIVING. Meets ROOF-KITCHEN-MAIN flush along z = -10.5 (x = -6.0..-1.5), then angles straight from
-        // the SE corner of ROOF-KITCHEN-MAIN (-1.5, -10.5) to the NE corner of REMODEL-FOYER-ROOF-N (6.95, -6.14) [world (4.35, -4.50)]!
+      const yLivSlope = (z) => 22.2 - (6.0 / 10.575) * Math.abs(z + 2.575);
+      if (isRemodel) {
         const fThick = 0.50;
-        const zKitSE = -10.5, yKitSE = yLivSlope(zKitSE); // Exact SE corner of ROOF-KITCHEN-MAIN (x = -1.5, z = -10.5)
-        const zNE = -6.10,    yNE = yLivSlope(zNE);       // NE corner on EAST-WALL-WEST & ROOF-EAST-W [world (4.00, 20.68, -4.50)]
-        const lxEastRidge = 9.155;                        // Exact ridge intersection with ROOF-EAST-W [world (6.18, 22.20, -1.36)]
+        const zKitSE = -10.5, yKitSE = yLivSlope(zKitSE);
+        const zNE = -5.94,    yNE = yLivSlope(zNE);
+        const lxEastRidge = 8.68;
         setPart('REMODEL-FOYER-ROOF-N', isRemodelD ? 'Remodel D — Foyer A-Frame Roof (North Slope, Flush with Kitchen North)' : isRemodelC ? 'Remodel C — Foyer A-Frame Roof (North Slope, 2 ft Inset from Kitchen North)' : isRemodelB ? 'Remodel B — Foyer A-Frame Roof (North Slope, Parallel to Living Roof)' : 'Remodel A — Foyer A-Frame Roof (North Slope, Angled to Kitchen SE)', { isRoof: true });
         if (!isParallelRemodel) {
-          // Option A: West section (x = -6.0..-1.5) flush with ROOF-KITCHEN-MAIN South edge at z = -10.5
-          const fnw0 = [-6.0, yKitSE, zKitSE], fnw1 = [-1.5, yKitSE, zKitSE];
-          const fnw2 = [-1.5, 22.2, -3.25],    fnw3 = [-6.0, 22.2, -3.25];
-          const fnwb0 = [-6.0, yKitSE - fThick, zKitSE], fnwb1 = [-1.5, yKitSE - fThick, zKitSE];
-          const fnwb2 = [-1.5, 22.2 - fThick, -3.25],    fnwb3 = [-6.0, 22.2 - fThick, -3.25];
+          const fnw0 = [-6.2, yKitSE, zKitSE], fnw1 = [-1.9, yKitSE, zKitSE];
+          const fnw2 = [-1.9, 22.2, -2.575],   fnw3 = [-6.2, 22.2, -2.575];
+          const fnwb0 = [-6.2, yKitSE - fThick, zKitSE], fnwb1 = [-1.9, yKitSE - fThick, zKitSE];
+          const fnwb2 = [-1.9, 22.2 - fThick, -2.575],   fnwb3 = [-6.2, 22.2 - fThick, -2.575];
           addQuad(bRoof,    fnw0, fnw3, fnw2, fnw1, 6.0, true);
           addQuad(bCeiling, fnwb0, fnwb1, fnwb2, fnwb3, 6.0, false);
-          // Angled East section: diagonal eave from Kitchen SE (-1.5,-10.5) to NE corner (6.61,-6.10), then straight valley up ROOF-EAST-W to ridge (9.16,-3.25)
-          const fne0 = [-1.5, yKitSE, zKitSE], fne1 = [6.61, yNE, zNE];
-          const fne2 = [lxEastRidge, 22.2, -3.25], fne3 = [-1.5, 22.2, -3.25];
-          const fneb0 = [-1.5, yKitSE - fThick, zKitSE], fneb1 = [6.61, yNE - fThick, zNE];
-          const fneb2 = [lxEastRidge, 22.2 - fThick, -3.25], fneb3 = [-1.5, 22.2 - fThick, -3.25];
+          const fne0 = [-1.9, yKitSE, zKitSE], fne1 = [5.91, yNE, zNE];
+          const fne2 = [lxEastRidge, 22.2, -2.575], fne3 = [-1.9, 22.2, -2.575];
+          const fneb0 = [-1.9, yKitSE - fThick, zKitSE], fneb1 = [5.91, yNE - fThick, zNE];
+          const fneb2 = [lxEastRidge, 22.2 - fThick, -2.575], fneb3 = [-1.9, 22.2 - fThick, -2.575];
           addQuad(bRoof,    fne0, fne3, fne2, fne1, 6.0, true);
-          // Split underside along REMODEL-ENTRY-WALL-NORTH (local [-1.5,-7.85] -> [6.61,-6.10]): brown soffit over exterior porch, white ceiling inside Foyer
-          const fneWall = [-1.5, yLivSlope(-7.85) - fThick, -7.85];
+          const fneWall = [-1.9, yLivSlope(-7.85) - fThick, -7.85];
           addTri(bSoffit,   fneb0, fneb1, fneWall, 6.0);
           addQuad(bCeiling, fneWall, fneb1, fneb2, fneb3, 6.0, false);
-          addQuad(bTrim, fneb0, fne0, fne1, fneb1, 4.0, true); // Angled North eave fascia from Kitchen SE to Foyer NE
+          addQuad(bTrim, fneb0, fne0, fne1, fneb1, 4.0, true);
         } else {
-          // Options B/C/D: Full parallel North slope continuing ROOF-LIVING-N & ROOF-KITCHEN-MAIN dead-straight to EAST-WALL-WEST
-          const zEaveB = isRemodelD ? -17.0 : isRemodelC ? -15.0 : -10.5;
+          const zEaveB = isRemodelD ? -16.22 : isRemodelC ? -14.23 : -9.63;
           const yEaveB = yLivSlope(zEaveB);
-          const zWallB = isRemodelD ? -16.2 : isRemodelC ? -14.2 : -9.62;
+          const zWallB = isRemodelD ? -15.53 : isRemodelC ? -13.53 : -8.90;
           const yWallB = yLivSlope(zWallB);
-          const lxEaveB = isRemodelD ? 5.27 : isRemodelC ? 5.51 : 6.07;
-          const lxWallB = isRemodelD ? 5.37 : isRemodelC ? 5.61 : 6.18;
-          const lx105 = 6.07, lxEastEave = 6.61;
-          // Lower band (lz = -10.5..-6.06): butts flush into EAST-WALL-WEST (world x = 4.0)
-          addQuad(bRoof, [-6.0, yKitSE, zKitSE], [-6.0, 20.7, -6.06], [lxEastEave, 20.7, -6.06], [lx105, yKitSE, zKitSE], 6.0, true);
-          // Upper band (lz = -6.06..-3.25): seals flush along ROOF-EAST-W up to ridge (9.155, 22.2, -3.25)
-          addQuad(bRoof, [-6.0, 20.7, -6.06], [-6.0, 22.2, -3.25], [lxEastRidge, 22.2, -3.25], [lxEastEave, 20.7, -6.06], 6.0, true);
+          const lxEaveB = isRemodelD ? 4.98 : isRemodelC ? 5.16 : 5.58;
+          const lxWallB = isRemodelD ? 5.05 : isRemodelC ? 5.23 : 5.65;
+          const lx105 = 5.58, lxEastEave = 5.95;
+          addQuad(bRoof, [-6.2, yKitSE, zKitSE], [-6.2, 20.7, -5.8], [lxEastEave, 20.7, -5.8], [lx105, yKitSE, zKitSE], 6.0, true);
+          addQuad(bRoof, [-6.2, 20.7, -5.8], [-6.2, 22.2, -2.575], [lxEastRidge, 22.2, -2.575], [lxEastEave, 20.7, -5.8], 6.0, true);
           if (isRemodelB) {
-            // Option B underside: brown porch soffit North of parallel entry wall (lz = -10.5..-9.62, x = -2.2..6.18) + white interior ceiling
-            addQuad(bCeiling, [-6.0, yKitSE - fThick, zKitSE], [-2.2, yKitSE - fThick, zKitSE], [-2.2, yWallB - fThick, zWallB], [-6.0, yWallB - fThick, zWallB], 6.0, false);
-            addQuad(bSoffit,  [-2.2, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxWallB, yWallB - fThick, zWallB], [-2.2, yWallB - fThick, zWallB], 6.0, false);
-            addQuad(bCeiling, [-6.0, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lxEastEave, 20.7 - fThick, -6.06], [-6.0, 20.7 - fThick, -6.06], 6.0, false);
+            addQuad(bCeiling, [-6.2, yKitSE - fThick, zKitSE], [-2.7, yKitSE - fThick, zKitSE], [-2.7, yWallB - fThick, zWallB], [-6.2, yWallB - fThick, zWallB], 6.0, false);
+            addQuad(bSoffit,  [-2.7, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxWallB, yWallB - fThick, zWallB], [-2.7, yWallB - fThick, zWallB], 6.0, false);
+            addQuad(bCeiling, [-6.2, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lxEastEave, 20.7 - fThick, -5.8], [-6.2, 20.7 - fThick, -5.8], 6.0, false);
           } else {
-            // Options C & D: North roof extension from z = -10.5 out to zEaveB (-15.0 or -17.0) East of ROOF-KITCHEN-MAIN (x = -1.5..lxEaveB)
-            addQuad(bRoof, [-1.5, yEaveB, zEaveB], [-1.5, yKitSE, zKitSE], [lx105, yKitSE, zKitSE], [lxEaveB, yEaveB, zEaveB], 6.0, true);
-            // Brown porch soffit overhang (zEaveB..zWallB) + white interior foyer ceiling (zWallB..-10.5 and -10.5..-6.06)
-            addQuad(bSoffit,  [-1.5, yEaveB - fThick, zEaveB], [lxEaveB, yEaveB - fThick, zEaveB], [lxWallB, yWallB - fThick, zWallB], [-1.5, yWallB - fThick, zWallB], 6.0, false);
-            addQuad(bCeiling, [-1.5, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lx105, yKitSE - fThick, zKitSE], [-1.5, yKitSE - fThick, zKitSE], 6.0, false);
-            addQuad(bCeiling, [-6.0, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxEastEave, 20.7 - fThick, -6.06], [-6.0, 20.7 - fThick, -6.06], 6.0, false);
-            // Option C only: 2-ft step-back fascia on East edge of ROOF-KITCHEN-MAIN (x = -1.5, z = -17.0..-15.0)
+            addQuad(bRoof, [-1.9, yEaveB, zEaveB], [-1.9, yKitSE, zKitSE], [lx105, yKitSE, zKitSE], [lxEaveB, yEaveB, zEaveB], 6.0, true);
+            addQuad(bSoffit,  [-1.9, yEaveB - fThick, zEaveB], [lxEaveB, yEaveB - fThick, zEaveB], [lxWallB, yWallB - fThick, zWallB], [-1.9, yWallB - fThick, zWallB], 6.0, false);
+            addQuad(bCeiling, [-1.9, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lx105, yKitSE - fThick, zKitSE], [-1.9, yKitSE - fThick, zKitSE], 6.0, false);
+            addQuad(bCeiling, [-6.2, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxEastEave, 20.7 - fThick, -5.8], [-6.2, 20.7 - fThick, -5.8], 6.0, false);
             if (isRemodelC) {
-              const yK17 = yLivSlope(-17.0);
-              addQuad(bTrim, [-1.5, yK17 - fThick, -17.0], [-1.5, yK17, -17.0], [-1.5, yEaveB, zEaveB], [-1.5, yEaveB - fThick, zEaveB], 4.0, true);
+              const yK17 = yLivSlope(-16.22);
+              addQuad(bTrim, [-1.9, yK17 - fThick, -16.22], [-1.9, yK17, -16.22], [-1.9, yEaveB, zEaveB], [-1.9, yEaveB - fThick, zEaveB], 4.0, true);
             }
           }
-          addQuad(bCeiling, [-6.0, 20.7 - fThick, -6.06], [lxEastEave, 20.7 - fThick, -6.06], [lxEastRidge, 22.2 - fThick, -3.25], [-6.0, 22.2 - fThick, -3.25], 6.0, false);
-          // Straight parallel North eave fascia from x = -1.5 to EAST-WALL-WEST (lxEaveB)
-          addQuad(bTrim, [-1.5, yEaveB - fThick, zEaveB], [-1.5, yEaveB, zEaveB], [lxEaveB, yEaveB, zEaveB], [lxEaveB, yEaveB - fThick, zEaveB], 4.0, true);
+          addQuad(bCeiling, [-6.2, 20.7 - fThick, -5.8], [lxEastEave, 20.7 - fThick, -5.8], [lxEastRidge, 22.2 - fThick, -2.575], [-6.2, 22.2 - fThick, -2.575], 6.0, false);
+          addQuad(bTrim, [-1.9, yEaveB - fThick, zEaveB], [-1.9, yEaveB, zEaveB], [lxEaveB, yEaveB, zEaveB], [lxEaveB, yEaveB - fThick, zEaveB], 4.0, true);
         }
-        setPart('REMODEL-FOYER-ROOF-S', 'Remodel — Foyer A-Frame Roof (South Slope, 7° Aligned with Living)', { isRoof: true });
-        // Upper section (lz = -3.25..-0.44): East edge runs straight down ROOF-EAST-W from ridge (9.16, 22.2, -3.25) to East eave (7.30, 20.7, -0.44)
-        const fsu0 = [-6.0, 22.2, -3.25], fsu1 = [lxEastRidge, 22.2, -3.25];
-        const fsu2 = [7.30, 20.7, -0.44], fsu3 = [-6.0, 20.7, -0.44];
-        const fsub0 = [-6.0, 22.2 - fThick, -3.25], fsub1 = [lxEastRidge, 22.2 - fThick, -3.25];
-        const fsub2 = [7.30, 20.7 - fThick, -0.44], fsub3 = [-6.0, 20.7 - fThick, -0.44];
+        setPart('REMODEL-FOYER-ROOF-S', 'Remodel — Foyer A-Frame Roof (South Slope, 5.15° Aligned with Living)', { isRoof: true });
+        const fsu0 = [-6.2, 22.2, -2.575], fsu1 = [lxEastRidge, 22.2, -2.575];
+        const fsu2 = [6.9, 20.7, 0.0],      fsu3 = [-6.2, 20.7, 0.0];
+        const fsub0 = [-6.2, 22.2 - fThick, -2.575], fsub1 = [lxEastRidge, 22.2 - fThick, -2.575];
+        const fsub2 = [6.9, 20.7 - fThick, 0.0],      fsub3 = [-6.2, 20.7 - fThick, 0.0];
         addQuad(bRoof,    fsu0, fsu3, fsu2, fsu1, 6.0, true);
         addQuad(bCeiling, fsub0, fsub1, fsub2, fsub3, 6.0, false);
-        // Lower section (lz = -0.44..valley): butts flush into EAST-WALL-WEST (world x=4.0) and meets ROOF-BRIDGE-N along exact valley line
-        const fs0 = [-6.0, 20.7, -0.44],    fs1 = [7.30, 20.7, -0.44];
-        const fs2 = [7.63, 19.267, 2.250],  fs3 = [-6.0, 18.670, 3.368];
-        const fsb0 = [-6.0, 20.7 - fThick, -0.44],   fsb1 = [7.30, 20.7 - fThick, -0.44];
-        const fsb2 = [7.63, 19.267 - fThick, 2.250], fsb3 = [-6.0, 18.670 - fThick, 3.368];
+        const fs0 = [-6.2, 20.7, 0.0],     fs1 = [6.9, 20.7, 0.0];
+        const fs2 = [7.2, 19.25, 2.55],    fs3 = [-6.2, 18.70, 3.20];
+        const fsb0 = [-6.2, 20.7 - fThick, 0.0],  fsb1 = [6.9, 20.7 - fThick, 0.0];
+        const fsb2 = [7.2, 19.25 - fThick, 2.55], fsb3 = [-6.2, 18.70 - fThick, 3.20];
         addQuad(bRoof,    fs0, fs3, fs2, fs1, 6.0, true);
         addQuad(bCeiling, fsb0, fsb1, fsb2, fsb3, 6.0, false);
-        // Exposed wood ridge beam continuing straight from LIVING-CEILING-BEAMS at the exact same 7° angle
         setPart('REMODEL-FOYER-RIDGE-BEAM', 'Remodel — Foyer A-Frame Exposed Ridge Beam');
-        addBox(bWoodBeam, -6.5, 21.0, -3.55, 7.15, 21.6, -2.95, 4, false);
+        addBox(bWoodBeam, -6.5, 21.0, -2.88, 6.2, 21.6, -2.28, 4, false);
       }
 
       setPart('LIVING-CEILING-BEAMS', 'Living-Dining — Exposed Ceiling Beams');
       for (let bx = -32.5; bx <= -10; bx += 5.5) {
-        addBox(bWoodBeam, bx - 0.25, 15.65, -13.6, bx + 0.25, 16.15, 7.1, 4, false);
+        addBox(bWoodBeam, bx - 0.25, 15.65, -12.3, bx + 0.25, 16.15, 7.1, 4, false);
       }
-      addBox(bWoodBeam, -36.6, 21.0, -3.55, -6.5, 21.6, -2.95, 4, false);
+      addBox(bWoodBeam, -36.6, 21.0, -2.88, -6.5, 21.6, -2.28, 4, false);
 
-      // Kitchen Bump-Out (14'-6" E-W × 10'-8" N-S, anchored at x = -2.2, z = -5.5 per Sheet 3)
-      const rkTop = (z) => 15.25 + 0.5403 * (z + 16.2); // Meets ROOF-LIVING-N cleanly at z = -10.5 (y = 18.33)
+      // Kitchen Bump-Out (14'-2" E-W: -16.83..-2.70 × 7'-11" N-S: -15.53..-7.64 per Sheet 3)
+      const rkTop = (z) => 15.25 + 0.6195 * (z + 15.53);
       const rkBot = (z) => rkTop(z) - 0.45;
       setPart('KITCHEN-WALL-NORTH', 'Kitchen Bump-Out — North Wall');
-      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -16.2, -16.67, -2.2, 9.0, 14.8, 0.55, [
+      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -15.53, -16.83, -2.70, 9.0, 14.8, 0.55, [
         { u0: -11.5, u1: -8.5, v0: 11.2, v1: 14.1, type: 'window', mullionH: 0.72, code: 'KITCHEN-WIN-NORTH', label: 'Kitchen — North Window' }
       ]);
       setPart('KITCHEN-WALL-WEST', 'Kitchen Bump-Out — West Wall');
-      addWallWithOpenings(bShingleOld, bIntWall, 'X', -16.67, -16.2, -14.5, 9.0, 14.8, 0.55, []);
-      // West sloped rake triangle meeting underside of ROOF-KITCHEN
-      addTri(bShingleOld, [-16.67, 14.8, -16.2], [-16.67, 14.8, -14.5], [-16.67, rkBot(-14.5), -14.5], 5.5);
-      addTri(bIntWall,    [-16.12, 14.8, -14.5], [-16.12, 14.8, -16.2], [-16.12, rkBot(-14.5), -14.5], 7.0);
+      addWallWithOpenings(bShingleOld, bIntWall, 'X', -16.83, -15.53, -13.15, 9.0, 14.8, 0.55, []);
+      addTri(bShingleOld, [-16.83, 14.8, -15.53], [-16.83, 14.8, -13.15], [-16.83, rkBot(-13.15), -13.15], 5.5);
+      addTri(bIntWall,    [-16.28, 14.8, -13.15], [-16.28, 14.8, -15.53], [-16.28, rkBot(-13.15), -13.15], 7.0);
       if (!showStoveRemodel) {
-        // Interior Kitchen West & SW return wall separating stove/kitchen from Living-Dining (Original only; removed in Remodel!)
         setPart('INT-KITCHEN-WALL-WEST', 'Kitchen — Interior West & SW Partition Wall');
-        const yKwEave = 15.65; // Flush with underside of ROOF-LIVING-N (16.2 - 0.5)
-        const yKwTop  = yLivSlope(-8.2) - 0.55;
-        const yKwRet  = yLivSlope(-8.62) - 0.55;
-        addBox(bIntWall, -16.67, 9.0, -14.5, -16.12, yKwEave, -8.2, 7.0, false);
-        // Sloped top spandrel sealed cleanly to cathedral ceiling underside
-        addTri(bIntWall, [-16.67, yKwEave, -14.5], [-16.67, yKwEave, -8.2], [-16.67, yKwTop, -8.2], 7.0);
-        addTri(bIntWall, [-16.12, yKwEave, -8.2], [-16.12, yKwEave, -14.5], [-16.12, yKwTop, -8.2], 7.0);
-        // SW return wall turning East from (-16.67, -8.2) to (-12.35, -8.2) capped cleanly at ceiling underside
-        addBox(bIntWall, -16.67, 9.0, -8.62, -12.35, yKwRet, -8.20, 7.0, false);
+        const yKwEave = 15.65;
+        const yKwTop  = yLivSlope(-7.64) - 0.55;
+        const yKwRet  = yLivSlope(-8.06) - 0.55;
+        addBox(bIntWall, -16.83, 9.0, -13.15, -16.28, yKwEave, -7.64, 7.0, false);
+        addTri(bIntWall, [-16.83, yKwEave, -13.15], [-16.83, yKwEave, -7.64], [-16.83, yKwTop, -7.64], 7.0);
+        addTri(bIntWall, [-16.28, yKwEave, -7.64], [-16.28, yKwEave, -13.15], [-16.28, yKwTop, -7.64], 7.0);
+        addBox(bIntWall, -16.83, 9.0, -8.06, -12.35, yKwRet, -7.64, 7.0, false);
       }
 
       setPart('KITCHEN-WALL-EAST', 'Kitchen Bump-Out — East Wall');
       if (!isRemodel) {
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.2, -16.2, -5.5, 9.0, 14.8, -0.55, [
-          { u0: -10.8, u1: -6.6, v0: 10.6, v1: 14.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'KITCHEN-WIN-EAST', label: 'Kitchen — East Courtyard Window' }
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.70, -15.53, -7.64, 9.0, 14.8, -0.55, [
+          { u0: -12.6, u1: -8.6, v0: 10.6, v1: 14.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'KITCHEN-WIN-EAST', label: 'Kitchen — East Courtyard Window' }
         ]);
-        // Original East A-frame gable triangle peaking at z = -10.85, y = 17.9
-        const kGableZ = -10.85, kGablePeak = 17.9;
-        addTri(bShingleOld, [-2.2, 14.8, -16.2], [-2.2, kGablePeak, kGableZ], [-2.2, 14.8, -5.5], 5.5);
-        addTri(bIntWall,    [-2.75, 14.8, -5.5], [-2.75, kGablePeak - 0.15, kGableZ], [-2.75, 14.8, -16.2], 7.0);
-        addEdge([-2.2, 14.8, -16.2], [-2.2, kGablePeak, kGableZ], false);
-        addEdge([-2.2, 14.8, -5.5],  [-2.2, kGablePeak, kGableZ], false);
+        const kGableZ = -11.585, kGablePeak = 17.9;
+        addTri(bShingleOld, [-2.70, 14.8, -15.53], [-2.70, kGablePeak, kGableZ], [-2.70, 14.8, -7.64], 5.5);
+        addTri(bIntWall,    [-3.25, 14.8, -7.64], [-3.25, kGablePeak - 0.15, kGableZ], [-3.25, 14.8, -15.53], 7.0);
+        addEdge([-2.70, 14.8, -15.53], [-2.70, kGablePeak, kGableZ], false);
+        addEdge([-2.70, 14.8, -7.64],  [-2.70, kGablePeak, kGableZ], false);
       } else if (isRemodelC) {
-        // Remodel C: only a solid 2'-0" exterior stub (-16.2..-14.2) where the entry wall steps back 2 ft from KITCHEN-WALL-NORTH
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.2, -16.2, -14.2, 9.0, 14.8, -0.55, []);
-        const yStubTop = yLivSlope(-14.2) - 0.5;
-        addTri(bShingleOld, [-2.2, 14.8, -16.2], [-2.2, yStubTop, -14.2], [-2.2, 14.8, -14.2], 5.5);
-        addTri(bIntWall,    [-2.75, 14.8, -14.2], [-2.75, yStubTop, -14.2], [-2.75, 14.8, -16.2], 7.0);
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.70, -15.53, -13.53, 9.0, 14.8, -0.55, []);
+        const yStubTop = yLivSlope(-13.53) - 0.5;
+        addTri(bShingleOld, [-2.70, 14.8, -15.53], [-2.70, yStubTop, -13.53], [-2.70, 14.8, -13.53], 5.5);
+        addTri(bIntWall,    [-3.25, 14.8, -13.53], [-3.25, yStubTop, -13.53], [-3.25, 14.8, -15.53], 7.0);
       } else if (!isRemodelD) {
-        // Remodel A & B: KITCHEN-WALL-EAST runs from -16.2 to -8.0 (Option A) or -9.62 (Option B),
-        // with solid wall beside fridge and a full-height two-tier reused courtyard window!
-        const kwEnd = isRemodelB ? -9.62 : -8.0;
-        const kwMid = isRemodelB ? -12.8 : -11.6;
-        const win0  = isRemodelB ? -12.5 : -11.3;
-        const win1  = isRemodelB ? -9.90 : -8.3;
+        const kwEnd = isRemodelB ? -8.90 : -7.64;
+        const kwMid = isRemodelB ? -12.1 : -11.6;
+        const win0  = isRemodelB ? -11.8 : -11.3;
+        const win1  = isRemodelB ? -9.20 : -8.3;
         const kwTop = isRemodelB ? 16.9 : 17.2;
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.2, -16.2, kwMid, 9.0, 14.8, -0.55, []);
-        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.2, kwMid, kwEnd, 9.0, kwTop, -0.55, [
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.70, -15.53, kwMid, 9.0, 14.8, -0.55, []);
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -2.70, kwMid, kwEnd, 9.0, kwTop, -0.55, [
           { u0: win0, u1: win1, v0: 10.6, v1: kwTop - 0.4, type: 'window', code: 'REMODEL-KITCHEN-WIN-E-UP', label: 'Remodel Kitchen — Reused Courtyard Window (Upper)' },
           { u0: win0, u1: win1, v0: 9.1,  v1: 10.4,        type: 'window', code: 'REMODEL-KITCHEN-WIN-E-LO', label: 'Remodel Kitchen — Reused Courtyard Window (Lower)' }
         ]);
-        // Sloped top spandrels meeting underside of ROOF-KITCHEN-MAIN & REMODEL-FOYER-ROOF-N cleanly
-        addTri(bShingleOld, [-2.2, 14.8, -16.2], [-2.2, kwTop, kwMid], [-2.2, 14.8, kwMid], 5.5);
-        addTri(bIntWall,    [-2.75, 14.8, kwMid], [-2.75, kwTop, kwMid], [-2.75, 14.8, -16.2], 7.0);
-        addTri(bShingleOld, [-2.2, kwTop, kwMid], [-2.2, yLivSlope(kwEnd) - 0.5, kwEnd], [-2.2, kwTop, kwEnd], 5.5);
-        addTri(bIntWall,    [-2.75, kwTop, kwEnd], [-2.75, yLivSlope(kwEnd) - 0.5, kwEnd], [-2.75, kwTop, kwMid], 7.0);
+        addTri(bShingleOld, [-2.70, 14.8, -15.53], [-2.70, kwTop, kwMid], [-2.70, 14.8, kwMid], 5.5);
+        addTri(bIntWall,    [-3.25, 14.8, kwMid], [-3.25, kwTop, kwMid], [-3.25, 14.8, -15.53], 7.0);
+        addTri(bShingleOld, [-2.70, kwTop, kwMid], [-2.70, yLivSlope(kwEnd) - 0.5, kwEnd], [-2.70, kwTop, kwEnd], 5.5);
+        addTri(bIntWall,    [-3.25, kwTop, kwEnd], [-3.25, yLivSlope(kwEnd) - 0.5, kwEnd], [-3.25, kwTop, kwMid], 7.0);
       }
 
       if (!isRemodel) {
         setPart('KITCHEN-WALL-SOUTH', 'Kitchen Bump-Out — South Return Wall');
-        addWallWithOpenings(bShingleOld, bIntWall, 'Z', -5.5, -6.0, -2.2, 9.0, 14.8, -0.55, [
-          { u0: -5.2, u1: -3.0, v0: 10.6, v1: 14.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'KITCHEN-WIN-SOUTH', label: 'Kitchen — South Courtyard Window' }
+        addWallWithOpenings(bShingleOld, bIntWall, 'Z', -7.64, -7.05, -2.70, 9.0, 14.8, -0.55, [
+          { u0: -6.2, u1: -3.5, v0: 10.6, v1: 14.2, type: 'window', mullionV: true, mullionH: 0.25, code: 'KITCHEN-WIN-SOUTH', label: 'Kitchen — South Courtyard Window' }
         ]);
       }
 
@@ -2584,52 +2466,50 @@
         if (sides.e) addQuad(fasciaBatch, b10, t10, t11, b11, 4.0, true);
       }
 
-      const kitIn = { x0: -16.67, x1: (isRemodelC || isRemodelD) ? -1.5 : -2.2, z0: -16.2, z1: -5.5 };
+      const kitIn = { x0: -16.83, x1: (isRemodelC || isRemodelD) ? -1.9 : -2.70, z0: -15.53, z1: -7.64 };
       setPart('ROOF-KITCHEN-MAIN', 'Kitchen — Main Sloped Roof', { isRoof: true });
-      addSlopedSlab(bRoof, bTrim, -17.2, isRemodel ? -1.5 : -6.0, -17.0, -10.5, rkTop, rkBot, { n: true, s: false, w: true, e: isRemodel && !isRemodelC && !isRemodelD }, kitIn);
+      addSlopedSlab(bRoof, bTrim, -17.4, isRemodel ? -1.9 : -6.2, -16.3, -10.5, rkTop, rkBot, { n: true, s: false, w: true, e: isRemodel && !isRemodelC && !isRemodelD }, kitIn);
       if (!isRemodel) {
-        // Original East protruding kitchen A-frame gable roof (North & South slopes meeting at ridge z = -10.85)
-        const kaTopN = (z) => 15.25 + (18.35 - 15.25) * ((z + 16.2) / 5.35);
+        const kaTopN = (z) => 15.25 + (18.35 - 15.25) * ((z + 15.53) / 3.945);
         const kaBotN = (z) => kaTopN(z) - 0.45;
-        const kaTopS = (z) => 18.35 - (18.35 - 15.25) * ((z + 10.85) / 5.35);
+        const kaTopS = (z) => 18.35 - (18.35 - 15.25) * ((z + 11.585) / 3.945);
         const kaBotS = (z) => kaTopS(z) - 0.45;
         setPart('ROOF-KITCHEN-EAST-N', 'Kitchen — East A-Frame Roof (North Slope)', { isRoof: true });
-        addSlopedSlab(bRoof, bTrim, -6.0, -1.5, -17.0, -10.85, kaTopN, kaBotN, { n: true, s: false, w: false, e: true }, kitIn);
+        addSlopedSlab(bRoof, bTrim, -6.2, -1.9, -16.3, -11.585, kaTopN, kaBotN, { n: true, s: false, w: false, e: true }, kitIn);
         setPart('ROOF-KITCHEN-EAST-S', 'Kitchen — East A-Frame Roof (South Slope)', { isRoof: true });
-        addSlopedSlab(bRoof, bTrim, -6.0, -1.5, -10.85, -4.8,  kaTopS, kaBotS, { n: false, s: true, w: false, e: true }, kitIn);
+        addSlopedSlab(bRoof, bTrim, -6.2, -1.9, -11.585, -7.0,  kaTopS, kaBotS, { n: false, s: true, w: false, e: true }, kitIn);
       }
 
       setPart('KITCHEN-SKYLIGHT', 'Kitchen — Roof Skylight & Interior Light-Well', { isRoof: true });
-      addSlopedSlab(bTrim, bTrim, -11.8, -8.2, -14.2, -11.0, (z) => rkTop(z) + 0.42, (z) => rkTop(z) - 0.02, { n: true, s: true, w: true, e: true });
-      addQuad(bGlass, [-11.5, rkTop(-13.9) + 0.45, -13.9], [-11.5, rkTop(-11.3) + 0.45, -11.3], [-8.5, rkTop(-11.3) + 0.45, -11.3], [-8.5, rkTop(-13.9) + 0.45, -13.9], 4, false);
-      // Interior drywall skylight light-well frame visible from inside Kitchen
-      addBox(bIntWall, -11.65, rkBot(-14.05) - 0.35, -14.15, -8.35, rkBot(-14.05), -13.95, 6, false);
-      addBox(bIntWall, -11.65, rkBot(-11.15) - 0.35, -11.25, -8.35, rkBot(-11.15), -11.05, 6, false);
+      addSlopedSlab(bTrim, bTrim, -11.8, -8.2, -14.0, -11.2, (z) => rkTop(z) + 0.42, (z) => rkTop(z) - 0.02, { n: true, s: true, w: true, e: true });
+      addQuad(bGlass, [-11.5, rkTop(-13.7) + 0.45, -13.7], [-11.5, rkTop(-11.5) + 0.45, -11.5], [-8.5, rkTop(-11.5) + 0.45, -11.5], [-8.5, rkTop(-13.7) + 0.45, -13.7], 4, false);
+      addBox(bIntWall, -11.65, rkBot(-13.85) - 0.35, -13.95, -8.35, rkBot(-13.85), -13.75, 6, false);
+      addBox(bIntWall, -11.65, rkBot(-11.35) - 0.35, -11.45, -8.35, rkBot(-11.35), -11.25, 6, false);
 
       // Kitchen U-Shaped Counters, Appliances & Upper Cabinets per Sheet 3 Floor Plan
       setPart('KITCHEN-COUNTERS', 'Kitchen — Perimeter Base Cabinets & Counters');
-      addBox(bCabinet, -16.1, 9.0, -15.6, -5.3, 11.8, -13.6, 4, true);
-      addBox(bCounter, -16.15, 11.8, -15.65, -5.25, 12.0, -13.52, 4, false);
-      addBox(bCabinet, -16.1, 9.0, -13.6, -14.0, 11.8, -8.5, 4, true);
-      addBox(bCounter, -16.15, 11.8, -13.6, -13.92, 12.0, -8.45, 4, false);
+      addBox(bCabinet, -16.25, 9.0, -15.0, -5.8, 11.8, -13.0, 4, true);
+      addBox(bCounter, -16.30, 11.8, -15.05, -5.75, 12.0, -12.92, 4, false);
+      addBox(bCabinet, -16.25, 9.0, -13.0, -14.1, 11.8, -8.1, 4, true);
+      addBox(bCounter, -16.30, 11.8, -13.0, -14.02, 12.0, -8.05, 4, false);
 
       setPart('KITCHEN-SINK', 'Kitchen — Double Sink & Faucet (Under North Window)');
-      addBox(bFixture, -11.25, 11.96, -15.25, -10.05, 12.04, -13.85, 4, false);
-      addBox(bFixture, -9.95,  11.96, -15.25, -8.75,  12.04, -13.85, 4, false);
-      addBox(bMetal,   -10.10, 12.00, -15.52, -9.90,  12.85, -15.32, 2, false);
-      addBox(bMetal,   -10.10, 12.75, -15.45, -9.90,  12.90, -14.90, 2, false);
+      addBox(bFixture, -11.25, 11.96, -14.65, -10.05, 12.04, -13.25, 4, false);
+      addBox(bFixture, -9.95,  11.96, -14.65, -8.75,  12.04, -13.25, 4, false);
+      addBox(bMetal,   -10.10, 12.00, -14.92, -9.90,  12.85, -14.72, 2, false);
+      addBox(bMetal,   -10.10, 12.75, -14.85, -9.90,  12.90, -14.30, 2, false);
 
       setPart('KITCHEN-STOVE', 'Kitchen — 4-Burner Range & Oven');
-      addBox(bMetal, -16.10, 9.0, -13.20, -13.95, 11.95, -10.70, 4, true);
-      addBox(bHandle, -13.95, 11.15, -12.90, -13.82, 11.28, -11.00, 2, false);
-      addBox(bCounter, -15.75, 11.96, -12.90, -15.05, 12.08, -12.20, 2, true);
-      addBox(bCounter, -14.85, 11.96, -12.90, -14.15, 12.08, -12.20, 2, true);
-      addBox(bCounter, -15.75, 11.96, -11.80, -15.05, 12.08, -11.10, 2, true);
-      addBox(bCounter, -14.85, 11.96, -11.80, -14.15, 12.08, -11.10, 2, true);
+      addBox(bMetal, -16.25, 9.0, -12.70, -14.05, 11.95, -10.20, 4, true);
+      addBox(bHandle, -14.05, 11.15, -12.40, -13.92, 11.28, -10.50, 2, false);
+      addBox(bCounter, -15.90, 11.96, -12.40, -15.20, 12.08, -11.70, 2, true);
+      addBox(bCounter, -15.00, 11.96, -12.40, -14.30, 12.08, -11.70, 2, true);
+      addBox(bCounter, -15.90, 11.96, -11.30, -15.20, 12.08, -10.60, 2, true);
+      addBox(bCounter, -15.00, 11.96, -11.30, -14.30, 12.08, -10.60, 2, true);
       if (showStoveRemodel) {
         setPart('KITCHEN-RANGE-HOOD', 'Stove Remodel — Stainless Metal Range Hood');
-        addBox(bHandle, -16.10, 14.05, -13.25, -14.00, 14.45, -10.65, 2, true);
-        addBox(bHandle, -16.05, 14.45, -12.45, -15.10, 17.85, -11.45, 2, true);
+        addBox(bHandle, -16.25, 14.05, -12.75, -14.10, 14.45, -10.15, 2, true);
+        addBox(bHandle, -16.20, 14.45, -11.95, -15.25, 17.85, -10.95, 2, true);
       }
       const fridgeCabinetLook = isRemodel || showStoveRemodel;
       const fridgeBodyBatch = fridgeCabinetLook ? bCabinet : bHandle;
@@ -2637,84 +2517,125 @@
 
       if (showCabinets) {
         setPart('KITCHEN-PANTRY-WALL', 'Kitchen — East Wall Pantry Cabinets (To South Wall)');
-        // North pantry section (-15.60..-11.40) & South pantry section (-8.30..-5.65) flanking mid-wall fridge
-        addBox(bCabinet, -4.35, 9.0, -15.60, -2.75, 14.80, -11.40, 4, true);
-        addBox(bCabinet, -4.35, 9.0,  -8.30, -2.75, 14.80,  -5.65, 4, true);
-        addBox(bCabinet, -4.35, 14.85, -11.35, -2.75, 15.65, -8.35, 4, true); // Over-fridge cabinet
-        for (const pz of [-13.50, -6.95]) {
-          addBox(bBlack, -4.38, 9.0, pz - 0.03, -4.33, 14.80, pz + 0.03, 2, false);
-          addBox(bBlack, -4.42, 11.50, pz - 0.16, -4.34, 12.20, pz - 0.08, 2, false);
-          addBox(bBlack, -4.42, 11.50, pz + 0.08, -4.34, 12.20, pz + 0.16, 2, false);
+        addBox(bCabinet, -4.85, 9.0, -15.00, -3.25, 14.80, -12.20, 4, true);
+        addBox(bCabinet, -4.85, 9.0,  -9.60, -3.25, 14.80,  -7.75, 4, true);
+        addBox(bCabinet, -4.85, 14.85, -12.15, -3.25, 15.65, -9.65, 4, true);
+        for (const pz of [-13.60, -8.65]) {
+          addBox(bBlack, -4.88, 9.0, pz - 0.03, -4.83, 14.80, pz + 0.03, 2, false);
+          addBox(bBlack, -4.92, 11.50, pz - 0.16, -4.84, 12.20, pz - 0.08, 2, false);
+          addBox(bBlack, -4.92, 11.50, pz + 0.08, -4.84, 12.20, pz + 0.16, 2, false);
         }
-        // Fridge moved to middle of East wall, facing West toward stove
         setPart('KITCHEN-FRIDGE', fridgeCabinetLook ? 'Kitchen — Integrated Cabinet Refrigerator (East Wall)' : 'Kitchen — Stainless Refrigerator (East Wall)');
-        addBox(fridgeBodyBatch, -4.85, 9.0,  -11.35, -2.75, 11.05, -8.35, 4, true); // Lower freezer
-        addBox(fridgeBodyBatch, -4.85, 11.10,-11.35, -2.75, 14.80, -8.35, 4, true); // Upper fridge
-        addBox(fridgePullBatch, -4.98, 11.55,-11.20, -4.85, 14.35, -11.06, 2, false); // Vertical fridge pull
-        addBox(fridgePullBatch, -4.98, 10.65,-11.10, -4.85, 10.77, -8.60, 2, false); // Horizontal freezer pull
+        addBox(fridgeBodyBatch, -5.35, 9.0,  -12.15, -3.25, 11.05, -9.65, 4, true);
+        addBox(fridgeBodyBatch, -5.35, 11.10,-12.15, -3.25, 14.80, -9.65, 4, true);
+        addBox(fridgePullBatch, -5.48, 11.55,-12.00, -5.35, 14.35, -11.86, 2, false);
+        addBox(fridgePullBatch, -5.48, 10.65,-11.90, -5.35, 10.77, -9.90, 2, false);
       } else {
         setPart('KITCHEN-FRIDGE', fridgeCabinetLook ? 'Kitchen — Integrated Cabinet Refrigerator (NE Corner)' : 'Kitchen — Stainless Bottom-Freezer Refrigerator (NE Corner)');
-        addBox(fridgeBodyBatch, -5.15, 9.0,  -15.60, -2.85, 11.05, -13.10, 4, true); // Lower freezer drawer
-        addBox(fridgeBodyBatch, -5.15, 11.10,-15.60, -2.85, 14.85, -13.10, 4, true); // Upper fridge door
-        addBox(fridgePullBatch, -5.02, 11.55,-13.08, -4.90, 14.35, -12.94, 2, false); // Vertical fridge handle
-        addBox(fridgePullBatch, -5.00, 10.65,-13.08, -3.00, 10.77, -12.94, 2, false); // Horizontal freezer handle
+        addBox(fridgeBodyBatch, -5.65, 9.0,  -15.00, -3.35, 11.05, -12.50, 4, true);
+        addBox(fridgeBodyBatch, -5.65, 11.10,-15.00, -3.35, 14.85, -12.50, 4, true);
+        addBox(fridgePullBatch, -5.52, 11.55,-12.48, -5.40, 14.35, -12.34, 2, false);
+        addBox(fridgePullBatch, -5.50, 10.65,-12.48, -3.50, 10.77, -12.34, 2, false);
       }
-      // Stainless-steel dishwasher & black cabinet handles along North run
       setPart('KITCHEN-DISHWASHER', 'Kitchen — Stainless Dishwasher');
-      addBox(bHandle, -8.70, 9.05, -13.58, -6.90, 11.75, -13.48, 2, true);
-      addBox(bBlack,  -8.40, 11.50,-13.48, -7.20, 11.60, -13.40, 2, false);
+      addBox(bHandle, -8.70, 9.05, -12.98, -6.90, 11.75, -12.88, 2, true);
+      addBox(bBlack,  -8.40, 11.50,-12.88, -7.20, 11.60, -12.80, 2, false);
       setPart('KITCHEN-COUNTERS', 'Kitchen — Perimeter Base Cabinets & Counters');
-      addBox(bBlack, -6.15, 11.35, -13.58, -5.85, 11.45, -13.44, 2, false); // Drawer pull
-      addBox(bBlack, -6.65, 10.35, -13.58, -6.55, 10.75, -13.44, 2, false); // Lower door pull
+      addBox(bBlack, -6.45, 11.35, -12.98, -6.15, 11.45, -12.84, 2, false);
+      addBox(bBlack, -6.85, 10.35, -12.98, -6.75, 10.75, -12.84, 2, false);
 
       setPart('KITCHEN-UPPER-CABS', 'Kitchen — Upper Wall Cabinets');
-      addBox(bCabinet, -16.1, 13.3, -15.6, -11.7, 14.7, -14.5, 4, true);
-      addBox(bCabinet, -8.3,  13.3, -15.6, -6.4,  14.7, -14.5, 4, true);
-      addBox(bCabinet, -6.4,  13.8, -15.6, -5.25, 14.7, -14.5, 4, true); // Shorter upper cab next to fridge
-      addBox(bBlack, -6.70, 13.50, -14.50, -6.60, 13.90, -14.38, 2, false);
-      addBox(bBlack, -5.50, 13.95, -14.50, -5.40, 14.30, -14.38, 2, false);
+      addBox(bCabinet, -16.25, 13.3, -15.0, -11.7, 14.7, -13.9, 4, true);
+      addBox(bCabinet, -8.3,   13.3, -15.0, -6.4,  14.7, -13.9, 4, true);
+      addBox(bCabinet, -6.4,   13.8, -15.0, -5.75, 14.7, -13.9, 4, true);
+      addBox(bBlack, -6.70, 13.50, -13.90, -6.60, 13.90, -13.78, 2, false);
+      addBox(bBlack, -5.95, 13.95, -13.90, -5.85, 14.30, -13.78, 2, false);
       if (!showStoveRemodel) {
-        // Original upper cabinets continuing along INT-KITCHEN-WALL-WEST (above stove) & SW return wall (above peninsula/island)
-        addBox(bCabinet, -16.10, 13.3, -14.50, -14.95, 14.7, -13.20, 4, true); // NW corner run
-        addBox(bCabinet, -16.10, 13.9, -13.20, -14.95, 14.7, -10.70, 4, true); // Over-stove cabinet (with range hood clearance)
-        addBox(bCabinet, -16.10, 13.3, -10.70, -14.95, 14.7,  -8.62, 4, true); // SW corner run
-        addBox(bCabinet, -14.95, 13.3,  -9.75, -12.35, 14.7,  -8.62, 4, true); // SW return cabinets above peninsula/island
+        addBox(bCabinet, -16.25, 13.3, -13.90, -15.10, 14.7, -12.70, 4, true);
+        addBox(bCabinet, -16.25, 13.9, -12.70, -15.10, 14.7, -10.20, 4, true);
+        addBox(bCabinet, -16.25, 13.3, -10.20, -15.10, 14.7,  -8.10, 4, true);
+        addBox(bCabinet, -15.10, 13.3,  -9.20, -12.35, 14.7,  -8.10, 4, true);
       }
 
       setPart('KITCHEN-ISLAND', 'Kitchen — Peninsula / Island Counter');
-      addBox(bCabinet, -16.12, 9.0, -10.22, -8.60, 11.8,  -8.62, 4, true);
-      addBox(bCounter, -16.12, 11.8, -10.34, -8.45, 12.02, -8.50, 4, false);
+      addBox(bCabinet, -16.25, 9.0, -9.60, -8.60, 11.8,  -8.06, 4, true);
+      addBox(bCounter, -16.25, 11.8, -9.72, -8.45, 12.02, -7.94, 4, false);
 
-      // Slate Fireplace & Chimney centered in the 12'-10" South-West bay (-37.17..-24.33)
+      // Slate Fireplace & Chimney centered in the South-West bay (-37.17..-21.62)
       setPart('CHIMNEY', 'Living-Dining — South Chimney & Slate Fireplace');
-      addBox(bChimney, -32.2, 7.5, 7.2, -29.0, 25.6, 9.8, 5.5, true);
-      addBox(bTrim, -32.5, 25.6, 6.9, -28.7, 26.2, 10.1, 4, true);
-      addBox(bChimney, -32.4, 9.0, 5.8, -28.8, 12.15, 7.5, 5.0, true);  // Slate surround below mantel
-      addBox(bIntWall, -32.4, 12.48, 5.8, -28.8, 16.2, 7.5, 7.0, false); // Regular interior drywall above mantel
-      addBox(bMetal, -31.8, 9.8, 5.68, -29.4, 11.85, 6.25, 4, true);
-      addBox(bWoodBeam, -32.7, 12.15, 5.15, -28.5, 12.48, 5.95, 4, true);
-      // 65" 16:9 Wall-Mounted TV above fireplace (56.7" = 4.72 ft wide × 31.9" = 2.66 ft tall)
+      addBox(bChimney, -31.0, 7.5, 7.2, -27.8, 25.6, 9.8, 5.5, true);
+      addBox(bTrim, -31.3, 25.6, 6.9, -27.5, 26.2, 10.1, 4, true);
+      addBox(bChimney, -31.2, 9.0, 5.8, -27.6, 12.15, 7.5, 5.0, true);
+      addBox(bIntWall, -31.2, 12.48, 5.8, -27.6, 16.2, 7.5, 7.0, false);
+      addBox(bMetal, -30.6, 9.8, 5.68, -28.2, 11.85, 6.25, 4, true);
+      addBox(bWoodBeam, -31.5, 12.15, 5.15, -27.3, 12.48, 5.95, 4, true);
       setPart('INT-LIVING-TV', 'Living Room — 65" Wall-Mounted TV (Above Fireplace)');
-      addBox(bMetal, -32.96, 12.85, 5.66, -28.24, 15.51, 5.79, 2, true); // Slim dark TV body & bezel
-      addQuad(bGlass, [-32.86, 12.95, 5.64], [-28.34, 12.95, 5.64], [-28.34, 15.41, 5.64], [-32.86, 15.41, 5.64], 4, false); // Glossy screen face
-      // Wide raised slate hearth bench spanning the full 12'-10" fireplace bay per Sheet 3
+      addBox(bMetal, -31.76, 12.85, 5.66, -27.04, 15.51, 5.79, 2, true);
+      addQuad(bGlass, [-31.66, 12.95, 5.64], [-27.14, 12.95, 5.64], [-27.14, 15.41, 5.64], [-31.66, 15.41, 5.64], 4, false);
       setPart('CHIMNEY-HEARTH', 'Living-Dining — Raised Slate Fireplace Hearth Bench');
-      addBox(bStone, -36.5, 9.0, 5.25, -24.6, 9.85, 7.55, 4.5, true);
-      addBox(bMetal, -36.58, 9.85, 5.18, -24.52, 10.05, 7.60, 4.5, true);
+      addBox(bStone, -36.5, 9.0, 5.25, -22.2, 9.85, 7.55, 4.5, true);
+      addBox(bMetal, -36.58, 9.85, 5.18, -22.12, 10.05, 7.60, 4.5, true);
 
-      // Den (Exact Sheet 3: 9'-3" E-W × 10'-0" N-S, flush with Living South wall z = 8.0, lower roofline)
+      // Den (Exact Sheet 3: 9'-3" E-W × 9'-7" N-S, flush with Living South wall z = 8.0, lower roofline)
       setPart('DEN-WALL-NORTH', 'Den — North Wall (9\'-3")');
-      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -2.0, -46.42, -37.17, 9.0, 14.4, 0.55, [
+      addWallWithOpenings(bShingleOld, bIntWall, 'Z', -1.60, -46.42, -37.17, 9.0, 14.4, 0.55, [
         { u0: -43.8, u1: -40.2, v0: 11.4, v1: 14.0, type: 'window', mullionV: true, mullionH: 0.25, code: 'DEN-WIN-NORTH', label: 'Den — North Window' }
       ]);
       setPart('DEN-WALL-SOUTH', 'Den — South Wall (Flush with Living South)');
       addWallWithOpenings(bShingleOld, bIntWall, 'Z', 8.0, -46.42, -37.17, 9.0, 14.4, -0.55, []);
-      setPart('DEN-WALL-WEST', 'Den — West Wall (10\'-0")');
-      addWallWithOpenings(bShingleOld, bIntWall, 'X', -46.42, -2.0, 8.0, 9.0, 14.4, 0.55, [
-        { u0: 1.0, u1: 5.0, v0: 11.4, v1: 14.0, type: 'window', mullionV: true, mullionH: 0.25, code: 'DEN-WIN-WEST', label: 'Den — West Window' }
+      setPart('DEN-WALL-WEST', 'Den — West Wall (9\'-7")');
+      addWallWithOpenings(bShingleOld, bIntWall, 'X', -46.42, -1.60, 8.0, 9.0, 14.4, 0.55, [
+        { u0: 1.2, u1: 5.2, v0: 11.4, v1: 14.0, type: 'window', mullionV: true, mullionH: 0.25, code: 'DEN-WIN-WEST', label: 'Den — West Window' }
       ]);
-      addGableX(-46.42, -37.17, -2.0, 8.0, 14.4, 17.4, bShingleOld, 0.65, 'ROOF-DEN', 'Den — Gable Roof', true);
+      addGableX(-46.42, -37.17, -1.60, 8.0, 14.4, 17.4, bShingleOld, 0.65, 'ROOF-DEN', 'Den — Gable Roof', true);
       setRotY(0, 0, 0);
+
+      // Orthogonal Living-Dining East Courtyard Wall & Gable (x = -8.84, dead-vertical meeting Entry North z=2.56 & Kitchen South)
+      if (!isRemodel) {
+        setPart('LIVING-WALL-EAST', 'Living-Dining — East Courtyard Wall');
+        addWallWithOpenings(bShingleOld, bIntWall, 'X', -8.84, -7.35, 8.35, 9.0, 16.2, -0.55, [
+          { u0: -6.2,  u1: -2.0, v0: 10.6, v1: 16.2, type: 'open' },
+          { u0: -6.2,  u1: -2.0, v0: 9.1,  v1: 10.4, type: 'window', mullionV: true, code: 'LIVING-WIN-COURTYARD-N-LO', label: 'Living-Dining — Courtyard Window North (Lower)' },
+          { u0: -1.7,  u1: 1.9,  v0: 10.6, v1: 16.2, type: 'open' },
+          { u0: -1.7,  u1: 1.9,  v0: 9.1,  v1: 10.4, type: 'window', mullionV: true, code: 'LIVING-WIN-COURTYARD-S-LO', label: 'Living-Dining — Courtyard Window South (Lower)' },
+          { u0: 2.56,  u1: 8.10, v0: 9.0,  v1: 16.0, type: 'open' }
+        ]);
+        const yLivGable = (z) => 22.2 - (6.0 / 10.575) * Math.abs(z + 2.25);
+        const yLivWinTop = (z) => yLivGable(z) - 0.72;
+        setPart('ROOF-LIVING-GABLE', 'Living-Dining — East Gable Wall');
+        addTri(bShingleOld, [-8.84, 16.2, -13.0], [-8.84, 16.2, -6.2], [-8.84, yLivGable(-6.2), -6.2], 5.5);
+        addTri(bIntWall,    [-9.39, 16.2, -6.2], [-9.39, 16.2, -13.0], [-9.39, yLivGable(-6.2) - 0.2, -6.2], 7.0);
+        addEdge([-8.84, 16.2, -13.0], [-8.84, 22.2, -2.25], true);
+        addQuad(bShingleOld, [-8.84, 16.2, -2.0], [-8.84, 16.2, -1.7], [-8.84, yLivGable(-1.7), -1.7], [-8.84, yLivGable(-2.0), -2.0], 5.5, false);
+        addQuad(bIntWall,    [-9.39, 16.2, -1.7], [-9.39, 16.2, -2.0], [-9.39, yLivGable(-2.0) - 0.15, -2.0], [-9.39, yLivGable(-1.7) - 0.15, -1.7], 7.0, false);
+        addQuad(bShingleOld, [-8.84, yLivWinTop(-6.2), -6.2], [-8.84, yLivWinTop(-2.25), -2.25], [-8.84, yLivGable(-2.25), -2.25], [-8.84, yLivGable(-6.2), -6.2], 5.5, false);
+        addQuad(bShingleOld, [-8.84, yLivWinTop(-2.25), -2.25], [-8.84, yLivWinTop(-2.0), -2.0], [-8.84, yLivGable(-2.0), -2.0], [-8.84, yLivGable(-2.25), -2.25], 5.5, false);
+        addQuad(bIntWall,    [-9.39, yLivWinTop(-2.0), -2.0], [-9.39, yLivWinTop(-6.2), -6.2], [-9.39, yLivGable(-6.2) - 0.15, -6.2], [-9.39, yLivGable(-2.0) - 0.15, -2.0], 7.0, false);
+        addQuad(bShingleOld, [-8.84, yLivWinTop(-1.7), -1.7], [-8.84, yLivWinTop(1.9), 1.9], [-8.84, yLivGable(1.9), 1.9], [-8.84, yLivGable(-1.7), -1.7], 5.5, false);
+        addQuad(bIntWall,    [-9.39, yLivWinTop(1.9), 1.9], [-9.39, yLivWinTop(-1.7), -1.7], [-9.39, yLivGable(-1.7) - 0.15, -1.7], [-9.39, yLivGable(1.9) - 0.15, 1.9], 7.0, false);
+        addTri(bIntWall, [-8.84, 16.2, 1.9], [-8.84, 16.2, 8.35], [-8.84, yLivGable(1.9), 1.9], 7.0);
+        addTri(bIntWall, [-9.39, 16.2, 8.35], [-9.39, 16.2, 1.9], [-9.39, yLivGable(1.9) - 0.2, 1.9], 7.0);
+        addEdge([-8.84, 22.2, -2.25], [-8.84, 16.2, 8.35], true);
+        function addCathedralWindowX(u0, u1, v0, code, label) {
+          setPart(code, label);
+          const ft = 0.22;
+          const x0 = -9.45, x1 = -8.78, mid = -9.115;
+          const yt0 = yLivWinTop(u0), yt1 = yLivWinTop(u1);
+          addBox(bTrim, x0, v0, u0, x1, v0 + ft, u1, 4, true);
+          addBox(bTrim, x0, v0, u0, x1, yt0, u0 + ft, 4, true);
+          addBox(bTrim, x0, v0, u1 - ft, x1, yt1, u1, 4, true);
+          addQuad(bTrim, [x1, yt0 - ft, u0], [x1, yt1 - ft, u1], [x1, yt1, u1], [x1, yt0, u0], 4, true);
+          addQuad(bTrim, [x0, yt1 - ft, u1], [x0, yt0 - ft, u0], [x0, yt0, u0], [x0, yt1, u1], 4, true);
+          addQuad(bTrim, [x0, yt0 - ft, u0], [x1, yt0 - ft, u0], [x1, yt1 - ft, u1], [x0, yt1 - ft, u1], 4, false);
+          addQuad(bTrim, [x0, yt0, u0], [x0, yt1, u1], [x1, yt1, u1], [x1, yt0, u0], 4, false);
+          const g0 = [mid, v0 + ft, u0 + ft], g1 = [mid, v0 + ft, u1 - ft];
+          const g2 = [mid, yLivWinTop(u1 - ft) - ft, u1 - ft], g3 = [mid, yLivWinTop(u0 + ft) - ft, u0 + ft];
+          addQuad(bGlass, g0, g1, g2, g3, 4, false);
+          addQuad(bGlass, g1, g0, g3, g2, 4, false);
+        }
+        addCathedralWindowX(-6.2, -2.0, 10.6, 'LIVING-WIN-COURTYARD-N-UP', 'Living-Dining — Courtyard Cathedral Window North (Upper)');
+        addCathedralWindowX(-1.7,  1.9, 10.6, 'LIVING-WIN-COURTYARD-S-UP', 'Living-Dining — Courtyard Cathedral Window South (Upper)');
+      }
       setPart(null);
 
       // --- 4E. INVISIBLE NAVIGATION WAYPOINTS (double-tap any floor/deck/stair to stand there at 5.5' eye height) ---
@@ -2724,25 +2645,23 @@
         navDots.push({ x: tp[0], y: tp[1], z: tp[2], label });
       }
 
-      // West Wing dots (rotated 7° & shifted -3.5 ft with West Wing)
-      setRotY(-6.0, 2.0, 7, -3.5);
-      // Living-Dining (~6.5 ft / 2m interior grid)
+      // West Wing dots (rotated 5.15° with West Wing)
+      setRotY(0, 0, 5.15, -2.42, 0.89);
       for (const lx of [-26.5, -20.0, -13.5, -8.5]) {
         for (const lz of [-6.8, -0.8, 4.2]) {
-          if (lx === -26.5 && lz === 4.2) continue; // skip slate fireplace hearth
-          if (lx === -26.5 && lz === -6.8) continue; // keep clear of NW bookshelves
+          if (lx === -26.5 && lz === 4.2) continue;
+          if (lx === -26.5 && lz === -6.8) continue;
           addNavDot(lx, 9.0, lz, 'Living-Dining');
         }
       }
-      // Living-Dining — under every door & opening
-      addNavDot(-29.7, 9.0, -3.5, 'West Patio Door Threshold');
-      addNavDot(-29.7, 9.0,  2.4, 'Den Doorway');
-      addNavDot(-17.9, 9.0, isRemodel ? 7.6 : 4.6, 'South French Doors Threshold');
+      addNavDot(-34.5, 9.0, -6.2, 'West Patio Door Threshold');
+      addNavDot(-34.5, 9.0,  0.3, 'Den Doorway');
+      addNavDot(-17.9, 9.0, isRemodel ? 7.4 : 3.5, 'South French Doors Threshold');
       if (isRemodel) {
-        addNavDot(-17.8, 9.0, 6.2, 'Expanded South Living');
+        addNavDot(-17.8, 9.0, 5.8, 'Expanded South Living');
       }
-      addNavDot(-9.5,  9.0, -5.5, 'Kitchen Opening');
-      addNavDot(-6.3,  9.0,  4.8, 'Living-Foyer Archway');
+      addNavDot(-10.5, 9.0, -6.5, 'Kitchen Opening');
+      addNavDot(-7.0,  9.0,  5.0, 'Living-Foyer Archway');
       // Living-Dining — just inside every corner
       addNavDot(-27.6, 9.0, -8.8, 'Living NW Corner (Bookshelves)');
       addNavDot(-28.6, 9.0,  6.7, 'Living SW Corner');
@@ -4233,33 +4152,33 @@
       });
 
       // Plan Comparison Overlay (Green = Current Model Walls, Red = Plan Border & Main Walls)
-      const westRad = 7 * Math.PI / 180;
+      const westRad = 5.15 * Math.PI / 180;
       const westCos = Math.cos(westRad), westSin = Math.sin(westRad);
       function xWest(x, z) {
-        const dx = x - (-6.0), dz = z - 2.0;
-        return [-6.0 + dx * westCos - dz * westSin - 3.5, 2.0 + dx * westSin + dz * westCos];
+        return [x * westCos - z * westSin - 2.42, x * westSin + z * westCos + 0.89];
       }
       function polyWest(pts) { return pts.map(([x, z]) => xWest(x, z)); }
 
       function getModelWalls(mode, includeLot) {
         const outer = [
-          // West Wing (Den + Living + Kitchen, 7 deg rotated)
+          // West Wing (Den + Living + Kitchen, 5.15 deg rotated)
           polyWest([
-            [-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5],
-            [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]
+            [-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15],
+            [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]
           ]),
           polyWest([
-            [-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]
+            [-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]
           ]),
-          // Entry Bridge
-          [xWest(-2.2, -4.5), [4.0, -4.5]],
-          [xWest(-10.23, 8.0), [-10.23, 10.5], [4.0, 10.5]]
+          // Entry Bridge & Living East Courtyard (orthogonal 0 deg)
+          [[-8.84, -7.35], [-8.84, 2.56], [4.0, 2.56]],
+          [[-8.84, 8.35], [-8.84, 9.53], [4.0, 9.53]]
         ];
         const main = [
-          polyWest([[-37.17, -2.0], [-37.17, 8.0]]),
-          polyWest([[-16.67, -14.5], [-16.67, -8.2], [-12.35, -8.2]]),
-          polyWest([[-2.2, -16.2], [-2.2, -5.5]]),
-          [[4.0, -15.2], [4.0, 10.5]]
+          polyWest([[-37.17, -1.60], [-37.17, 8.0]]),
+          polyWest([[-16.83, -13.15], [-16.83, -7.64], [-12.35, -7.64]]),
+          [[-8.84, 2.56], [-8.84, 8.35]],
+          [[-2.95, 9.53], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 9.53]],
+          [[4.0, -15.2], [4.0, 10.47]]
         ];
         const dashed = [];
 
@@ -4306,22 +4225,24 @@
           // Calibrated at 7.32 px/ft (767x501): x=4.0 at px=465, z=-15.2 at py=69
           scan: { crop: [0.06, 0.04, 0.90, 0.56], x0: -53.24, z0: -21.89, w: 94.30, h: 38.33 },
           redOuter: [
-            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
-            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
-            [xWest(-2.2, -4.5), [4.0, -4.5]],
-            [xWest(-10.23, 8.0), [-10.23, 10.5], [4.0, 10.5]],
+            polyWest([[-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15], [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]]),
+            polyWest([[-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]]),
+            [[-8.84, -7.35], [-8.84, 2.56], [4.0, 2.56]],
+            [[-8.84, 8.35], [-8.84, 9.53], [4.0, 9.53]],
             [[4, -15.2], [22, -15.2], [22, 7.47], [13.83, 7.47], [13.83, 10.47], [4, 10.47], [4, -15.2]]
           ],
           redDashed: [[[22, -5.03], [30.5, 0.64], [30.5, 7.47], [22, 7.47]]],
           redMain: [
-            polyWest([[-37.17, -2.0], [-37.17, 8.0]]),
-            polyWest([[-16.67, -14.5], [-16.67, -8.2], [-12.35, -8.2]]),
+            polyWest([[-37.17, -1.60], [-37.17, 8.0]]),
+            polyWest([[-16.83, -13.15], [-16.83, -7.64], [-12.35, -7.64]]),
+            [[-8.84, 2.56], [-8.84, 8.35]],
+            [[-2.95, 9.53], [-2.95, 6.66], [-0.15, 6.66], [-0.15, 9.53]],
             [[9.60, -15.2], [9.60, 3.68]],
             [[4.0, -9.00], [9.60, -9.00]],
             [[4.0, -3.66], [9.60, -3.66]],
             [[4.0, 3.68], [13.83, 3.68], [13.83, 7.47]]
           ],
-          caption: '1977 Upper Floor: 18\'-0" East Wing (x=4..22), 6\'-0"/5\'-4"/7\'-4" Bath/Closet, and 8\'-6" Balcony align 1:1 with Current Model.'
+          caption: '1977 Upper Floor: Den, Living (5.15°), Kitchen, Entry (z=2.56..9.53), and 18\'-0" East Wing align 1:1 with Current Model.'
         },
         {
           id: 'p77_floors_lower',
@@ -4361,13 +4282,13 @@
           scan: { crop: [0.02, 0.02, 0.84, 0.92], x0: -64.5, z0: -24.5, w: 112.0, h: 38.5 },
           redOuter: [
             [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [45.5, -22.0], [45.5, 12.2], [-64.0, 12.2]],
-            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
-            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            polyWest([[-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15], [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]]),
+            polyWest([[-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]]),
             [[4, -15.2], [22, -15.2], [22, 7.47], [13.83, 7.47], [13.83, 10.47], [4, 10.47], [4, -15.2]]
           ],
           redDashed: [[[22, -5.03], [30.5, 0.64], [30.5, 7.47], [22, 7.47]]],
           redMain: [],
-          caption: '1977 Site Plan: Property setbacks (7.5\' S, 5\' N, 4\' East Wing N) and 18\'-0" East Wing footprint align.'
+          caption: '1977 Site Plan: Property setbacks (7.5\' S, 5\' N, 4\' East Wing N) and main house footprint align.'
         },
         {
           id: 'p25_solar',
@@ -4379,8 +4300,8 @@
           bounds: [-54, 34, -22, 16],
           scan: { crop: [0.01, 0.34, 0.43, 0.42], x0: -52.0, z0: -21.0, w: 84.0, h: 36.0 },
           redOuter: [
-            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
-            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            polyWest([[-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15], [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]]),
+            polyWest([[-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]]),
             [[4, -15.2], [22, -15.2], [22, 7.47], [13.83, 7.47], [13.83, 10.47], [4, 10.47], [4, -15.2]]
           ],
           redDashed: [
@@ -4401,8 +4322,8 @@
           scan: { crop: [0.04, 0.34, 0.94, 0.36], x0: -64.0, z0: -28.0, w: 162.0, h: 44.0 },
           redOuter: [
             [[-64.0, 12.2], [-58.5, -17.5], [-47.5, -16.8], [-38.5, -23.2], [14.0, -20.0], [22.0, -34.0], [94.0, -34.0], [94.0, 12.2], [-64.0, 12.2]],
-            polyWest([[-46.42, 8.0], [-46.42, -2.0], [-37.17, -2.0], [-37.17, -14.5], [-16.67, -14.5], [-16.67, -16.2], [-2.2, -16.2], [-2.2, -4.5]]),
-            polyWest([[-46.42, 8.0], [-24.33, 8.0], [-24.33, 3.33], [-17.00, 3.33], [-17.00, 8.0], [-6.0, 8.0]]),
+            polyWest([[-46.42, 8.0], [-46.42, -1.60], [-37.17, -1.60], [-37.17, -13.15], [-16.83, -13.15], [-16.83, -15.53], [-2.70, -15.53], [-2.70, -7.64], [-7.05, -7.64]]),
+            polyWest([[-46.42, 8.0], [-21.62, 8.0], [-21.62, 2.35], [-14.29, 2.35], [-14.29, 8.0], [-5.65, 8.0]]),
             [[4, -15.2], [22, -15.2], [22, 7.47], [13.83, 7.47], [13.83, 10.47], [4, 10.47], [4, -15.2]],
             [[44, -16], [63, -16], [63, 3], [44, 3], [44, -16]],
             [[63, -16], [80, -16], [80, 11], [63, 11], [63, -16]]
