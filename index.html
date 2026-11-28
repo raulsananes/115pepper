@@ -1697,6 +1697,7 @@
         { u0: 7.90, u1: 9.75, v0: eY1 + 0.55, v1: eTop - 0.50, type: 'window', mullionV: false, mullionH: 0.50, code: 'STAIR-WIN-E-UPPER', label: 'Stairwell — Upper East Window' },
         { u0: 7.90, u1: 9.75, v0: eY0 + 1.20, v1: eY1 - 0.15,  type: 'window', mullionV: false, mullionH: 0.45, code: 'STAIR-WIN-E-LOWER', label: 'Stairwell — Lower Tall East Window' }
       ]);
+      addQuad(bIntWall, [13.41, eY0, 7.47], [13.83, eY0, 7.47], [13.83, eTop - 0.1, 7.47], [13.41, eTop - 0.1, 7.47], 6, false);
       addBox(bIntWall, 13.62, eY1 + 6.8, 3.47, 14.04, eTop - 0.1, 7.47, 6, false);   // Header over Master doorway
       // Flat stairwell ceiling + recessed lights over UP stairs & upper landing
       addQuad(bCeiling, [4.0, eTop - 0.12, 3.89], [13.83, eTop - 0.12, 3.89], [13.83, eTop - 0.12, 10.1], [4.0, eTop - 0.12, 10.1], 6, false);
@@ -1790,24 +1791,52 @@
       addBox(bHandle, 9.46, eY0 + 2.75, 5.80, 9.72, eY0 + 3.10, 5.96, 2, false);
       endDoorObject();
 
-      // Lower Mechanical / Utility Closet (2'-4" wide: x = 13.83..16.16, z = 2.00..7.05 + angled SW doorway return to x=13.83 at z=-1.00)
-      setPart('INT-LOWER-MECH', 'Lower Level — Mechanical Closet (Water Heater & Furnace)');
-      addBox(bIntWall, 15.74, eY0, 2.00, 16.16, eY1 - 0.90, 7.05, 6, false);       // East wall separating from South Bdrm
-      addBox(bIntWall, 13.83, eY0, 2.00, 15.74, eY1 - 0.90, 2.40, 6, false);       // North wall of mech closet
-      addBox(bIntWall, 13.83, eY0, 2.00, 14.25, eY1 - 0.90, 7.05, 6, false);       // West wall along lower hallway (with doors on blueprint)
-      // Angled partition chamfer from (13.83, -0.35) to (16.16, 2.00) at South Bedroom doorway per Sheet 3
+      // Lower TV Room Closet (formerly Mechanical Closet: 2'-4" deep x = 13.83..16.16, z = 2.00..7.05) — solid wall on Hallway side, opens East into TV Room
+      setPart('INT-LOWER-MECH', 'Lower Level — TV Room Closet');
+      addBox(bIntWall, 13.83, eY0, 2.00, 14.25, eY1 - 0.90, 7.44, 6, false);       // Solid West wall along lower hallway
+      addBox(bIntWall, 13.83, eY0, 2.00, 16.16, eY1 - 0.90, 2.40, 6, false);       // North wall of closet
+      addBox(bIntWall, 15.74, eY0, 2.40, 16.16, eY1 - 0.90, 2.74, 6, false);       // East wall pier (North of closet opening)
+      addBox(bIntWall, 15.74, eY0, 6.58, 16.16, eY1 - 0.90, 7.05, 6, false);       // East wall pier (South of closet opening)
+      addBox(bIntWall, 15.74, eY0 + 6.80, 2.74, 16.16, eY1 - 0.90, 6.58, 6, false); // Header over closet doors
+      // Angled partition chamfer from (13.83, -0.35) to (16.16, 2.00) at TV Room doorway
       addQuad(bIntWall, [13.83, eY0, -0.35], [16.16, eY0, 2.00], [16.16, eY1 - 0.90, 2.00], [13.83, eY1 - 0.90, -0.35], 6, true);
-      addQuad(bIntWall, [16.16, eY0, 2.00], [13.83, eY0, -0.35], [13.83, eY1 - 0.90, -0.35], [16.16, eY1 - 0.90, 2.00], 6, false);
-      addBox(bMetal, 14.40, eY0, 2.80, 15.65, eY0 + 5.2, 4.00, 4, true);           // Water heater tank
-      addBox(bMetal, 14.40, eY0, 4.40, 15.65, eY0 + 5.6, 5.80, 4, true);           // Furnace cabinet
+      addQuad(bIntWall, [15.86, eY0, 2.00], [13.53, eY0, -0.35], [13.53, eY1 - 0.90, -0.35], [15.86, eY1 - 0.90, 2.00], 6, false);
+      addBox(bIntWall, 13.53, eY0, -0.38, 13.83, eY0 + 6.80, -0.14, 6, false);      // Door strike post at South Bdrm doorway
+      // Wood casing framing closet opening on TV Room side
+      addBox(bTrim, 15.72, eY0,        2.66, 16.22, eY0 + 6.82, 2.80, 4, true);
+      addBox(bTrim, 15.72, eY0,        6.52, 16.22, eY0 + 6.82, 6.66, 4, true);
+      addBox(bTrim, 15.72, eY0 + 6.72, 2.66, 16.22, eY0 + 6.88, 6.66, 4, true);
+      // Closet interior shelf & hanging rod
+      addBox(bWoodBeam, 14.28, eY0 + 5.65, 2.42, 15.55, eY0 + 5.80, 6.90, 4, true);
+      addBox(bWoodBeam, 14.28, eY0 + 5.45, 2.42, 15.50, eY0 + 5.65, 2.52, 4, false);
+      addBox(bWoodBeam, 14.28, eY0 + 5.45, 6.80, 15.50, eY0 + 5.65, 6.90, 4, false);
+      addBox(bMetal,    14.92, eY0 + 5.20, 2.44, 15.02, eY0 + 5.30, 6.88, 2, false);
+      // Double interactive closet doors opening East into the TV Room
+      setPart('INT-LOWER-MECH-DOOR-N', 'TV Room Closet — Door (North)');
+      beginDoorObject('INT-LOWER-MECH-DOOR-N', 15.95, 2.80, -85, 0);
+      addBox(bTrim, 15.88, eY0, 2.80, 16.02, eY0 + 6.72, 4.64, 4.5, true);
+      for (const [py0, py1] of [[eY0 + 0.45, eY0 + 2.95], [eY0 + 3.45, eY0 + 6.25]]) {
+        addBox(bWoodBeam, 15.85, py0, 3.04, 16.05, py1, 4.40, 4, true);
+      }
+      addBox(bHandle, 15.82, eY0 + 2.95, 4.42, 16.08, eY0 + 3.40, 4.52, 2, false);
+      endDoorObject();
+      setPart('INT-LOWER-MECH-DOOR-S', 'TV Room Closet — Door (South)');
+      beginDoorObject('INT-LOWER-MECH-DOOR-S', 15.95, 6.52, 85, 0);
+      addBox(bTrim, 15.88, eY0, 4.68, 16.02, eY0 + 6.72, 6.52, 4.5, true);
+      for (const [py0, py1] of [[eY0 + 0.45, eY0 + 2.95], [eY0 + 3.45, eY0 + 6.25]]) {
+        addBox(bWoodBeam, 15.85, py0, 4.92, 16.05, py1, 6.28, 4, true);
+      }
+      addBox(bHandle, 15.82, eY0 + 2.95, 4.80, 16.08, eY0 + 3.40, 4.90, 2, false);
+      endDoorObject();
 
       // Lower North Bedroom South Closet Bank (x = 12.60..22.00, z = -5.45..-2.60) + angled SE corner & Bedroom Doors
       setPart('INT-LOWER-WALL', 'Lower Level — Bedroom Partition & North Bedroom Closet');
       addBox(bIntWall, 12.60, eY0, -5.45, 13.02, eY1 - 0.90, -2.60, 6, false);     // West end of North Bdrm closet
       addBox(bIntWall, 12.60, eY0, -3.02, 19.57, eY1 - 0.90, -2.60, 6, false);     // South wall of closet (North wall of South Bdrm)
-      // 45-degree chamfered East end of North Bedroom closet meeting angled bay corner (tucked inside x=21.45 interior face)
-      addQuad(bIntWall, [19.57, eY0, -2.60], [21.45, eY0, -4.90], [21.45, eY1 - 0.90, -4.90], [19.57, eY1 - 0.90, -2.60], 6, true);
-      addQuad(bIntWall, [21.45, eY0, -4.90], [19.57, eY0, -2.60], [19.57, eY1 - 0.90, -2.60], [21.45, eY1 - 0.90, -4.90], 6, false);
+      // 45-degree chamfered East end of North Bedroom closet meeting angled bay interior corner (21.69, -4.57)
+      addQuad(bIntWall, [19.57, eY0, -2.60], [21.69, eY0, -4.57], [21.69, eY1 - 0.90, -4.57], [19.57, eY1 - 0.90, -2.60], 6, true);
+      addQuad(bIntWall, [21.69, eY0, -4.57], [19.57, eY0, -2.60], [19.57, eY1 - 0.90, -2.60], [21.69, eY1 - 0.90, -4.57], 6, false);
+      addQuad(bIntWall, [21.69, eY0, -4.57], [21.45, eY0, -5.03], [21.45, eY1 - 0.90, -5.03], [21.69, eY1 - 0.90, -4.57], 6, false);
       addBox(bIntWall, 12.60, eY0 + 6.8, -5.45, 21.45, eY1 - 0.90, -5.03, 6, false); // Closet header
       setPart('INT-LOWER-CLOSET-DOOR-W', 'Lower North Bedroom — Closet Door (West)');
       beginDoorObject('INT-LOWER-CLOSET-DOOR-W', 13.10, -5.24, 80, 0);
@@ -1840,15 +1869,15 @@
       for (let r = 0; r < 3; r++) {
         const ry = eY0 + 3.6 + r * 1.3;
         for (let c = 0; c < 5; c++) {
-          const rx = 17.2 + c * 0.72 + (r % 2) * 0.20;
+          const rx = 18.75 + c * 0.72 + (r % 2) * 0.20;
           const rb = (c + r) % 3 === 0 ? bBlack : (c + r) % 3 === 1 ? bRoof : bWoodBeam;
           addBox(rb, rx - 0.16, ry, 6.85, rx + 0.16, ry + 0.52, 6.92, 2, true); // Racket head
           addBox(bBlack, rx - 0.04, ry - 0.36, 6.86, rx + 0.04, ry, 6.92, 2, false); // Grip
         }
       }
       setPart('LSOUTH-SOFA', 'Lower South Room (TV Room) — Dark Sofa');
-      addBox(bMetal, 17.0, eY0, 4.6, 20.6, eY0 + 1.45, 6.82, 4, true);
-      addBox(bMetal, 17.0, eY0 + 1.45, 6.22, 20.6, eY0 + 2.65, 6.82, 4, true);
+      addBox(bMetal, 18.6, eY0, 4.6, 22.2, eY0 + 1.45, 6.82, 4, true);
+      addBox(bMetal, 18.6, eY0 + 1.45, 6.22, 22.2, eY0 + 2.65, 6.82, 4, true);
 
       // Bunk bed on the North wall of the Lower North Bedroom
       setPart('INT-LOWER-BED-N', 'Lower North Bedroom — Bunk Bed');
@@ -4673,7 +4702,8 @@
             [[12.80, -5.24], [12.80, -2.81], [19.57, -2.81], [22.0, -5.03]],
             [[4.0, 2.76], [9.60, 2.76], [9.60, -0.20]],
             [[9.60, 2.76], [9.60, 7.47], [4.0, 7.47]],
-            [[13.83, -0.35], [16.00, 2.00], [16.00, 7.47]],
+            [[13.83, -0.35], [16.00, 2.00], [16.00, 2.74]],
+            [[16.00, 6.58], [16.00, 7.47]],
             [[13.83, 2.00], [13.83, 7.47]],
             [[13.83, 2.00], [16.00, 2.00]]
           );
@@ -4752,7 +4782,7 @@
             [[13.83, 2.00], [16.00, 2.00]],
             [[27.75, 0.64], [27.75, 7.47]]
           ],
-          caption: '1977 Lower Floor: 4\'-10" Bath, 8\' Laundry, 4\' Storage, 2\'-4" Mech, 10\'-2" bay corner, and 6\'-10" East wall align; 1977 has 2\'-6" closet at x=27.75.'
+          caption: '1977 Lower Floor: 4\'-10" Bath, 8\' Laundry, 4\' Storage, 2\'-4" Closet opens East to TV Room (solid hallway wall), and bay corners align.'
         },
         {
           id: 'p77_site',
