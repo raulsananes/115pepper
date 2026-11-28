@@ -2827,6 +2827,9 @@
         addBox(bWoodBeam, cpX0 + 0.2, cpTop - 0.45, cpZ1 - 0.58, cpX1 - 0.2, cpTop, cpZ1 - 0.22, 4, true);
         addGableX(cpX0, cpX1, cpZ0, cpZ1, cpTop, cpPeak, bShingleExt, 0.7, 'LOT-CARPORT-ROOF', 'Carport — Gable Roof', true, false, bWoodBeam, bWoodBeam, true);
 
+        setPart('CARPORT-WALL-NORTH-E', 'Carport — North-East Wooden Wall (Between North Poles)');
+        addBox(bDeck, (cpX0 + cpX1) * 0.5 + 0.18, cpY, cpZ0 + 0.28, cpX1 - 0.58, cpTop - 0.45, cpZ0 + 0.52, 4.5, true);
+
         // Carport South & West Enclosure: 5-ft wood lower wall + glass to roof
         // South wall set 2.5 ft North (z=0.50) leaving ~3-ft open walkway next to Guest House (x=59.5..63.0)
         // West wall at x=44.0 running from South corner (z=0.50) North to z=-12.50 (3.5 ft short of cpZ0=-16.0)
