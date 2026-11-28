@@ -162,6 +162,7 @@
             <div class="w95-item" data-action="design" data-value="remodelC"><span class="w95-chk w-3 inline-block"></span> Entrance C</div>
             <div class="w95-item" data-action="design" data-value="remodelD"><span class="w95-chk w-3 inline-block"></span> Entrance D</div>
             <div class="w95-sep"></div>
+            <div class="w95-item" data-action="open-plan" data-value="rem_overview">Remodel Plans &amp; 3D Matrix...</div>
             <div class="w95-item" data-action="permit-table">Permit Options Table...</div>
           </div>
         </div>
@@ -210,26 +211,41 @@
           <span>Plans</span><span>▶</span>
           <div class="w95-menu w95-sub">
             <div class="w95-item w95-parent">
-              <span>Floor &amp; Section Plans</span><span>▶</span>
+              <span>Updated Model Plans</span><span>▶</span>
               <div class="w95-menu w95-sub">
-                <div class="w95-item" data-action="open-plan" data-value="p77_floors">Upper &amp; Lower Floor Plans</div>
-                <div class="w95-item" data-action="open-plan" data-value="p77_sections">Split-Level Cross Sections</div>
+                <div class="w95-item font-semibold" data-action="open-plan" data-value="upd_floors">A-101 · Updated Floor Plans</div>
+                <div class="w95-item" data-action="open-plan" data-value="upd_3d">A-301 · Updated 3D Massing &amp; Full Lot</div>
+                <div class="w95-item" data-action="open-plan" data-value="upd_elevations">A-201 · Exterior Elevations (N/S/E/W)</div>
+                <div class="w95-item" data-action="open-plan" data-value="upd_sections">A-202 · Split-Level Cross Sections</div>
+                <div class="w95-item" data-action="open-plan" data-value="upd_site">C-101 · Site, Lot Coverage &amp; Guest</div>
+                <div class="w95-item" data-action="open-plan" data-value="upd_solar">R-101 · Roof &amp; 2025 Solar (12 Panels)</div>
               </div>
             </div>
             <div class="w95-item w95-parent">
-              <span>Exterior &amp; 3D Views</span><span>▶</span>
+              <span>Proposed Remodels</span><span>▶</span>
               <div class="w95-menu w95-sub">
-                <div class="w95-item" data-action="open-plan" data-value="p77_elevations">Exterior Elevations</div>
-                <div class="w95-item" data-action="open-plan" data-value="p77_3d">Architect 3D Massing</div>
+                <div class="w95-item font-semibold" data-action="open-plan" data-value="rem_overview">P-100 · All Remodels Overview Matrix</div>
+                <div class="w95-sep"></div>
+                <div class="w95-item" data-action="open-plan" data-value="rem_a">P-101 · Entrance A (Courtyard Enclosure)</div>
+                <div class="w95-item" data-action="open-plan" data-value="rem_b">P-102 · Entrance B (+ Flush South Doors)</div>
+                <div class="w95-item" data-action="open-plan" data-value="rem_c">P-103 · Entrance C (Expanded + Clerestory)</div>
+                <div class="w95-item" data-action="open-plan" data-value="rem_d">P-104 · Entrance D (Kitchen-Flush Entry)</div>
+                <div class="w95-sep"></div>
+                <div class="w95-item" data-action="open-plan" data-value="rem_kitchen">P-105 · Kitchen (Cabinets vs Stove Bar)</div>
               </div>
             </div>
             <div class="w95-item w95-parent">
-              <span>Site, Lot &amp; Roof</span><span>▶</span>
+              <span>Original Scans (1977–2025)</span><span>▶</span>
               <div class="w95-menu w95-sub">
-                <div class="w95-item" data-action="open-plan" data-value="p77_site">Building Footprint &amp; Setbacks</div>
-                <div class="w95-item" data-action="open-plan" data-value="p77_topo">Parcel Boundary &amp; Slope Survey</div>
-                <div class="w95-item" data-action="open-plan" data-value="p80_site">Lot Coverage, Carport &amp; Parking</div>
-                <div class="w95-item" data-action="open-plan" data-value="p25_solar">Solar Roof Pitch &amp; Azimuths</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_floors">Upper &amp; Lower Floor Plans (1977)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_sections">Split-Level Cross Sections (1977)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_elevations">Exterior Elevations (1977)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_3d">Architect 3D Massing (1977)</div>
+                <div class="w95-sep"></div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_site">Building Footprint &amp; Setbacks (1977)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p77_topo">Parcel Boundary &amp; Slope Survey (1977)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p80_site">Lot Coverage, Carport &amp; Parking (1980)</div>
+                <div class="w95-item" data-action="open-plan" data-value="p25_solar">Solar Roof Pitch &amp; Azimuths (2025)</div>
               </div>
             </div>
             <div class="w95-item w95-parent">
@@ -243,7 +259,8 @@
               </div>
             </div>
             <div class="w95-sep"></div>
-            <div class="w95-item" data-action="all-plans">Browse All Plans...</div>
+            <div class="w95-item" data-action="all-plans">Browse All Plans (20)...</div>
+            <div class="w95-item" data-action="open-drive-plans">Google Drive Project Folder ↗</div>
           </div>
         </div>
 
@@ -356,6 +373,8 @@
             <div class="text-[11px] text-[var(--muted-foreground)] truncate" id="plan-viewer-sub">Select a specific plan to inspect</div>
           </div>
           <div class="flex items-center gap-1.5 shrink-0 text-xs">
+            <button id="plan-apply-3d-btn" class="hidden px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-semibold hover:opacity-90 transition">Load in 3D</button>
+            <a id="plan-drive-link" href="https://drive.google.com/drive/folders/1eIvWFFZKqZGPMeMkj6V4CTXslavqP0yD" target="_blank" rel="noopener" class="px-2.5 py-1 rounded-lg bg-sky-600/20 text-sky-400 border border-sky-500/30 font-medium hover:bg-sky-600/30 transition">Drive Folder ↗</a>
             <button id="plan-back-btn" class="hidden px-2.5 py-1 rounded-lg bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium hover:opacity-85 transition">← All Plans</button>
             <div id="plan-zoom-controls" class="hidden items-center gap-1">
               <button id="plan-zoom-out" class="w-7 h-7 rounded-lg bg-[var(--secondary)] text-[var(--secondary-foreground)] font-bold hover:opacity-85">−</button>
@@ -2091,7 +2110,7 @@
 
         setPart('REMODEL-HALFBATH-WALLS', 'Remodel — New Half Bath (5" Framed Walls)');
         const hbShift    = isRemodelD ? -9.4 : isRemodelC ? -7.4 : isRemodelB ? -3.0 : 0;
-        const hbNorthZ   = isRemodelD ? -14.5 : isRemodelC ? -12.5 : isRemodelB ? -8.00 : -5.65;
+        const hbNorthZ   = isRemodelD ? -13.92 : isRemodelC ? -11.95 : isRemodelB ? -7.30 : -5.05;
         const hbDoor0    = -2.80 + hbShift, hbDoor1  = -0.30 + hbShift;
         const hbSouth0   =  0.91 + hbShift, hbSouth1 =  1.33 + hbShift;
         const hbTop      = isRemodelD ? 16.0 : isRemodelC ? 16.2 : 16.6;
@@ -2488,10 +2507,13 @@
             addQuad(bSoffit,  [-2.7, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxWallB, yWallB - fThick, zWallB], [-2.7, yWallB - fThick, zWallB], 6.0, false);
             addQuad(bCeiling, [-6.2, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lxEastEave, 20.7 - fThick, -5.8], [-6.2, 20.7 - fThick, -5.8], 6.0, false);
           } else {
+            const kBot = (z) => 14.80 + 0.6195 * (z + 15.53);
             addQuad(bRoof, [-1.9, yEaveB, zEaveB], [-1.9, yKitSE, zKitSE], [lx105, yKitSE, zKitSE], [lxEaveB, yEaveB, zEaveB], 6.0, true);
             addQuad(bSoffit,  [-1.9, yEaveB - fThick, zEaveB], [lxEaveB, yEaveB - fThick, zEaveB], [lxWallB, yWallB - fThick, zWallB], [-1.9, yWallB - fThick, zWallB], 6.0, false);
             addQuad(bCeiling, [-1.9, yWallB - fThick, zWallB], [lxWallB, yWallB - fThick, zWallB], [lx105, yKitSE - fThick, zKitSE], [-1.9, yKitSE - fThick, zKitSE], 6.0, false);
             addQuad(bCeiling, [-6.2, yKitSE - fThick, zKitSE], [lx105, yKitSE - fThick, zKitSE], [lxEastEave, 20.7 - fThick, -5.8], [-6.2, 20.7 - fThick, -5.8], 6.0, false);
+            addQuad(bIntWall, [-6.2, yKitSE - fThick, zKitSE], [-1.9, yKitSE - fThick, zKitSE], [-1.9, kBot(zKitSE), zKitSE], [-6.2, kBot(zKitSE), zKitSE], 7.0, false);
+            addQuad(bIntWall, [-1.9, yKitSE - fThick, zKitSE], [-1.9, yWallB - fThick, zWallB], [-1.9, kBot(zWallB), zWallB], [-1.9, kBot(zKitSE), zKitSE], 7.0, false);
             if (isRemodelC) {
               const yK17 = yLivSlope(-16.22);
               addQuad(bTrim, [-1.9, yK17 - fThick, -16.22], [-1.9, yK17, -16.22], [-1.9, yEaveB, zEaveB], [-1.9, yEaveB - fThick, zEaveB], 4.0, true);
@@ -4439,11 +4461,13 @@
               if (chk) chk.textContent = el.dataset.value === val ? '✓' : '';
             });
           } else if (action === 'open-plan') {
-            const p = REF_PLANS.find((pl) => pl.id === val);
+            const p = ALL_PLANS.find((pl) => pl.id === val);
             if (p) {
               showSinglePlan(p);
               plansModal.classList.remove('hidden');
             }
+          } else if (action === 'open-drive-plans') {
+            window.open(DRIVE_PLANS_URL, '_blank', 'noopener');
           } else if (action === 'compare-plan') {
             showComparePlan(val);
             plansModal.classList.remove('hidden');
@@ -4540,15 +4564,127 @@
       const planCompareCaption = document.getElementById('plan-compare-caption');
       const compareShowScan = document.getElementById('compare-show-scan');
 
+      const DRIVE_PLANS_URL = 'https://drive.google.com/drive/folders/1eIvWFFZKqZGPMeMkj6V4CTXslavqP0yD';
+      const planApply3dBtn = document.getElementById('plan-apply-3d-btn');
+      let currentActivePlan = null;
+
+      const UPDATED_PLANS = [
+        {
+          id: 'upd_floors',
+          title: 'A-101 · Updated Floor Plans (Upper, Lower & Guest)',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Complete updated CAD floor plans incorporating Kitchen 1\' bump-out, Foyer step, Master outward closet, TV Room closet opening East, Enclosed Carport (5\' wood + glass) & 17\'x25\' Guest Cottage.',
+          src: './plans/updated_floors.jpg',
+          applyDesign: 'original'
+        },
+        {
+          id: 'upd_3d',
+          title: 'A-301 · Updated 3D Massing & Full Lot Isometric',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Updated NE architectural ink & textured 3D massing plates replacing 1977 Sheet 1, including Full Lot Carport enclosure, 17\'x25\' Guest Cottage L-roof & 12-panel solar.',
+          src: './plans/updated_3d_plans.jpg',
+          applyDesign: 'original',
+          applyPreset: 'lot'
+        },
+        {
+          id: 'upd_elevations',
+          title: 'A-201 · Updated Exterior Elevations (North, South, East, West)',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Updated North, South, East Street (Main + Carport/Guest) & West exterior architectural elevations rendered directly from the live 3D model.',
+          src: './plans/updated_elevations.jpg',
+          applyDesign: 'original'
+        },
+        {
+          id: 'upd_sections',
+          title: 'A-202 · Updated Split-Level Cross Sections (A & B)',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Full East-West & North-South split-level cross sections showing +3.6\' Lower, +8.45\'/+9.0\' Entry/Living, +12.6\' Master, Kitchen 1\' box & Carport/Guest height profiles.',
+          src: './plans/updated_sections.jpg',
+          applyDesign: 'original'
+        },
+        {
+          id: 'upd_site',
+          title: 'C-101 · Updated Site Plan, Lot Coverage & Guest/Carport',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Updated 9,200 SF parcel plan showing surveyed setbacks, Main Residence (1,452 SF), Guest Cottage (425 SF), Enclosed Carport (361 SF), 800 SF Parking Pad & Brick Walks.',
+          src: './plans/updated_site_lot.jpg',
+          applyDesign: 'original',
+          applyPreset: 'lot'
+        },
+        {
+          id: 'upd_solar',
+          title: 'R-101 · Updated Roof Plan & 2025 Solar (12 Panels)',
+          source: 'Updated Model Plans (As-Built 2026)',
+          desc: 'Updated Roof & EL2510-0035 Tesla Solar plan showing MP1 (7 panels), MP2 (3 panels), MP3 (2 panels), Kitchen/Bath skylights & interlocking Guest L-roof.',
+          src: './plans/updated_roof_solar.jpg',
+          applyDesign: 'original',
+          applyPreset: 'top'
+        },
+        {
+          id: 'rem_overview',
+          title: 'P-100 · Proposed Remodels Overview Matrix',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: 'Side-by-side floor plans, 3D perspectives & City of Larkspur permit classifications comparing Original vs Entrances A, B, C & D.',
+          src: './plans/remodel_overview.jpg'
+        },
+        {
+          id: 'rem_a',
+          title: 'P-101 · Entrance A: Courtyard Entry Enclosure',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: 'Relocates North Front Door outward to enclose Courtyard (~115 SF Foyer + Half Bath) under existing roofline; preserves South French door alcove.',
+          src: './plans/remodel_A_entry.jpg',
+          applyDesign: 'remodelA',
+          applyPreset: 'door'
+        },
+        {
+          id: 'rem_b',
+          title: 'P-102 · Entrance B: Entry Enclosure + Flush South Doors',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: '5.15° parallel North Entry wall + Half Bath + pushes South Living-Dining French doors flush to z=8.0 under South Hood (+42 SF Living).',
+          src: './plans/remodel_B_flush_south.jpg',
+          applyDesign: 'remodelB',
+          applyPreset: 'door'
+        },
+        {
+          id: 'rem_c',
+          title: 'P-103 · Entrance C: Expanded Entry & Raised Clerestory',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: 'Extends North Entry to 2\' inset from Kitchen North with raised entry roof, privacy clerestory glazing, Half Bath & flush South Living doors.',
+          src: './plans/remodel_C_raised_entry.jpg',
+          applyDesign: 'remodelC',
+          applyPreset: 'door'
+        },
+        {
+          id: 'rem_d',
+          title: 'P-104 · Entrance D: Full Kitchen-Flush Expansion',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: 'Full North expansion aligned flush with Kitchen North wall, continuous entry roofline & clerestory, expanded coat closet, Half Bath & flush South doors.',
+          src: './plans/remodel_D_full_expansion.jpg',
+          applyDesign: 'remodelD',
+          applyPreset: 'door'
+        },
+        {
+          id: 'rem_kitchen',
+          title: 'P-105 · Kitchen Remodel Options (Cabinets vs Stove Bar)',
+          source: 'Proposed Remodels (Entrance A–D & Kitchen)',
+          desc: 'Compares Default Kitchen (+1\' Garden Box), East Pantry Cabinets toggle & Open Stove Island remodel (double-width counter, cabinets both sides & 3 stools).',
+          src: './plans/remodel_kitchen_options.jpg',
+          applyRoom: 'kitchen'
+        }
+      ];
+      const ALL_PLANS = [...UPDATED_PLANS, ...REF_PLANS];
+
       function showPlansList() {
+        currentActivePlan = null;
+        planApply3dBtn.classList.add('hidden');
         plansListView.classList.remove('hidden');
         planSingleView.classList.add('hidden');
         planCompareView.classList.add('hidden');
         planBackBtn.classList.add('hidden');
         planZoomControls.classList.add('hidden');
         planZoomControls.classList.remove('flex');
-        planTitleEl.textContent = `Reference Plans Used (${REF_PLANS.length})`;
-        planSubEl.textContent = 'Click any plan to view it full-size with zoom & pan';
+        planTitleEl.textContent = `Project Plans & Proposed Remodels (${ALL_PLANS.length})`;
+        planSubEl.textContent = 'Updated As-Built Sheets, Proposed Remodel Options (A–D, Kitchen) & 1977–2025 Reference Scans';
       }
       let orderedPlans = [];
       let currentPlanIndex = 0;
@@ -4556,12 +4692,21 @@
         const idx = orderedPlans.findIndex((p) => p.id === plan.id);
         if (idx >= 0) currentPlanIndex = idx;
         const activePlan = idx >= 0 ? orderedPlans[idx] : plan;
+        currentActivePlan = activePlan;
         plansListView.classList.add('hidden');
         planCompareView.classList.add('hidden');
         planSingleView.classList.remove('hidden');
         planBackBtn.classList.remove('hidden');
         planZoomControls.classList.remove('hidden');
         planZoomControls.classList.add('flex');
+        if (activePlan.applyDesign || activePlan.applyRoom) {
+          planApply3dBtn.classList.remove('hidden');
+          planApply3dBtn.textContent = activePlan.applyDesign && activePlan.applyDesign !== 'original'
+            ? `Load ${DESIGN_LABELS[activePlan.applyDesign] || activePlan.applyDesign} in 3D`
+            : 'View in 3D';
+        } else {
+          planApply3dBtn.classList.add('hidden');
+        }
         planTitleEl.textContent = activePlan.title;
         planSubEl.textContent = `${activePlan.source} (${currentPlanIndex + 1}/${orderedPlans.length})`;
         planSingleCaption.textContent = activePlan.desc;
@@ -4569,30 +4714,55 @@
         planSingleImg.src = activePlan.src;
         if (planSingleImg.complete && planSingleImg.naturalWidth) fitPlanImage();
       }
+      planApply3dBtn.addEventListener('click', () => {
+        if (!currentActivePlan) return;
+        const p = currentActivePlan;
+        plansModal.classList.add('hidden');
+        if (p.applyDesign) setDesignMode(p.applyDesign);
+        if (p.applyRoom) {
+          if (state.viewMode !== 'inside') setViewMode('inside');
+          if (ROOMS[p.applyRoom]) animateRoom(ROOMS[p.applyRoom]);
+        } else if (p.applyPreset) {
+          if (state.viewMode !== 'exterior') setViewMode('exterior');
+          if (EXT_PRESETS[p.applyPreset]) animateExt(EXT_PRESETS[p.applyPreset]);
+        }
+      });
 
-      // Organize plans by what they are with meaningful short names (no plan codes)
+      // Organize plans into Updated Model Plans, Proposed Remodels, and Original Archival Scans
       const PLAN_CATEGORIES = [
         {
-          heading: 'Floor & Section Plans',
+          heading: 'Updated Model Plans (As-Built 2026)',
           items: [
-            { id: 'p77_floors', shortName: 'Upper & Lower Floor Plans' },
-            { id: 'p77_sections', shortName: 'Split-Level Cross Sections' }
+            { id: 'upd_floors', shortName: 'A-101 · Updated Floor Plans' },
+            { id: 'upd_3d', shortName: 'A-301 · Updated 3D Massing & Full Lot' },
+            { id: 'upd_elevations', shortName: 'A-201 · Exterior Elevations (N/S/E/W)' },
+            { id: 'upd_sections', shortName: 'A-202 · Split-Level Cross Sections' },
+            { id: 'upd_site', shortName: 'C-101 · Site, Lot Coverage & Guest' },
+            { id: 'upd_solar', shortName: 'R-101 · Roof & 2025 Solar (12 Panels)' }
           ]
         },
         {
-          heading: 'Exterior & 3D Views',
+          heading: 'Proposed Remodels (Entrance A–D & Kitchen)',
           items: [
-            { id: 'p77_elevations', shortName: 'Exterior Elevations' },
-            { id: 'p77_3d', shortName: 'Architect 3D Massing' }
+            { id: 'rem_overview', shortName: 'P-100 · All Remodels Overview Matrix' },
+            { id: 'rem_a', shortName: 'P-101 · Entrance A (Courtyard Enclosure)' },
+            { id: 'rem_b', shortName: 'P-102 · Entrance B (+ Flush South Doors)' },
+            { id: 'rem_c', shortName: 'P-103 · Entrance C (Expanded + Clerestory)' },
+            { id: 'rem_d', shortName: 'P-104 · Entrance D (Kitchen-Flush Entry)' },
+            { id: 'rem_kitchen', shortName: 'P-105 · Kitchen (Cabinets vs Stove Bar)' }
           ]
         },
         {
-          heading: 'Site, Lot & Roof',
+          heading: 'Original Reference Scans (1977–2025)',
           items: [
-            { id: 'p77_site', shortName: 'Building Footprint & Setbacks' },
-            { id: 'p77_topo', shortName: 'Parcel Boundary & Slope Survey' },
-            { id: 'p80_site', shortName: 'Lot Coverage, Carport & Parking' },
-            { id: 'p25_solar', shortName: 'Solar Roof Pitch & Azimuths' }
+            { id: 'p77_floors', shortName: '1977 Upper & Lower Floor Plans' },
+            { id: 'p77_sections', shortName: '1977 Split-Level Cross Sections' },
+            { id: 'p77_elevations', shortName: '1977 Exterior Elevations' },
+            { id: 'p77_3d', shortName: '1977 Architect 3D Massing' },
+            { id: 'p77_site', shortName: '1977 Building Footprint & Setbacks' },
+            { id: 'p77_topo', shortName: '1977 Parcel Boundary & Slope Survey' },
+            { id: 'p80_site', shortName: '1980 Lot Coverage, Carport & Parking' },
+            { id: 'p25_solar', shortName: '2025 Solar Roof Pitch & Azimuths' }
           ]
         }
       ];
@@ -4642,7 +4812,7 @@
         plansListView.appendChild(hdr);
 
         cat.items.forEach((item) => {
-          const plan = REF_PLANS.find((p) => p.id === item.id);
+          const plan = ALL_PLANS.find((p) => p.id === item.id);
           if (!plan) return;
           const entry = { ...plan, title: item.shortName, source: cat.heading };
           orderedPlans.push(entry);
@@ -4947,6 +5117,7 @@
       }
 
       function showComparePlan(compareId) {
+        planApply3dBtn.classList.add('hidden');
         const idx = COMPARE_PLANS.findIndex((c) => c.id === compareId);
         currentCompareIdx = idx >= 0 ? idx : 0;
         const cmp = COMPARE_PLANS[currentCompareIdx];
