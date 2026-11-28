@@ -2393,8 +2393,42 @@
       const rkBot = (z) => rkTop(z) - 0.45;
       setPart('KITCHEN-WALL-NORTH', 'Kitchen Bump-Out — North Wall');
       addWallWithOpenings(bShingleOld, bIntWall, 'Z', -15.53, -16.83, -2.70, 9.0, 14.8, 0.55, [
-        { u0: -11.5, u1: -8.5, v0: 11.2, v1: 14.1, type: 'window', mullionH: 0.72, code: 'KITCHEN-WIN-NORTH', label: 'Kitchen — North Window' }
+        { u0: -11.5, u1: -8.5, v0: 11.8, v1: 14.1, type: 'open' }
       ]);
+      // Garden / Greenhouse Box Window projecting 1'-0" North (z = -16.53..-15.53) with glass top & sides
+      setPart('KITCHEN-WIN-NORTH', 'Kitchen — North Garden Box Window (1\' Out)');
+      {
+        const bx0 = -11.5, bx1 = -8.5, bz0 = -16.53, bz1 = -15.53, by0 = 12.0, by1 = 14.1;
+        const ft = 0.14, mt = 0.09;
+        // Bottom support apron wrapping outside of 1-ft counter projection
+        addBox(bTrim, bx0 - 0.06, 11.58, bz0 - 0.04, bx1 + 0.06, 11.80, bz1, 4, true);
+        addBox(bTrim, bx0 - 0.06, 11.80, bz0 - 0.04, bx1 + 0.06, 12.00, bz0 + 0.08, 4, true);
+        addBox(bTrim, bx0 - 0.06, 11.80, bz0 - 0.04, bx0 + 0.06, 12.00, bz1, 4, true);
+        addBox(bTrim, bx1 - 0.06, 11.80, bz0 - 0.04, bx1 + 0.06, 12.00, bz1, 4, true);
+        // Perimeter box frame at front (z = bz0), back wall jamb (z = bz1), top & side corners
+        addBox(bTrim, bx0, by1 - ft, bz0, bx1, by1, bz0 + ft, 4, true); // Front top bar
+        addBox(bTrim, bx0, by0,      bz0, bx1, by0 + ft, bz0 + ft, 4, true); // Front bottom bar
+        addBox(bTrim, bx0, by0,      bz0, bx0 + ft, by1, bz0 + ft, 4, true); // Front W post
+        addBox(bTrim, bx1 - ft, by0, bz0, bx1, by1, bz0 + ft, 4, true); // Front E post
+        addBox(bTrim, bx0, by1 - ft, bz1 - ft, bx1, by1, bz1 + 0.55, 4, true); // Wall header
+        addBox(bTrim, bx0, by0, bz1 - ft, bx0 + ft, by1, bz1 + 0.55, 4, true); // Wall W jamb
+        addBox(bTrim, bx1 - ft, by0, bz1 - ft, bx1, by1, bz1 + 0.55, 4, true); // Wall E jamb
+        addBox(bTrim, bx0, by1 - ft, bz0, bx0 + ft, by1, bz1, 4, true); // Top W rail
+        addBox(bTrim, bx1 - ft, by1 - ft, bz0, bx1, by1, bz1, 4, true); // Top E rail
+        // Front horizontal mullion matching original (0.72 of height -> y ~ 13.5)
+        const vBar = by0 + (by1 - by0) * 0.72;
+        addBox(bBlack, bx0 + ft, vBar - mt * 0.5, bz0 + 0.02, bx1 - ft, vBar + mt * 0.5, bz0 + 0.12, 4, false);
+        // Glass: Front (z = bz0), Top (y = by1), West side (x = bx0), East side (x = bx1)
+        const gz = bz0 + 0.07, gy = by1 - 0.05, gx0 = bx0 + 0.06, gx1 = bx1 - 0.06;
+        addQuad(bGlass, [bx0 + ft, by0 + ft, gz], [bx1 - ft, by0 + ft, gz], [bx1 - ft, by1 - ft, gz], [bx0 + ft, by1 - ft, gz], 4, false);
+        addQuad(bGlass, [bx1 - ft, by0 + ft, gz], [bx0 + ft, by0 + ft, gz], [bx0 + ft, by1 - ft, gz], [bx1 - ft, by1 - ft, gz], 4, false);
+        addQuad(bGlass, [bx0 + ft, gy, bz0 + ft], [bx1 - ft, gy, bz0 + ft], [bx1 - ft, gy, bz1 - ft], [bx0 + ft, gy, bz1 - ft], 4, false);
+        addQuad(bGlass, [bx1 - ft, gy, bz0 + ft], [bx0 + ft, gy, bz0 + ft], [bx0 + ft, gy, bz1 - ft], [bx1 - ft, gy, bz1 - ft], 4, false);
+        addQuad(bGlass, [gx0, by0 + ft, bz0 + ft], [gx0, by0 + ft, bz1 - ft], [gx0, by1 - ft, bz1 - ft], [gx0, by1 - ft, bz0 + ft], 4, false);
+        addQuad(bGlass, [gx0, by0 + ft, bz1 - ft], [gx0, by0 + ft, bz0 + ft], [gx0, by1 - ft, bz0 + ft], [gx0, by1 - ft, bz1 - ft], 4, false);
+        addQuad(bGlass, [gx1, by0 + ft, bz0 + ft], [gx1, by0 + ft, bz1 - ft], [gx1, by1 - ft, bz1 - ft], [gx1, by1 - ft, bz0 + ft], 4, false);
+        addQuad(bGlass, [gx1, by0 + ft, bz1 - ft], [gx1, by0 + ft, bz0 + ft], [gx1, by1 - ft, bz0 + ft], [gx1, by1 - ft, bz1 - ft], 4, false);
+      }
       setPart('KITCHEN-WALL-WEST', 'Kitchen Bump-Out — West Wall');
       addWallWithOpenings(bShingleOld, bIntWall, 'X', -16.83, -15.53, -13.15, 9.0, 14.8, 0.55, []);
       addTri(bShingleOld, [-16.83, 14.8, -15.53], [-16.83, 14.8, -13.15], [-16.83, rkBot(-13.15), -13.15], 5.5);
@@ -2408,6 +2442,7 @@
         addTri(bIntWall, [-16.83, yKwEave, -13.15], [-16.83, yKwEave, -7.64], [-16.83, yKwTop, -7.64], 7.0);
         addTri(bIntWall, [-16.28, yKwEave, -7.64], [-16.28, yKwEave, -13.15], [-16.28, yKwTop, -7.64], 7.0);
         addBox(bIntWall, -16.83, 9.0, -8.06, -12.35, yKwRet, -7.64, 7.0, false);
+        addBox(bIntWall, -12.35, 9.0, -8.06, -8.45, 12.02, -7.64, 7.0, false); // Counter-height continuation to East side of peninsula counter
       }
 
       setPart('KITCHEN-WALL-EAST', 'Kitchen Bump-Out — East Wall');
@@ -2499,6 +2534,7 @@
       setPart('KITCHEN-COUNTERS', 'Kitchen — Perimeter Base Cabinets & Counters');
       addBox(bCabinet, -16.25, 9.0, -15.0, -5.8, 11.8, -13.0, 4, true);
       addBox(bCounter, -16.30, 11.8, -15.05, -5.75, 12.0, -12.92, 4, false);
+      addBox(bCounter, -11.50, 11.8, -16.53, -8.50, 12.0, -15.05, 4, false); // 1-ft counter bump-out inside garden window box
       addBox(bCabinet, -16.25, 9.0, -13.0, -14.1, 11.8, -8.1, 4, true);
       addBox(bCounter, -16.30, 11.8, -13.0, -14.02, 12.0, -8.05, 4, false);
 
