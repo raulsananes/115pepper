@@ -2604,24 +2604,49 @@
         addBox(bCabinet, -15.10, 13.3,  -9.20, -12.35, 14.7,  -8.10, 4, true);
       }
 
-      setPart('KITCHEN-ISLAND', showStoveRemodel ? 'Stove Remodel — Double-Width Peninsula Bar & Seating' : 'Kitchen — Peninsula / Island Counter');
-      if (showStoveRemodel) {
-        addBox(bCabinet, -16.25, 9.0, -9.60, -10.25, 11.8,  -7.40, 4, true);
-        addBox(bCounter, -16.25, 11.8, -9.72, -10.10, 12.02, -6.16, 4, false); // Doubled width (3.56 ft N-S) with ~15" Dining-side legroom overhang
-        setPart('KITCHEN-STOOLS', 'Stove Remodel — Dining Side Bar Stools (3)');
-        for (const sx of [-15.0, -13.1, -11.2]) {
-          const sz = -6.28;
-          addBox(bSofa,  sx - 0.56, 10.85, sz - 0.52, sx + 0.56, 11.02, sz + 0.52, 3, true); // Seat at 24" height
-          addBox(bSofa,  sx - 0.56, 11.02, sz + 0.40, sx + 0.56, 11.45, sz + 0.52, 3, true); // Low backrest on Dining side
-          addBox(bMetal, sx - 0.48,  9.00, sz - 0.44, sx - 0.38, 10.85, sz - 0.34, 2, false); // NW leg
-          addBox(bMetal, sx + 0.38,  9.00, sz - 0.44, sx + 0.48, 10.85, sz - 0.34, 2, false); // NE leg
-          addBox(bMetal, sx - 0.48,  9.00, sz + 0.34, sx - 0.38, 10.85, sz + 0.44, 2, false); // SW leg
-          addBox(bMetal, sx + 0.38,  9.00, sz + 0.34, sx + 0.48, 10.85, sz + 0.44, 2, false); // SE leg
-          addBox(bMetal, sx - 0.44,  9.55, sz - 0.42, sx + 0.44,  9.63, sz - 0.34, 2, false); // Footrest bar
+      {
+        const isStove = showStoveRemodel;
+        const cX0 = -16.25, cX1 = -10.25, cZm = isStove ? -8.50 : -8.83, cZs = isStove ? -7.40 : -8.06;
+        // 3 equal cabinet bays across x = -16.25..-10.25 (2'-0" each)
+        const bays = [[-16.25, -14.25], [-14.25, -12.25], [-12.25, -10.25]];
+
+        setPart('KITCHEN-ISLAND-CABS-N', 'Kitchen Peninsula — North Side Cabinets (Kitchen Facing)');
+        for (const [bx0, bx1] of bays) {
+          addBox(bCabinet, bx0 + 0.02, 9.0, -9.60, bx1 - 0.02, 11.8, cZm, 4, true);
+          // Drawer seam + pull + door handle matching KITCHEN-COUNTERS
+          addBox(bBlack, bx0 + 0.04, 11.12, -9.61, bx1 - 0.04, 11.15, -9.59, 2, false);
+          const mx = (bx0 + bx1) * 0.5;
+          addBox(bBlack, mx - 0.15, 11.35, -9.68, mx + 0.15, 11.45, -9.58, 2, false);
+          addBox(bBlack, bx1 - 0.30, 10.35, -9.68, bx1 - 0.20, 10.75, -9.58, 2, false);
         }
-      } else {
-        addBox(bCabinet, -16.25, 9.0, -9.60, -10.25, 11.8,  -8.06, 4, true);
-        addBox(bCounter, -16.25, 11.8, -9.72, -10.10, 12.02, -7.94, 4, false);
+
+        setPart('KITCHEN-ISLAND-CABS-S', 'Kitchen Peninsula — South Side Cabinets (Dining Facing)');
+        for (const [bx0, bx1] of bays) {
+          addBox(bCabinet, bx0 + 0.02, 9.0, cZm, bx1 - 0.02, 11.8, cZs, 4, true);
+          if (isStove) {
+            addBox(bBlack, bx0 + 0.04, 11.12, cZs - 0.01, bx1 - 0.04, 11.15, cZs + 0.01, 2, false);
+            const mx = (bx0 + bx1) * 0.5;
+            addBox(bBlack, mx - 0.15, 11.35, cZs - 0.02, mx + 0.15, 11.45, cZs + 0.08, 2, false);
+            addBox(bBlack, bx1 - 0.30, 10.35, cZs - 0.02, bx1 - 0.20, 10.75, cZs + 0.08, 2, false);
+          }
+        }
+
+        setPart('KITCHEN-ISLAND-COUNTER', isStove ? 'Stove Remodel — Double-Width Peninsula Countertop' : 'Kitchen Peninsula — Countertop');
+        addBox(bCounter, -16.25, 11.8, -9.72, -10.10, 12.02, isStove ? -6.16 : -7.94, 4, false);
+
+        if (isStove) {
+          setPart('KITCHEN-STOOLS', 'Stove Remodel — Dining Side Bar Stools (3)');
+          for (const sx of [-15.0, -13.1, -11.2]) {
+            const sz = -6.28;
+            addBox(bSofa,  sx - 0.56, 10.85, sz - 0.52, sx + 0.56, 11.02, sz + 0.52, 3, true); // Seat at 24" height
+            addBox(bSofa,  sx - 0.56, 11.02, sz + 0.40, sx + 0.56, 11.45, sz + 0.52, 3, true); // Low backrest on Dining side
+            addBox(bMetal, sx - 0.48,  9.00, sz - 0.44, sx - 0.38, 10.85, sz - 0.34, 2, false); // NW leg
+            addBox(bMetal, sx + 0.38,  9.00, sz - 0.44, sx + 0.48, 10.85, sz - 0.34, 2, false); // NE leg
+            addBox(bMetal, sx - 0.48,  9.00, sz + 0.34, sx - 0.38, 10.85, sz + 0.44, 2, false); // SW leg
+            addBox(bMetal, sx + 0.38,  9.00, sz + 0.34, sx + 0.48, 10.85, sz + 0.44, 2, false); // SE leg
+            addBox(bMetal, sx - 0.44,  9.55, sz - 0.42, sx + 0.44,  9.63, sz - 0.34, 2, false); // Footrest bar
+          }
+        }
       }
 
       // Slate Fireplace & Chimney centered in the South-West bay (-37.17..-21.62)
